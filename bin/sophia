@@ -40,7 +40,9 @@ my %SOPHIA = (
     server      => '',
     port        => '',
     usessl      => '',
-    channels    => [],
+    channels    => {},
+    owners      => {},
+    admins      => {},
 );
 
 # and to read the config ...
@@ -69,7 +71,9 @@ LINE: while (<CONF>) {
             }
             $SOPHIA{port} = $val;
         }
-        case 'channel'  { push @{$SOPHIA{channels}}, $val; }
+        case 'channel'  { $SOPHIA{channels}{$val} = 1; }
+        case 'owner'    { $SOPHIA{owners}{$val} = 1; }
+        case 'admin'    { $SOPHIA{admins}{$val} = 1; }
     }
 }
 close CONF or die "Error closing config file: $!\n";
