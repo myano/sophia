@@ -105,12 +105,12 @@ POE::Session->create(
         irc_public  => \&irc_public,
         irc_msg     => \&irc_msg,
     },
-    heap => { irc => $sophia },
+    heap => { irc => \$sophia },
 );
 
 sub _start {
     my $heap = $_[HEAP];
-    my $sophia = $heap->{irc};
+    my $sophia = ${$heap->{irc}};
 
     unless ( $sophia ) {
         die "Unable to get a sophia instance from heap (start): $!\n";
