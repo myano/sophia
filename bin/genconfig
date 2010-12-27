@@ -13,11 +13,16 @@ unless ( -e "$Bin/../sofia.conf" or -e "$Bin/../sofia.conf.example" ) {
     print CONFIG "password = \"\"             # used with NickServ. Leave blank if it doesn't apply.\n\n\n";
     print CONFIG "server = \"chat.freenode.net\"\n";
     print CONFIG "port = \"6667\"\n\n\n";
+    print CONFIG "# owners own the bot and have all rights\n";
+    print CONFIG "owner = \"Kays\"\n";
+    print CONFIG "owner = \"myano\"\n";
+    print CONFIG "# admins have various rights and rights can be granted by owners\n";
+    print CONFIG "admin = \"o{^_^}o\"\n\n\n";
     print CONFIG "# join the following channels\n";
-    print CONFIG "channel = \"#yano\"\n";
+    print CONFIG "channel = \"##sophia-dev\"\n";
     print CONFIG "channel = \"##Kays\"";
     close CONFIG;
 }
 
-printf "Successfully generated example config.\n"
+printf "Successfully generated example config.\n";
 exit;
