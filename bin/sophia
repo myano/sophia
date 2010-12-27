@@ -5,43 +5,44 @@ require 5.10.0;
 use strict;
 use warnings;
 use Carp qw(carp croak);
+use Data::Dumper;
 use FindBin qw($Bin);
 use lib "$Bin/../src";
+use POE qw(Component::IRC);
 use Switch 'fallthrough';
 
 our $VERSION = 'sophia-1.0-dev';
-our $CONFIG = 'sophia.conf';
+my $CONFIG = 'sophia.conf';
 
 # don't run sophia as root idiot!
 if ( $> == 0 ) {
-    printf "Do not run sophia as root!\n" ;
-    exit;
+    die "Do not run sophia as root!\n" ;
 }
 
 # due to lack of expertise, sophia currently does not support Windows
 if ( $^O =~ /win/i ) {
-    printf "Currently, sophia is not supporting Windows.\n";
-    exit;
+    die "Currently, sophia is not supporting Windows.\n";
 }
 
 # load configuration values
 # ... and if it doesn't exist?
 unless ( -e "$Bin/../$CONFIG" ) {
-    printf "Missing config file.\n";
-    exit;
+    die "Missing config file.\n";
 }
 
 my %SOPHIA = (
-    nick        => 'sophia',
-    username    => 'sophia',
-    password    => '',
-    ircname     => 'sophia',
-    server      => 'chat.freenode.net',
-    port        => 6667,
-    usessl      => 0,
-    channels    => {},
-    owners      => {},
     admins      => {},
+    channels    => {},
+    ircname     => 'sophia',
+    nick        => 'sophia',
+    owners      => {},
+    password    => '',
+    port        => 6667,
+    server      => 'chat.freenode.net',
+    trigger     => '!',
+    usermode    => '+i',
+    username    => 'sophia',
+    usessl      => 0,
 );
 
 # and to read the config ...
@@ -58,11 +59,11 @@ LINE: while (<CONF>) {
     $val = substr $val, 0, index($val, '"');
 
     switch ($pred) {
+        case 'admin'    { $SOPHIA{admins}{$val} = 1; }
+        case 'channel'  { $SOPHIA{channels}{$val} = 1; }
         case 'nick'     { $SOPHIA{nick} = $val; }
-        case 'username' { $SOPHIA{username} = $val; }
-        case 'realname' { $SOPHIA{ircname} = $val; }
+        case 'owner'    { $SOPHIA{owners}{$val} = 1; }
         case 'password' { $SOPHIA{password} = $val; }
-        case 'server'   { $SOPHIA{server} = $val; }
         case 'port'     {
             if ( $val =~ /^\+/ ) {
                 $SOPHIA{usessl} = 1;
@@ -70,9 +71,98 @@ LINE: while (<CONF>) {
             }
             $SOPHIA{port} = $val;
         }
-        case 'channel'  { $SOPHIA{channels}{$val} = 1; }
-        case 'owner'    { $SOPHIA{owners}{$val} = 1; }
-        case 'admin'    { $SOPHIA{admins}{$val} = 1; }
+        case 'realname' { $SOPHIA{ircname} = $val; }
+        case 'server'   { $SOPHIA{server} = $val; }
+        case 'trigger'  { $SOPHIA{trigger} = $val; }
+        case 'usermode' { $SOPHIA{usermode} = $val; }
+        case 'username' { $SOPHIA{username} = $val; }
     }
 }
 close CONF or die "Error closing config file: $!\n";
+
+our (%COMMANDS, %MODULES);
+#require ModuleHandler;
+
+my $sophia = POE::Component::IRC->spawn(
+    Nick        => $SOPHIA{nick},
+    Username    => $SOPHIA{username},
+    Password    => $SOPHIA{password},
+    Ircname     => $SOPHIA{realname},
+    Server      => $SOPHIA{server},
+    Port        => $SOPHIA{port},
+    UseSSL      => $SOPHIA{usessl},
+) or die "Unable to spawn POE::Component::IRC: $!\n";
+
+#open STDIN, '/dev/null' or die "sophia cannot read /dev/null: $!\n";
+#open STDOUT, '>> /dev/null' or die "sophia cannot write to /dev/null: $!\n";
+#open STDERR, '>> /dev/null' or die "sophia cannot write to /dev/null: $!\n";
+
+POE::Session->create(
+    inline_states => {
+        _default    => \&_default,
+        _start      => \&_start,
+        irc_001     => \&irc_001,
+        irc_public  => \&irc_public,
+        irc_msg     => \&irc_msg,
+    },
+    heap => { irc => $sophia },
+);
+
+sub _start {
+    my $heap = $_[HEAP];
+    my $sophia = $heap->{irc};
+
+    unless ( $sophia ) {
+        die "Unable to get a sophia instance from heap (start): $!\n";
+    }
+
+    $sophia->yield( register =>  'all' );
+    $sophia->yield( connect => { } );
+    return;
+}
+
+sub irc_001 {
+    my $sender = $_[SENDER];
+    my $sophia = $sender->get_heap();
+    
+    unless ( $sophia ) {
+        die "Unable to get a sophia instance from heap (001): $!\n";
+    }
+
+    # identify to NickServ (if need be)
+    if ( $sophia->{password} ) {
+        $sophia->yield( privmsg => 'NickServ' => sprintf('identify %s %s', $sophia->{nick}, $sophia->{password}) );
+    }
+
+    # user modes
+    if ( $sophia->{usermodes} ) {
+        $sophia->yield( mode => sprintf('%s +%s', $sophia->{nick}, $SOPHIA{usermodes}) );
+    }
+    $sophia->yield( join => $_ ) for keys %{$SOPHIA{channels}};
+
+    return;
+}
+
+sub irc_public {
+}
+
+sub irc_msg {
+}
+
+sub _default {
+	my ($event, $args) = @_[ARG0 .. $#_];
+	my @output = ( "$event: " );
+
+	for my $arg (@$args) {
+		if ( ref $arg eq 'ARRAY' ) {
+			push( @output, '[' . join(', ', @$arg ) . ']' );
+		}
+		else {
+			push ( @output, "'$arg'" );
+		}
+	}
+	print join ' ', @output, "\n";
+	return 0;
+}
+
+POE::Kernel->run();
