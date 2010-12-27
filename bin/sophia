@@ -7,7 +7,6 @@ use warnings;
 use Carp qw(carp croak);
 use FindBin qw($Bin);
 use lib "$Bin/../src";
-use Data::Dumper;
 use Switch 'fallthrough';
 
 our $VERSION = 'sophia-1.0-dev';
@@ -33,13 +32,13 @@ unless ( -e "$Bin/../$CONFIG" ) {
 }
 
 my %SOPHIA = (
-    nick        => '',
-    username    => '',
+    nick        => 'sophia',
+    username    => 'sophia',
     password    => '',
-    ircname     => '',
-    server      => '',
-    port        => '',
-    usessl      => '',
+    ircname     => 'sophia',
+    server      => 'chat.freenode.net',
+    port        => 6667,
+    usessl      => 0,
     channels    => {},
     owners      => {},
     admins      => {},
