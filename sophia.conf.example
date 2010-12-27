@@ -4,6 +4,7 @@ nick = "sophia"
 username = "sophia"
 realname = "Sophia"
 password = ""             # used with NickServ. Leave blank if it doesn't apply.
+usermode = "+i"
 
 
 server = "chat.freenode.net"
@@ -15,6 +16,8 @@ owner = "Kays"
 owner = "myano"
 # admins have various rights and rights can be granted by owners
 admin = "o{^_^}o"
+# this is the trigger for commands
+trigger = "!"
 
 
 # join the following channels
