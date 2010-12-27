@@ -87,7 +87,7 @@ my $sophia = POE::Component::IRC->spawn(
     Nick        => $SOPHIA{nick},
     Username    => $SOPHIA{username},
     Password    => $SOPHIA{password},
-    Ircname     => $SOPHIA{realname},
+    Ircname     => $SOPHIA{ircname},
     Server      => $SOPHIA{server},
     Port        => $SOPHIA{port},
     UseSSL      => $SOPHIA{usessl},
@@ -139,6 +139,8 @@ sub irc_001 {
         $sophia->yield( mode => sprintf('%s +%s', $sophia->{nick}, $SOPHIA{usermodes}) );
     }
     $sophia->yield( join => $_ ) for keys %{$SOPHIA{channels}};
+
+    print Dumper($sophia);
 
     return;
 }
