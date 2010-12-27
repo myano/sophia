@@ -1,0 +1,75 @@
+#!/usr/bin/env perl
+
+package sophia;
+require 5.10.0;
+use strict;
+use warnings;
+use Carp qw(carp croak);
+use FindBin qw($Bin);
+use lib "$Bin/../src";
+use Data::Dumper;
+use Switch 'fallthrough';
+
+our $VERSION = 'sophia-1.0-dev';
+our $CONFIG = 'sophia.conf';
+
+# don't run sophia as root idiot!
+if ( $> == 0 ) {
+    printf "Do not run sophia as root!\n" ;
+    exit;
+}
+
+# due to lack of expertise, sophia currently does not support Windows
+if ( $^O =~ /win/i ) {
+    printf "Currently, sophia is not supporting Windows.\n";
+    exit;
+}
+
+# load configuration values
+# ... and if it doesn't exist?
+unless ( -e "$Bin/../$CONFIG" ) {
+    printf "Missing config file.\n";
+    exit;
+}
+
+my %SOPHIA = (
+    nick        => '',
+    username    => '',
+    password    => '',
+    ircname     => '',
+    server      => '',
+    port        => '',
+    usessl      => '',
+    channels    => [],
+);
+
+# and to read the config ...
+my ($pred, $val);
+
+open CONF, "$Bin/../$CONFIG" or die "Error opening config file: $!\n";
+LINE: while (<CONF>) {
+    chomp;
+    s/^\s+//;
+    next LINE if /^#/ or /^\s*$/ or !/\=/;  # ignoring comments and lame lines
+
+    ($pred, $val) = split /\s*=\s*/;
+    $val = substr $val, index($val, '"')+1;
+    $val = substr $val, 0, index($val, '"');
+
+    switch ($pred) {
+        case 'nick'     { $SOPHIA{nick} = $val; }
+        case 'username' { $SOPHIA{username} = $val; }
+        case 'realname' { $SOPHIA{ircname} = $val; }
+        case 'password' { $SOPHIA{password} = $val; }
+        case 'server'   { $SOPHIA{server} = $val; }
+        case 'port'     {
+            if ( $val =~ /^\+/ ) {
+                $SOPHIA{usessl} = 1;
+                $val =~ s/^\+//;
+            }
+            $SOPHIA{port} = $val;
+        }
+        case 'channel'  { push @{$SOPHIA{channels}}, $val; }
+    }
+}
+close CONF or die "Error closing config file: $!\n";

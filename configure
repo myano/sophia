@@ -1,0 +1,11 @@
+#!/usr/bin/env perl
+
+# This configure file checks to see if required packages are installed on the system
+
+print "Checking for POE ..... ";
+eval {
+    require POE;
+    print "OK.\n";
+    1;
+} or print "not found (install POE).\n";
+

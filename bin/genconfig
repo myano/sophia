@@ -1,0 +1,23 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+use FindBin qw($Bin);
+
+unless ( -e "$Bin/../sofia.conf" or -e "$Bin/../sofia.conf.example" ) {
+    open  CONFIG, "> $Bin/../sofia.conf.example";
+    print CONFIG "# indicates a comment line\n\n";
+    print CONFIG "nick = \"sophia\"\n";
+    print CONFIG "username = \"sophia\"\n";
+    print CONFIG "realname = \"Sophia\"\n";
+    print CONFIG "password = \"\"             # used with NickServ. Leave blank if it doesn't apply.\n\n\n";
+    print CONFIG "server = \"chat.freenode.net\"\n";
+    print CONFIG "port = \"6667\"\n\n\n";
+    print CONFIG "# join the following channels\n";
+    print CONFIG "channel = \"#yano\"\n";
+    print CONFIG "channel = \"##Kays\"";
+    close CONFIG;
+}
+
+printf "Successfully generated example config.\n"
+exit;

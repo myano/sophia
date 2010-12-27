@@ -1,0 +1,14 @@
+This is an IRC bot to connect to IRC networks.
+
+Many things are still up in the air. However, the main point is not to use Python's asynchat/asyncore library. We have moved to writing this in Perl.
+
+
+
+INSTALL / SETUP
+
+Run "./configure" to make sure you have the required packages installed.
+
+RUN
+
+Run "./ircbot.pl" to start sophia!
+
