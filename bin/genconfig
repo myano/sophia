@@ -4,8 +4,8 @@ use strict;
 use warnings;
 use FindBin qw($Bin);
 
-unless ( -e "$Bin/../sofia.conf" or -e "$Bin/../sofia.conf.example" ) {
-    open  CONFIG, "> $Bin/../sofia.conf.example";
+unless ( -e "$Bin/../sophia.conf" or -e "$Bin/../sophia.conf.example" ) {
+    open  CONFIG, "> $Bin/../sophia.conf.example";
     print CONFIG "# indicates a comment line\n\n";
     print CONFIG "nick = \"sophia\"\n";
     print CONFIG "username = \"sophia\"\n";
