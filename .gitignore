@@ -1,3 +1,4 @@
 .*.sw*
 sophia.conf
 *.log
+*.pid
