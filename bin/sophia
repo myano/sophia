@@ -16,29 +16,27 @@ use Carp qw(carp croak);
 use FindBin qw($Bin);
 use lib "$Bin/../src";
 use POE qw(Component::IRC);
-use Switch 'fallthrough';
-use POSIX qw(setsid strftime);
+use POSIX qw(setsid);
+use Sub::Delete;
+use Switch qw(fallthrough);
 
 our $VERSION = 'sophia-1.0-dev';
 my $CONFIG = 'sophia.conf';
 
+require Main;
+
 # don't run sophia as root idiot!
-if ( $> == 0 ) {
-    die "Do not run sophia as root!\n" ;
-}
+trigger_error('sophia', 'Do not run sophia as root!') if  $> == 0;
 
 # due to lack of expertise, sophia currently does not support Windows
-if ( $^O =~ /win/i ) {
-    die "Currently, sophia is not supporting Windows.\n";
-}
+trigger_error('sophia', 'Currently, sophia is not supporting Windows.') if  $^O =~ /win/i;
 
 # load configuration values
 # ... and if it doesn't exist?
-unless ( -e "$Bin/../etc/$CONFIG" ) {
-    die "Missing config file.\n";
-}
+trigger_error('sophia', 'Missing config file.') unless -e "$Bin/../etc/$CONFIG";
 
-require Main;
+our (%COMMANDS, %MODULES);
+require ModuleHandler;
 
 my %SOPHIA = (
     admins      => {},
@@ -90,10 +88,6 @@ LINE: while (<CONF>) {
 }
 close CONF;
 
-our (%COMMANDS, %MODULES);
-#require ModuleHandler;
-
-
 my $pid = fork();
 unless ($pid == 0) {
     print "sophia forked into the background with pid: $pid\n";
@@ -136,9 +130,8 @@ sub _start {
     my $heap = $_[HEAP];
     my $sophia = ${$heap->{irc}};
 
-    unless ( $sophia ) {
-        trigger_error('sophia', "Unable to get the sophia instance from heap (start): $!\n");
-    }
+    trigger_error('sophia', "Unable to get the sophia instance from heap (start): $!\n")
+        unless $sophia;
 
     $sophia->yield( register =>  'all' );
     $sophia->yield( connect => { } );
@@ -149,24 +142,25 @@ sub irc_001 {
     my $sender = $_[SENDER];
     my $sophia = $sender->get_heap();
     
-    unless ( $sophia ) {
-        trigger_error('sophia', "Unable to get a sophia instance from heap (001): $!\n");
-    }
+    trigger_error('sophia', "Unable to get a sophia instance from heap (001): $!\n")
+        unless $sophia;
 
     # identify to NickServ (if need be)
-    if ( $sophia->{password} ) {
-        $sophia->yield( privmsg => 'NickServ' => sprintf('identify %s %s', $sophia->{nick}, $sophia->{password}) );
-    }
+    $sophia->yield( privmsg => 'NickServ' => sprintf('identify %s %s', $sophia->{nick}, $sophia->{password}) )
+        if $sophia->{password};
 
     # user modes
-    if ( $sophia->{usermodes} ) {
-        $sophia->yield( mode => sprintf('%s %s', $sophia->{nick}, $SOPHIA{usermodes}) );
-    }
+    $sophia->yield( mode => sprintf('%s %s', $sophia->{nick}, $SOPHIA{usermodes}) )
+        if $sophia->{usermodes};
+
     $sophia->yield( join => $_ ) for keys %{$SOPHIA{channels}};
-    return;
 }
 
 sub irc_public {
+    my ($sender, $who, $where, $content) = @_[SENDER, ARG0 .. ARG2];
+    return unless $content =~ /^$SOPHIA{trigger}/;
+    
+    my $recipient = $where->[0];
 }
 
 sub irc_msg {
