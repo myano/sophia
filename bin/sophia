@@ -17,8 +17,8 @@ use FindBin qw($Bin);
 use lib "$Bin/../src";
 use POE qw(Component::IRC);
 use POSIX qw(setsid);
-use Sub::Delete;
-use Switch qw(fallthrough);
+#use Sub::Delete;
+use feature 'switch';
 
 our $VERSION = 'sophia-1.0-dev';
 my $CONFIG = 'sophia.conf';
@@ -66,24 +66,24 @@ LINE: while (<CONF>) {
     $val = substr $val, index($val, '"')+1;
     $val = substr $val, 0, index($val, '"');
 
-    switch ($pred) {
-        case 'admin'    { $SOPHIA{admins}{$val} = 1; }
-        case 'channel'  { $SOPHIA{channels}{$val} = 1; }
-        case 'nick'     { $SOPHIA{nick} = $val; }
-        case 'owner'    { $SOPHIA{owners}{$val} = 1; }
-        case 'password' { $SOPHIA{password} = $val; }
-        case 'port'     {
+    given ($pred) {
+        when ("admin")    { $SOPHIA{admins}{$val} = 1; }
+        when ("channel")  { $SOPHIA{channels}{$val} = 1; }
+        when ("nick")     { $SOPHIA{nick} = $val; }
+        when ("owner")    { $SOPHIA{owners}{$val} = 1; }
+        when ("password") { $SOPHIA{password} = $val; }
+        when ("port")     {
             if ( $val =~ /^\+/ ) {
                 $SOPHIA{usessl} = 1;
                 $val =~ s/^\+//;
             }
             $SOPHIA{port} = $val;
         }
-        case 'realname' { $SOPHIA{ircname} = $val; }
-        case 'server'   { $SOPHIA{server} = $val; }
-        case 'trigger'  { $SOPHIA{trigger} = $val; }
-        case 'usermode' { $SOPHIA{usermode} = $val; }
-        case 'username' { $SOPHIA{username} = $val; }
+        when ("realname") { $SOPHIA{ircname} = $val; }
+        when ("server")   { $SOPHIA{server} = $val; }
+        when ("trigger")  { $SOPHIA{trigger} = $val; }
+        when ("usermode") { $SOPHIA{usermode} = $val; }
+        when ("username") { $SOPHIA{username} = $val; }
     }
 }
 close CONF;

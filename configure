@@ -5,7 +5,28 @@
 print "Checking for POE ..... ";
 eval {
     require POE;
-    print "OK.\n";
+    print "OK!\n";
     1;
 } or print "not found (install POE).\n";
+
+print "Checking for Carp ..... ";
+eval {
+    require Carp;
+    print "OK!\n";
+    1;
+} or print "not found (install Carp).\n";
+
+print "Checking for FindBin ..... ";
+eval {
+    require FindBin;
+    print "OK!\n";
+    1;
+} or print "not found (install FindBin).\n";
+
+print "Checking for POSIX ..... ";
+eval {
+    require POSIX;
+    print "OK!\n";
+    1;
+} or print "not found (install POSIX).\n";
 
