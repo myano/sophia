@@ -17,10 +17,8 @@ sub sophia_module_add {
         my $module = &{$command_hook}();
         if ($module) {
             sophia_log('sophia', "[MODULE] $module_name: $module_name v$version successfully loaded.");
-            $sophia::MODULES{$module_name} = (
-                deconstruct     => $die,
-                version         => $version,
-            );
+            $sophia::MODULES{$module_name}{deconstruct} = $die;
+            $sophia::MODULES{$module_name}{version} = $version;
             return 1;
             1;
         }
@@ -58,11 +56,9 @@ sub sophia_module_exists {
 sub sophia_command_add {
     my ($module_command, $cmd_hook, $cmd_desc, $cmd_help) = @_;
     my @mod_cmd = split /\//, $module_command;
-    $sophia::COMMANDS{$mod_cmd[0]}{$mod_cmd[1]} = (
-        init    => $cmd_hook,
-        desc    => $cmd_desc,
-        help    => $cmd_help,
-    );
+    $sophia::COMMANDS{$mod_cmd[0]}{$mod_cmd[1]}{init} = $cmd_hook;
+    $sophia::COMMANDS{$mod_cmd[0]}{$mod_cmd[1]}{desc} = $cmd_desc;
+    $sophia::COMMANDS{$mod_cmd[0]}{$mod_cmd[1]}{help} = $cmd_help;
 }
 
 sub sophia_command_del {
