@@ -5,12 +5,12 @@ use warnings;
 use FindBin qw($Bin);
 
 if ( -e "$Bin/../etc/sophia.conf" ) {
-    print "sophia.conf file already exists.";
+    print "sophia.conf file already exists.\n";
     exit;
 }
 
 if ( -e "$Bin/../etc/sophia.conf.example" ) {
-    print "Check sophia.conf.example in etc directory.";
+    print "Check sophia.conf.example in etc directory.\n";
     exit;
 }
 

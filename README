@@ -10,5 +10,5 @@ Run "./configure" to make sure you have the required packages installed.
 
 RUN
 
-Run "./ircbot.pl" to start sophia!
+Run "./bin/sophia" to start sophia!
 
