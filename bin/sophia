@@ -89,7 +89,12 @@ LINE: while (<CONF>) {
 close CONF;
 
 my $pid = fork();
+
 unless ($pid == 0) {
+    open PIDFILE, "> $Bin/../etc/sophia.pid" or trigger_error('sophia', 'Missing etc directory.');
+    print PIDFILE $pid;
+    close PIDFILE;
+
     print "sophia forked into the background with pid: $pid\n";
     sophia_log('sophia',"sophia forked into the background with pid: $pid");
     exit;
@@ -100,10 +105,6 @@ open STDOUT, '>> /dev/null' or trigger_error('sophia', "sophia cannot write to /
 open STDERR, '>> /dev/null' or trigger_error('sophia', "sophia cannot write to /dev/null: $!\n");
 
 setsid or trigger_error('sophia', "sophia cannot start a new session: $!");
-
-open PIDFILE, "> $Bin/../etc/sophia.pid" or trigger_error('sophia', 'Missing etc directory.');
-print PIDFILE $pid;
-close PIDFILE;
 
 my $sophia = POE::Component::IRC->spawn(
     Nick        => $SOPHIA{nick},
