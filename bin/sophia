@@ -91,14 +91,17 @@ close CONF;
 my $pid = fork();
 
 unless ($pid == 0) {
-    open PIDFILE, "> $Bin/../etc/sophia.pid" or trigger_error('sophia', 'Missing etc directory.');
-    print PIDFILE $pid;
-    close PIDFILE;
-
     print "sophia forked into the background with pid: $pid\n";
     sophia_log('sophia',"sophia forked into the background with pid: $pid");
     exit;
 }
+else {
+    $pid = $$;
+}
+
+open PIDFILE, "> $Bin/../etc/sophia.pid" or trigger_error('sophia', 'Missing etc directory.');
+print PIDFILE $pid;
+close PIDFILE;
 
 open STDIN, '/dev/null' or trigger_error('sophia', "sophia cannot read /dev/null: $!\n");
 open STDOUT, '>> /dev/null' or trigger_error('sophia', "sophia cannot write to /dev/null: $!\n");
