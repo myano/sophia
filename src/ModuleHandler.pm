@@ -3,6 +3,7 @@ use warnings;
 
 sub sophia_module_load {
     my $module = $_[0];
+    $module =~ s/\./\//;
     return -1 unless -e "$Bin/../modules/$module.pm";
     do "$Bin/../modules/$module.pm" and return 1
         or return 0;
@@ -55,7 +56,7 @@ sub sophia_module_exists {
 
 sub sophia_command_add {
     my ($module_command, $cmd_hook, $cmd_desc, $cmd_help) = @_;
-    my @mod_cmd = split /\//, $module_command;
+    my @mod_cmd = split /\./, $module_command;
     $sophia::COMMANDS{$mod_cmd[0]}{$mod_cmd[1]}{init} = $cmd_hook;
     $sophia::COMMANDS{$mod_cmd[0]}{$mod_cmd[1]}{desc} = $cmd_desc;
     $sophia::COMMANDS{$mod_cmd[0]}{$mod_cmd[1]}{help} = $cmd_help;
