@@ -17,11 +17,12 @@ use FindBin qw($Bin);
 use lib "$Bin/../src";
 use POE qw(Component::IRC);
 use POSIX qw(setsid);
-#use Sub::Delete;
+use Sub::Delete;
 use feature 'switch';
 
 our $VERSION = 'sophia-1.0-dev';
-my $CONFIG = 'sophia.conf';
+our $CONFIG = 'sophia.conf';
+our $MODULES_CONFIG = 'sophia.modules.conf';
 
 require Main;
 
@@ -35,8 +36,9 @@ trigger_error('sophia', 'Currently, sophia is not supporting Windows.') if  $^O 
 # ... and if it doesn't exist?
 trigger_error('sophia', 'Missing config file.') unless -e "$Bin/../etc/$CONFIG";
 
-our (%COMMANDS, %MODULES);
+our (%COMMANDS, %MODULES, %TIMERS, $sophia);
 require ModuleHandler;
+require sophia;
 
 my %SOPHIA = (
     admins      => {},
@@ -109,7 +111,7 @@ open STDERR, '>> /dev/null' or trigger_error('sophia', "sophia cannot write to /
 
 setsid or trigger_error('sophia', "sophia cannot start a new session: $!");
 
-my $sophia = POE::Component::IRC->spawn(
+$sophia = POE::Component::IRC->spawn(
     Nick        => $SOPHIA{nick},
     Username    => $SOPHIA{username},
     Password    => $SOPHIA{password},
@@ -126,6 +128,7 @@ POE::Session->create(
         irc_001     => \&irc_001,
         irc_public  => \&irc_public,
         irc_msg     => \&irc_msg,
+        load_timers => \&load_timers,
     },
     heap => { irc => \$sophia },
 );
@@ -139,6 +142,7 @@ sub _start {
 
     $sophia->yield( register =>  'all' );
     $sophia->yield( connect => { } );
+
     return;
 }
 
@@ -158,13 +162,37 @@ sub irc_001 {
         if $sophia->{usermodes};
 
     $sophia->yield( join => $_ ) for keys %{$SOPHIA{channels}};
+
+    # load modules
+    sophia_load_modules();
+
+    # hook up timers
+    $_[KERNEL]->alarm( 'load_timers' => time() + 1 );
+}
+
+sub load_timers {
+    sophia_load_timers(\$_[KERNEL]);
+    $_[KERNEL]->alarm( 'load_timers' => time() + 60 );
 }
 
 sub irc_public {
     my ($sender, $who, $where, $content) = @_[SENDER, ARG0 .. ARG2];
     return unless $content =~ /^$SOPHIA{trigger}/;
-    
-    my $recipient = $where->[0];
+    $content =~ s/^$SOPHIA{trigger}//;
+
+    my ($module, $command, @args);
+    @args = split / /, $content;
+
+    if ($args[0] =~ m/([^:]+):(.+)/) {
+        $module = $1;
+        $command = $2;
+
+        return unless $COMMANDS{$module}{$command};
+
+        &{$COMMANDS{$module}{$command}{init}}();
+    }
+
+    #my $recipient = $where->[0];
 }
 
 sub irc_msg {
