@@ -187,9 +187,9 @@ sub irc_public {
         $module = $1;
         $command = $2;
 
-        return unless $COMMANDS->{$module}{$command};
+        return unless $COMMANDS{$module}{$command};
 
-        &{$COMMANDS->{$module}{$command}{init}}();
+        &{$COMMANDS{$module}{$command}{init}}();
     }
 
     #my $recipient = $where->[0];
