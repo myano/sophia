@@ -12,6 +12,10 @@ sub sophia_module_load {
 sub sophia_module_add {
     my ($module_name, $version, $command_hook, $die) = @_;
 
+    if (sophia_module_exists($module_name)) {
+        sophia_log("sophia", "[MODULE] $module_name already loaded.") and return 0;
+    }
+
     # try loading it
     eval {
         # can we hook up the command?
@@ -35,7 +39,10 @@ sub sophia_module_add {
 
 sub sophia_module_del {
     my $module_name = $_[0];
-    return -1 unless sophia_module_exists($module_name);
+
+    unless (sophia_module_exists($module_name)) {
+        sophia_log("sophia", "[MODULE] $module_name is not loaded.") and return -1;
+    }
 
     my $die = $sophia::MODULES->{$module_name}{deconstruct};
     eval {
@@ -56,15 +63,20 @@ sub sophia_module_exists {
 
 sub sophia_command_add {
     my ($module_command, $cmd_hook, $cmd_desc, $cmd_help) = @_;
-    my @mod_cmd = split /\./, $module_command;
-    $sophia::COMMANDS->{$mod_cmd[0]}{$mod_cmd[1]}{init} = $cmd_hook;
-    $sophia::COMMANDS->{$mod_cmd[0]}{$mod_cmd[1]}{desc} = $cmd_desc;
-    $sophia::COMMANDS->{$mod_cmd[0]}{$mod_cmd[1]}{help} = $cmd_help;
+    my ($module, $command);
+    $module = substr $module_command, 0, index($module_command, '.');
+    $command = substr $module_command, index($module_command, '.') + 1;
+
+    $sophia::COMMANDS->{$module}{$command}{init} = $cmd_hook;
+    $sophia::COMMANDS->{$module}{$command}{desc} = $cmd_desc;
+    $sophia::COMMANDS->{$module}{$command}{help} = $cmd_help;
 }
 
 sub sophia_command_del {
-    my ($module_name, $cmd_name) = @_;
-    delete $sophia::COMMANDS->{$module_name}{$cmd_name};
+    my ($module_command) = @_;
+    my $module = substr $module_command, 0, index($module_command, ' ');
+    my $command = substr $module_command, index($module_command, ' ') + 1;
+    delete $sophia::COMMANDS->{$module}{$command};
 }
 
 sub sophia_timer_add {

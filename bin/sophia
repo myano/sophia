@@ -18,11 +18,13 @@ use lib "$Bin/../src";
 use POE qw(Component::IRC);
 use POSIX qw(setsid);
 use Sub::Delete;
+use Getopt::Long;
 use feature 'switch';
 
 our $VERSION = 'sophia-1.0-dev';
 our $CONFIG = 'sophia.conf';
 our $MODULES_CONFIG = 'sophia.modules.conf';
+our $DEBUG_MODE = 0;
 
 require Main;
 
@@ -36,9 +38,17 @@ trigger_error('sophia', 'Currently, sophia is not supporting Windows.') if  $^O 
 # ... and if it doesn't exist?
 trigger_error('sophia', 'Missing config file.') unless -e "$Bin/../etc/$CONFIG";
 
-our (%COMMANDS, %MODULES, %TIMERS, $sophia);
+my %opts;
+GetOptions(
+    'debug' => \$opts{debug},
+);
+
+$DEBUG_MODE = 1 if $opts{debug};
+
 require ModuleHandler;
-require sophia;
+require SophiaGeneral;
+
+our (%COMMANDS, %MODULES, %TIMERS, $sophia);
 
 my %SOPHIA = (
     admins      => {},
@@ -90,12 +100,16 @@ LINE: while (<CONF>) {
 }
 close CONF;
 
-my $pid = fork();
+my $pid;
+unless ($DEBUG_MODE) {
+    $pid = fork();
 
-unless ($pid == 0) {
-    print "sophia forked into the background with pid: $pid\n";
-    sophia_log('sophia',"sophia forked into the background with pid: $pid");
-    exit;
+    unless ($pid == 0) {
+        print "sophia forked into the background with pid: $pid\n";
+        sophia_log('sophia',"sophia forked into the background with pid: $pid");
+        exit;
+    }
+    setsid or trigger_error('sophia', "sophia cannot start a new session: $!");
 }
 else {
     $pid = $$;
@@ -105,11 +119,11 @@ open PIDFILE, "> $Bin/../etc/sophia.pid" or trigger_error('sophia', 'Missing etc
 print PIDFILE $pid;
 close PIDFILE;
 
-open STDIN, '/dev/null' or trigger_error('sophia', "sophia cannot read /dev/null: $!\n");
-open STDOUT, '>> /dev/null' or trigger_error('sophia', "sophia cannot write to /dev/null: $!\n");
-open STDERR, '>> /dev/null' or trigger_error('sophia', "sophia cannot write to /dev/null: $!\n");
-
-setsid or trigger_error('sophia', "sophia cannot start a new session: $!");
+unless ($DEBUG_MODE) {
+    open STDIN, '/dev/null' or trigger_error('sophia', "sophia cannot read /dev/null: $!\n");
+    open STDOUT, '>> /dev/null' or trigger_error('sophia', "sophia cannot write to /dev/null: $!\n");
+    open STDERR, '>> /dev/null' or trigger_error('sophia', "sophia cannot write to /dev/null: $!\n");
+}
 
 $sophia = POE::Component::IRC->spawn(
     Nick        => $SOPHIA{nick},
@@ -125,6 +139,7 @@ POE::Session->create(
     inline_states => {
         _default    => \&_default,
         _start      => \&_start,
+        _stop       => \&_stop,
         irc_001     => \&irc_001,
         irc_public  => \&irc_public,
         irc_msg     => \&irc_msg,
@@ -144,6 +159,9 @@ sub _start {
     $sophia->yield( connect => { } );
 
     return;
+}
+
+sub _stop {
 }
 
 sub irc_001 {
@@ -180,16 +198,25 @@ sub irc_public {
     return unless $content =~ /^$SOPHIA{trigger}/;
     $content =~ s/^$SOPHIA{trigger}//;
 
-    my ($module, $command, @args);
-    @args = split / /, $content;
+    my ($module, $command, $trigger);
 
-    if ($args[0] =~ m/([^:]+):(.+)/) {
+    if (index($content, ' ') > -1) {
+        $trigger = substr $content, 0, index($content, ' ');
+    }
+    else {
+        $trigger = $content;
+    }
+
+    if ($sophia::COMMANDS->{system}{$trigger}) {
+        &{$sophia::COMMANDS->{system}{$trigger}{init}}(\@_);
+    }
+    elsif ($trigger =~ m/^([^:]+):(.+)$/) {
         $module = $1;
         $command = $2;
 
-        return unless $COMMANDS{$module}{$command};
-
-        &{$COMMANDS{$module}{$command}{init}}();
+        if ($sophia::COMMANDS->{$module}{$command}) {
+            &{$sophia::COMMANDS->{$module}{$command}{init}}(\@_);
+        }
     }
 
     #my $recipient = $where->[0];
