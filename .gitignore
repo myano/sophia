@@ -1,4 +1,5 @@
 .*.sw*
 sophia.conf
+sophia.modules.conf
 *.log
 *.pid
