@@ -38,8 +38,7 @@ print CONFIG "# this is the trigger for commands\n";
 print CONFIG "trigger = \"!\"\n";
 print CONFIG "\n\n";
 print CONFIG "# join the following channels\n";
-print CONFIG "channel = \"##sophia-dev\"\n";
-print CONFIG "channel = \"##Kays\"";
+print CONFIG "channel = \"#sophia\"\n";
 close CONFIG;
 
 printf "Successfully generated example config.\n";
