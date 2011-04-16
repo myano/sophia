@@ -17,6 +17,8 @@ sub trigger_warning {
 
 sub sophia_log {
     my ($log, $err_msg) = @_;
+    return unless $err_msg;
+
     $log = lc $log;
     unless ( -d "$Bin/../var" ) {
         mkdir "$Bin/../var", 0760 or return;
