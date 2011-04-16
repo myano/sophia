@@ -194,7 +194,10 @@ sub load_timers {
 }
 
 sub irc_public {
-    my ($sender, $who, $where, $content) = @_[SENDER, ARG0 .. ARG2];
+    my $content = $_[ARG2];
+
+    &{$sophia::COMMANDS->{public}{$_}{init}}(\@_) for (keys %{$sophia::COMMANDS->{public}});
+
     return unless $content =~ /^$SOPHIA{trigger}/;
     $content =~ s/^$SOPHIA{trigger}//;
 
