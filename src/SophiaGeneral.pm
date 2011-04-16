@@ -1,13 +1,27 @@
 use strict;
 use warnings;
-use HTML::Entities;
-use Encode;
 
 sub sophia_write {
     my ($chans, $text) = @_;
-    my @channels = @$chans;
-    foreach my $chan (@channels) {
-        $sophia::sophia->yield(privmsg => $chan => encode_utf8(decode_entities($text)));
+    my @channels;
+    my @output;
+
+    if (ref($chans) eq "SCALAR") {
+        push @channels, $$chans;
+    }
+    elsif (ref($chans) eq "ARRAY") {
+        @channels = @$chans;
+    }
+
+    if (ref($text) eq "SCALAR") {
+        push @output, $$text;
+    }
+    elsif (ref($text) eq "ARRAY") {
+        @output = @$text;
+    }
+
+    for my $chan (@channels) {
+        $sophia::sophia->yield(privmsg => $chan => $_) for @output;
     }
 }
 
