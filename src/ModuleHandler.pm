@@ -108,10 +108,11 @@ sub sophia_load_modules {
 
 sub sophia_reload_module {
     my $module = shift;
-    return unless sophia_module_exists($module);
+    return 0 unless sophia_module_exists($module);
 
     sophia_module_del($module);
     sophia_module_load($module);
+    return 1;
 }
 
 sub sophia_reload_modules {

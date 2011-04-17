@@ -35,45 +35,70 @@ sub system_modreload {
     my $param = $_[0];
     my @args = @{$param};
     my ($who, $where, $content) = @args[ARG0 .. ARG2];
+    return unless is_owner($who);
+
     my @parts = split / /, $content;
     shift @parts;
 
     return unless scalar(@parts) > 0;
 
-    sophia_reload_module($_) for @parts;
-    sophia_write(\$where->[0], \sprintf("Module %s reloaded.", join(', ', @parts)));
+    for (@parts) {
+        if (sophia_reload_module($_)) {
+            sophia_write( \$where->[0], \sprintf("Module %s reloaded at %s's request.", $_, $who) );
+        }
+        else {
+            sophia_write( \$where->[0], \sprintf("Module %s failed to reload at %s's request.", $_, $who) );
+        }
+    }
 }
 
 sub system_modload {
     my $param = $_[0];
     my @args = @{$param};
     my ($who, $where, $content) = @args[ARG0 .. ARG2];
+    return unless is_owner($who);
+
     my @parts = split / /, $content;
     shift @parts;
 
     return unless scalar(@parts) > 0;
 
-    sophia_module_load($_) for @parts;
-    sophia_write(\$where->[0], \sprintf("Module %s loaded.", join(', ', @parts)));
+    for (@parts) {
+        if (sophia_module_load($_)) {
+            sophia_write( \$where->[0], \sprintf("Module %s loaded at %s's request.", $_, $who) );
+        }
+        else {
+            sophia_write( \$where->[0], \sprintf("Module %s failed to load at %s's request.", $_, $who) );
+        }
+    }
 }
 
 sub system_modunload {
     my $param = $_[0];
     my @args = @{$param};
     my ($who, $where, $content) = @args[ARG0 .. ARG2];
+    return unless is_owner($who);
+
     my @parts = split / /, $content;
     shift @parts;
 
     return unless scalar(@parts) > 0;
 
-    sophia_module_del($_) for @parts;
-    sophia_write(\$where->[0], \sprintf("Module %s unloaded.", join(', ', @parts)));
+    for (@parts) {
+        if (sophia_module_del($_)) {
+            sophia_write( \$where->[0], \sprintf("Module %s unloaded at %s's request.", $_, $who) );
+        }
+        else {
+            sophia_write( \$where->[0], \sprintf("Module %s failed to unload at %s's request.", $_, $who) );
+        }
+    }
 }
 
 sub system_restart {
     my $param = $_[0];
     my @args = @{$param};
     my $who = $args[ARG0];
+    return unless is_owner($who);
 
     sophia_log("sophia", "Restarting sophia by the request of: $who");
     $sophia::sophia->yield(shutdown => "Restarting ...");
@@ -92,6 +117,7 @@ sub system_shutdown {
     my $param = $_[0];
     my @args = @{$param};
     my $who = $args[ARG0];
+    return unless is_owner($who);
 
     sophia_log("sophia", "Shutting down sophia by the request of: $who");
     $sophia::sophia->yield(shutdown => "Shutting down ...");
@@ -103,6 +129,8 @@ sub system_join {
     my $param = $_[0];
     my @args = @{$param};
     my ($who, $content) = ($args[ARG0], $args[ARG2]);
+    return unless is_owner($who);
+
     my @parts = split / /, $content;
     shift @parts;
 
@@ -116,6 +144,8 @@ sub system_part {
     my $param = $_[0];
     my @args = @{$param};
     my ($who, $where, $content) = @args[ARG0 .. ARG2];
+    return unless is_owner($who);
+
     my @parts = split / /, $content;
     shift @parts;
 

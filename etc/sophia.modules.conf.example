@@ -5,11 +5,6 @@ loadmodule "common.main";
 loadmodule "system.main";
 
 # These modules are optional
-loadmodule "google.main";
-loadmodule "google.calc";
-loadmodule "google.translate";
-loadmodule "google.weather";
-
 loadmodule "public.main";
 loadmodule "public.urltitle";
 

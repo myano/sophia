@@ -116,7 +116,7 @@ else {
 }
 
 open PIDFILE, "> $Bin/../etc/sophia.pid" or trigger_error('sophia', 'Missing etc directory.');
-print PIDFILE $pid;
+print PIDFILE "$pid";
 close PIDFILE;
 
 unless ($DEBUG_MODE) {
@@ -201,7 +201,7 @@ sub irc_public {
     return unless $content =~ /^$SOPHIA{trigger}/;
     $content =~ s/^$SOPHIA{trigger}//;
 
-    my ($module, $command, $trigger);
+    my ($module, $command, $trigger, $x);
 
     if (index($content, ' ') > -1) {
         $trigger = substr $content, 0, index($content, ' ');
@@ -211,14 +211,24 @@ sub irc_public {
     }
 
     if ($sophia::COMMANDS->{system}{$trigger}) {
-        &{$sophia::COMMANDS->{system}{$trigger}{init}}(\@_);
+        eval {
+            $x = &{$sophia::COMMANDS->{system}{$trigger}{init}}(\@_);
+            return 1;
+            1;
+        };
+        sophia_log("sophia", "[ERROR] " . $@) if $@;
     }
     elsif ($trigger =~ m/^([^:]+):(.+)$/) {
         $module = $1;
         $command = $2;
 
         if ($sophia::COMMANDS->{$module}{$command}) {
-            &{$sophia::COMMANDS->{$module}{$command}{init}}(\@_);
+            eval {
+                $x = &{$sophia::COMMANDS->{$module}{$command}{init}}(\@_);
+                return 1;
+                1;
+            };
+            sophia_log("sophia", "[ERROR] " . $@) if $@;
         }
     }
 
@@ -245,3 +255,31 @@ sub _default {
 }
 
 POE::Kernel->run();
+
+sub is_admin {
+    my $who = $_[0];
+    return 0 unless $who && $SOPHIA{admins};
+
+    my $host;
+    for (keys %{$SOPHIA{admins}}) {
+        $host = $_;
+        $host =~ s/\*/.*?/g;
+        return 1 if $who =~ /$host/;
+    }
+
+    return 0;
+}
+
+sub is_owner {
+    my $who = $_[0];
+    return 0 unless $who && $SOPHIA{owners};
+
+    my $host;
+    for (keys %{$SOPHIA{owners}}) {
+        $host = $_;
+        $host =~ s/\*/.*?/g;
+        return 1 if $who =~ /$host/;
+    }
+
+    return 0;
+}
