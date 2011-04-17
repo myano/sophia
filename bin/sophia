@@ -210,7 +210,7 @@ sub irc_public {
         $trigger = $content;
     }
 
-    if ($sophia::COMMANDS->{system}{$trigger}) {
+    if ($sophia::COMMANDS->{sophia}{$trigger}) {
         eval {
             $x = &{$sophia::COMMANDS->{system}{$trigger}{init}}(\@_);
             1;

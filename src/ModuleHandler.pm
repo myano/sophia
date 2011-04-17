@@ -6,14 +6,14 @@ sub sophia_module_load {
     $module =~ s/\./\//;
     return -1 unless -e "$Bin/../modules/$module.pm";
     do "$Bin/../modules/$module.pm" and return 1
-        or sophia_log("sophia", $!) and sophia_log("sophia", $@) and return 0;
+        or sophia_log('sophia', $!) and sophia_log('sophia', $@) and return 0;
 }
 
 sub sophia_module_add {
     my ($module_name, $version, $command_hook, $die) = @_;
 
     if (sophia_module_exists($module_name)) {
-        sophia_log("sophia", "[MODULE] $module_name already loaded.") and return 0;
+        sophia_log('sophia', sprintf('[MODULE] %s is already loaded.', $module_name)) and return 0;
     }
 
     # try loading it
@@ -41,7 +41,7 @@ sub sophia_module_del {
     my $module_name = $_[0];
 
     unless (sophia_module_exists($module_name)) {
-        sophia_log("sophia", "[MODULE] $module_name is not loaded.") and return -1;
+        sophia_log('sophia', "[MODULE] $module_name is not loaded.") and return -1;
     }
 
     my $die = $sophia::MODULES->{$module_name}{deconstruct};
@@ -52,7 +52,7 @@ sub sophia_module_del {
         delete $sophia::MODULES->{$module_name};
         return 1;
         1;
-    } or sophia_log('sophia', "[MODULE] $module_name: $module_name v".$sophia::MODULES->{$module_name}{version}." failed to unload.")
+    } or sophia_log('sophia', "[MODULE] $module_name: $module_name v".$sophia::MODULES->{$module_name}{version}.' failed to unload.')
       and return 0;
 }
 
@@ -71,7 +71,7 @@ sub sophia_command_add {
     $sophia::COMMANDS->{$module}{$command}{desc} = $cmd_desc;
     $sophia::COMMANDS->{$module}{$command}{help} = $cmd_help;
 
-    sophia_log("sophia", "[COMMAND] $module:$command added.");
+    sophia_log('sophia', "[COMMAND] $module:$command added.");
 }
 
 sub sophia_command_del {
@@ -80,7 +80,7 @@ sub sophia_command_del {
     my $command = substr $module_command, index($module_command, '.') + 1;
     delete $sophia::COMMANDS->{$module}{$command};
 
-    sophia_log("sophia", "[COMMAND] $module:$command removed.");
+    sophia_log('sophia', "[COMMAND] $module:$command removed.");
 }
 
 sub sophia_timer_add {
@@ -108,15 +108,29 @@ sub sophia_load_modules {
 
 sub sophia_reload_module {
     my $module = shift;
-    return 0 unless sophia_module_exists($module);
+    unless (sophia_module_exists($module)) {
+        sophia_log('sophia', sprintf('Module %s is not loaded.', $module));
+        return 0;
+    }
 
-    sophia_module_del($module);
-    sophia_module_load($module);
+    unless (sophia_module_del($module)) {
+        sophia_log('sophia', sprintf('Module %s failed to unload.', $module));
+        return 0;
+    }
+
+    unless (sophia_module_load($module)) {
+        sophia_log('sophia', sprintf('Module %s failed to load.', $module));
+        return 0;
+    }
     return 1;
 }
 
-sub sophia_reload_modules {
+sub sophia_unload_modules {
     sophia_module_del($_) for keys %{$sophia::MODULES};
+}
+
+sub sophia_reload_modules {
+    &sophia_unload_modules;
     &sophia_load_modules;
 }
 
