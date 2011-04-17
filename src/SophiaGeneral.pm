@@ -1,5 +1,6 @@
 use strict;
 use warnings;
+use HTML::Entities;
 
 sub sophia_write {
     my ($chans, $text) = @_;
@@ -21,7 +22,7 @@ sub sophia_write {
     }
 
     for my $chan (@channels) {
-        $sophia::sophia->yield(privmsg => $chan => $_) for @output;
+        $sophia::sophia->yield(privmsg => $chan => decode_entities($_)) for @output;
     }
 }
 

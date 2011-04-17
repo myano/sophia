@@ -213,7 +213,6 @@ sub irc_public {
     if ($sophia::COMMANDS->{system}{$trigger}) {
         eval {
             $x = &{$sophia::COMMANDS->{system}{$trigger}{init}}(\@_);
-            return 1;
             1;
         };
         sophia_log("sophia", "[ERROR] " . $@) if $@;
@@ -225,7 +224,6 @@ sub irc_public {
         if ($sophia::COMMANDS->{$module}{$command}) {
             eval {
                 $x = &{$sophia::COMMANDS->{$module}{$command}{init}}(\@_);
-                return 1;
                 1;
             };
             sophia_log("sophia", "[ERROR] " . $@) if $@;

@@ -7,16 +7,19 @@ use URI::Heuristic;
 use XML::LibXML;
 
 sub loadXML {
-    my $xml = shift;
-    my $result = get_file_contents($xml);
+    my $xml = $_[0];
+    $xml = ${$xml};
+    my $result = get_file_contents(\$xml);
+    $result = ${$result};
     return unless $result;
     
     my $objXML = XML::LibXML->new;
-    return $objXML->parse_string($result);
+    return \$objXML->parse_string($result);
 }
 
 sub get_file_contents {
-    my $url = shift;
+    my $url = $_[0];
+    $url = ${$url};
     return unless ($url =~ m/^http:\/\/[^ ]+$/);
 
     $url = URI::Heuristic::uf_urlstr($url);
@@ -27,7 +30,7 @@ sub get_file_contents {
     my $response = $ua->request($req);
 
     return if ($response->is_error());
-    return $response->content;
+    return \$response->content;
 }
 
 1;
