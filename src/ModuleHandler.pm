@@ -66,6 +66,7 @@ sub sophia_command_add {
     my ($module, $command);
     $module = substr $module_command, 0, index($module_command, '.');
     $command = substr $module_command, index($module_command, '.') + 1;
+    return if $module eq $sophia::GLOBAL_MODULE;
 
     $sophia::COMMANDS->{$module}{$command}{init} = $cmd_hook;
     $sophia::COMMANDS->{$module}{$command}{desc} = $cmd_desc;
@@ -85,7 +86,7 @@ sub sophia_command_del {
 
     my $module = substr $module_command, 0, index($module_command, '.');
     my $command = substr $module_command, index($module_command, '.') + 1;
-    return unless $module && $command;
+    return unless $module && $command && $module ne $sophia::GLOBAL_MODULE;
 
     delete $sophia::COMMANDS->{$module}{$command};
 }
