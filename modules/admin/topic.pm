@@ -5,7 +5,7 @@ sophia_module_add('admin.topic', '1.0', \&init_admin_topic, \&deinit_admin_topic
 
 sub init_admin_topic {
     sophia_command_add('admin.topic', \&admin_topic, 'Displays or change the channel\'s topic.', '');
-    sophia_command_add('sophia.topic', \&admin_topic, 'Displays or change the channel\'s topic.', '');
+    sophia_global_command_add('topic', \&admin_topic, 'Displays or change the channel\'s topic.', '');
 
     return 1;
 }

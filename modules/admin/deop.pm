@@ -5,7 +5,7 @@ sophia_module_add('admin.deop', '1.0', \&init_admin_deop, \&deinit_admin_deop);
 
 sub init_admin_deop {
     sophia_command_add('admin.deop', \&admin_deop, 'Deops the user/hostmask.', '');
-    sophia_command_add('sophia.deop', \&admin_deop, 'Deops the user/hostmask.', '');
+    sophia_global_command_add('deop', \&admin_deop, 'Deops the user/hostmask.', '');
 
     return 1;
 }

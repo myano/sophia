@@ -72,11 +72,29 @@ sub sophia_command_add {
     $sophia::COMMANDS->{$module}{$command}{help} = $cmd_help;
 }
 
+sub sophia_global_command_add {
+    my ($command, $cmd_hook, $cmd_desc, $cmd_help) = @_;
+    $sophia::COMMANDS->{$sophia::GLOBAL_MODULE}{$command}{init} = $cmd_hook;
+    $sophia::COMMANDS->{$sophia::GLOBAL_MODULE}{$command}{desc} = $cmd_desc;
+    $sophia::COMMANDS->{$sophia::GLOBAL_MODULE}{$command}{help} = $cmd_help;
+}
+
 sub sophia_command_del {
     my ($module_command) = @_;
+    return unless $module_command;
+
     my $module = substr $module_command, 0, index($module_command, '.');
     my $command = substr $module_command, index($module_command, '.') + 1;
+    return unless $module && $command;
+
     delete $sophia::COMMANDS->{$module}{$command};
+}
+
+sub sophia_global_command_del {
+    my $command = $_[0];
+    return unless $command;
+
+    delete $sophia::COMMANDS->{$sophia::GLOBAL_MODULE}{$command};
 }
 
 sub sophia_timer_add {
@@ -133,7 +151,7 @@ sub sophia_reload_modules {
 sub sophia_load_timers {
     my $kernel = ${$_[0]};
     for (keys %{$sophia::TIMERS}) {
-        $kernel->state( $_ => \&{$sophia::TIMERS->{$_}{init}} );
+        $kernel->state( $_ => $sophia::TIMERS->{$_}{init} );
         $kernel->alarm( $_ => time() + $sophia::TIMERS->{$_}{delay} );
     }
 

@@ -4,7 +4,7 @@ use warnings;
 sophia_module_add('sophia.part', '1.0', \&init_sophia_part, \&deinit_sophia_part);
 
 sub init_sophia_part {
-    sophia_command_add('sophia.part', \&sophia_part, 'Parts one or more channels.', '');
+    sophia_global_command_add('part', \&sophia_part, 'Parts one or more channels.', '');
 
     return 1;
 }

@@ -5,7 +5,7 @@ sophia_module_add('admin.ban', '1.0', \&init_admin_ban, \&deinit_admin_ban);
 
 sub init_admin_ban {
     sophia_command_add('admin.ban', \&admin_ban, 'Bans the user/hostmask.', '');
-    sophia_command_add('sophia.ban', \&admin_ban, 'Bans the user/hostmask.', '');
+    sophia_global_command_add('ban', \&admin_ban, 'Bans the user/hostmask.', '');
 
     return 1;
 }

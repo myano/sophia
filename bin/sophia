@@ -25,6 +25,7 @@ our $VERSION = 'sophia-1.0-dev';
 our $CONFIG = 'sophia.conf';
 our $MODULES_CONFIG = 'sophia.modules.conf';
 our $DEBUG_MODE = 0;
+our $GLOBAL_MODULE = 'sophia';
 
 require Main;
 
@@ -219,9 +220,9 @@ sub irc_public {
     }
 
     # sophia command / global trigger?
-    if ($sophia::COMMANDS->{sophia}{$trigger}) {
+    if ($sophia::COMMANDS->{$sophia::GLOBAL_MODULE}{$trigger}) {
         eval {
-            $x = &{$sophia::COMMANDS->{sophia}{$trigger}{init}}(\@_);
+            $x = &{$sophia::COMMANDS->{$sophia::GLOBAL_MODULE}{$trigger}{init}}(\@_);
             1;
         };
         sophia_log("sophia", "[ERROR] " . $@) if $@;

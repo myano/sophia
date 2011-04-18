@@ -4,7 +4,7 @@ use warnings;
 sophia_module_add('sophia.modunload', '1.0', \&init_sophia_modunload, \&deinit_sophia_modunload);
 
 sub init_sophia_modunload {
-    sophia_command_add('sophia.mod:unload', \&sophia_modunload, 'Unloads all or a specified module.', '');
+    sophia_global_command_add('mod:unload', \&sophia_modunload, 'Unloads all or a specified module.', '');
 
     return 1;
 }

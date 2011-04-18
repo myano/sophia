@@ -5,7 +5,7 @@ sophia_module_add('admin.kick', '1.0', \&init_admin_kick, \&deinit_admin_kick);
 
 sub init_admin_kick {
     sophia_command_add('admin.kick', \&admin_kick, 'Kicks user if bot is a chan op.', '');
-    sophia_command_add('sophia.kick', \&admin_kick, 'Kicks user if bot is a chan op.', '');
+    sophia_global_command_add('kick', \&admin_kick, 'Kicks user if bot is a chan op.', '');
 
     return 1;
 }

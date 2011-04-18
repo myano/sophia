@@ -4,7 +4,7 @@ use warnings;
 sophia_module_add('sophia.shutdown', '1.0', \&init_sophia_shutdown, \&deinit_sophia_shutdown);
 
 sub init_sophia_shutdown {
-    sophia_command_add('sophia.shutdown', \&sophia_shutdown, 'Shutdown sophia.', '');
+    sophia_global_command_add('shutdown', \&sophia_shutdown, 'Shutdown sophia.', '');
 
     return 1;
 }

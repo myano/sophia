@@ -4,7 +4,7 @@ use warnings;
 sophia_module_add('sophia.restart', '1.0', \&init_sophia_restart, \&deinit_sophia_restart);
 
 sub init_sophia_restart {
-    sophia_command_add('sophia.restart', \&sophia_restart, 'Restarts sophia.', '');
+    sophia_global_command_add('restart', \&sophia_restart, 'Restarts sophia.', '');
     
     return 1;
 }

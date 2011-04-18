@@ -5,7 +5,7 @@ sophia_module_add('admin.quiet', '1.0', \&init_admin_quiet, \&deinit_admin_quiet
 
 sub init_admin_quiet {
     sophia_command_add('admin.quiet', \&admin_quiet, 'Quiets the user/hostmask.', '');
-    sophia_command_add('sophia.quiet', \&admin_quiet, 'Quiets the user/hostmask.', '');
+    sophia_global_command_add('quiet', \&admin_quiet, 'Quiets the user/hostmask.', '');
 
     return 1;
 }

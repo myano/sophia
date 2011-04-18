@@ -5,7 +5,7 @@ sophia_module_add('admin.voice', '1.0', \&init_admin_voice, \&deinit_admin_voice
 
 sub init_admin_voice {
     sophia_command_add('admin.voice', \&admin_voice, 'Voices the user/hostmask.', '');
-    sophia_command_add('sophia.voice', \&admin_voice, 'Voices the user/hostmask.', '');
+    sophia_global_command_add('voice', \&admin_voice, 'Voices the user/hostmask.', '');
 
     return 1;
 }

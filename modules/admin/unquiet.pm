@@ -5,7 +5,7 @@ sophia_module_add('admin.unquiet', '1.0', \&init_admin_unquiet, \&deinit_admin_u
 
 sub init_admin_unquiet {
     sophia_command_add('admin.unquiet', \&admin_unquiet, 'Unquiets the user/hostmask.', '');
-    sophia_command_add('sophia.unquiet', \&admin_unquiet, 'Unquiets the user/hostmask.', '');
+    sophia_global_command_add('unquiet', \&admin_unquiet, 'Unquiets the user/hostmask.', '');
 
     return 1;
 }

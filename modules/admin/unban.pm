@@ -5,7 +5,7 @@ sophia_module_add('admin.unban', '1.0', \&init_admin_unban, \&deinit_admin_unban
 
 sub init_admin_unban {
     sophia_command_add('admin.unban', \&admin_unban, 'Unbans the user/hostmask.', '');
-    sophia_command_add('sophia.unban', \&admin_unban, 'Unbans the user/hostmask.', '');
+    sophia_global_command_add('unban', \&admin_unban, 'Unbans the user/hostmask.', '');
 
     return 1;
 }

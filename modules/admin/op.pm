@@ -5,7 +5,7 @@ sophia_module_add('admin.op', '1.0', \&init_admin_op, \&deinit_admin_op);
 
 sub init_admin_op {
     sophia_command_add('admin.op', \&admin_op, 'Ops the user/hostmask.', '');
-    sophia_command_add('sophia.op', \&admin_op, 'Ops the user/hostmask.', '');
+    sophia_global_command_add('op', \&admin_op, 'Ops the user/hostmask.', '');
 
     return 1;
 }
