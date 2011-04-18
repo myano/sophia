@@ -24,7 +24,11 @@ sub admin_devoice {
     return unless is_admin($who);
 
     my $idx = index $content, ' ';
-    return unless $idx > -1;
+    unless ($idx > -1) {
+        $content = substr $who, 0, index($who, '!');
+        $sophia::sophia->yield( mode => $where->[0] => "-v" => $content );
+        return;
+    }
 
     $content = substr $content, $idx + 1;
     $content =~ s/^\s+//;

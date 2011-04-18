@@ -24,14 +24,19 @@ sub admin_op {
     return unless is_admin($who);
 
     my $idx = index $content, ' ';
-    return unless $idx > -1;
+    unless ($idx > -1) {
+        $content = substr $who, 0, index($who, '!');
+        $sophia::sophia->yield( mode => $where->[0] => "+o" => $content );
+        return;
+    }
 
     $content = substr $content, $idx + 1;
     $content =~ s/^\s+//;
     
-    unless ($content) {
+    unless ($idx > -1) {
         $content = substr $who, 0, index($who, '!');
         $sophia::sophia->yield( mode => $where->[0] => "+o" => $content );
+        return;
     }
     else {
         $sophia::sophia->yield( mode => $where->[0] => "+o" => $content );
