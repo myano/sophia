@@ -24,22 +24,19 @@ sub admin_devoice {
     return unless is_admin($who);
 
     my $idx = index $content, ' ';
-    unless ($idx > -1) {
+    unless ($idx == -1) {
+        $content = substr $content, $idx + 1;
+        $content =~ s/^\s+//;
+    }
+
+    unless ($idx > -1 && $content) {
         $content = substr $who, 0, index($who, '!');
         $sophia::sophia->yield( mode => $where->[0] => "-v" => $content );
         return;
     }
 
-    $content = substr $content, $idx + 1;
-    $content =~ s/^\s+//;
-
-    unless ($content) {
-        $content = substr $who, 0, index($who, '!');
-        $sophia::sophia->yield( mode => $where->[0] => "-v" => $content );
-    }
-    else {
-        $sophia::sophia->yield( mode => $where->[0] => "-v" => $content );
-    }
+    my @parts = split / /, $content;
+    $sophia::sophia->yield( mode => $where->[0] => sprintf('-%s', 'v' x scalar(@parts)) => $content );
 }
 
 1;

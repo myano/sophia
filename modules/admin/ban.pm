@@ -27,10 +27,11 @@ sub admin_ban {
     return unless $idx > -1;
 
     $content = substr $content, $idx + 1;
-    $content =~ s/^\s+//;
     return unless $content;
 
-    $sophia::sophia->yield( mode => $where->[0] => "+b" => $content );
+    my @parts = split / /, $content;
+
+    $sophia::sophia->yield( mode => $where->[0] => sprintf('+%s', 'b' x scalar(@parts)) => $content );
 }
 
 1;

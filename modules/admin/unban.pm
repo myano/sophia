@@ -30,7 +30,9 @@ sub admin_unban {
     $content =~ s/^\s+//;
     return unless $content;
 
-    $sophia::sophia->yield( mode => $where->[0] => "-b" => $content );
+    my @parts = split / /, $content;
+
+    $sophia::sophia->yield( mode => $where->[0] => sprintf('-%s', 'b' x scalar(@parts)) => $content );
 }
 
 1;

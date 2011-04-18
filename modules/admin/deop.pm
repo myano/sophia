@@ -24,22 +24,19 @@ sub admin_deop {
     return unless is_admin($who);
 
     my $idx = index $content, ' ';
-    unless ($idx > -1) {
+    unless ($idx == -1) {
+        $content = substr $content, $idx + 1;
+        $content =~ s/^\s+//;
+    }
+
+    unless ($idx > -1 && $content) {
         $content = substr $who, 0, index($who, '!');
         $sophia::sophia->yield( mode => $where->[0] => "-o" => $content );
         return;
     }
 
-    $content = substr $content, $idx + 1;
-    $content =~ s/^\s+//;
-    
-    unless ($content) {
-        $content = substr $who, 0, index($who, '!');
-        $sophia::sophia->yield( mode => $where->[0] => "-o" => $content );
-    }
-    else {
-        $sophia::sophia->yield( mode => $where->[0] => "-o" => $content );
-    }
+    my @parts = split / /, $content;
+    $sophia::sophia->yield( mode => $where->[0] => sprintf('-%s', 'o' x scalar(@parts)) => $content );
 }
 
 1;

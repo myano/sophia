@@ -30,7 +30,9 @@ sub admin_unquiet {
     $content =~ s/^\s+//;
     return unless $content;
 
-    $sophia::sophia->yield( mode => $where->[0] => "-q" => $content );
+    my @parts = split / /, $content;
+
+    $sophia::sophia->yield( mode => $where->[0] => sprintf('-%s', 'q' x scalar(@parts)) => $content );
 }
 
 1;
