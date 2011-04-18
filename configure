@@ -38,3 +38,70 @@ eval {
     1;
 } or print "not found (install POSIX).\n";
 
+print "Checking for FindBin ..... ";
+eval {
+    require FindBin;
+    print "OK!\n";
+    1;
+} or print "not found (install FindBin).\n";
+
+print "Checking for Sub::Delete ..... ";
+eval {
+    use Sub::Delete;
+    print "OK!\n";
+    1;
+} or print "not found (install Sub::Delete).\n";
+
+print "Checking for Getopt::Long ..... ";
+eval {
+    use Getopt::Long;
+    print "OK!\n";
+    1;
+} or print "not found (install Getopt:Long).\n";
+
+print "Checking for 'feature switch' ..... ";
+eval {
+    use feature 'switch';
+    print "OK!\n";
+    1;
+} or print "not found (install feature switch).\n";
+
+print "Checking for HTTP::Request ..... ";
+eval {
+    use HTTP::Request;
+    print "OK!\n";
+    1;
+} or print "not found (install HTTP::Request).\n";
+
+
+print "Checking for HTTP::Response ..... ";
+eval {
+    use HTTP::Response;
+    print "OK!\n";
+    1;
+} or print "not found (install HTTP::Response).\n";
+
+print "Checking for LWP::UserAgent ..... ";
+eval {
+    use LWP::UserAgent;
+    print "OK!\n";
+    1;
+} or print "not found (install LWP::UserAgent).\n";
+
+print "Checking for URI::Heuristic ..... ";
+eval {
+    use URI::Heuristic;
+    print "OK!\n";
+    1;
+} or print "not found (install URI::Heuristic).\n";
+
+print "Checking for URI::Escape ..... ";
+eval {
+    use URI::Escape;
+    print "OK!\n";
+    1;
+} or print "not found (install URI::Escape).\n";
+
+
+
+
