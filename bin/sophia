@@ -196,8 +196,16 @@ sub load_timers {
 sub irc_public {
     my $content = $_[ARG2];
 
-    &{$sophia::COMMANDS->{public}{$_}{init}}(\@_) for (keys %{$sophia::COMMANDS->{public}});
+    # public commands
+    for (keys %{$sophia::COMMANDS->{public}}) {
+        eval {
+            &{$sophia::COMMANDS->{public}{$_}{init}}(\@_);
+            1;
+        };
+        sophia_log('sophia', '[ERROR] ' . $@) if $@;
+    }
 
+    # triggers ?
     return unless $content =~ /^$SOPHIA{trigger}/;
     $content =~ s/^$SOPHIA{trigger}//;
 
@@ -210,13 +218,15 @@ sub irc_public {
         $trigger = $content;
     }
 
+    # sophia command / global trigger?
     if ($sophia::COMMANDS->{sophia}{$trigger}) {
         eval {
-            $x = &{$sophia::COMMANDS->{system}{$trigger}{init}}(\@_);
+            $x = &{$sophia::COMMANDS->{sophia}{$trigger}{init}}(\@_);
             1;
         };
         sophia_log("sophia", "[ERROR] " . $@) if $@;
     }
+    # module:command trigger
     elsif ($trigger =~ m/^([^:]+):(.+)$/) {
         $module = $1;
         $command = $2;
@@ -229,8 +239,6 @@ sub irc_public {
             sophia_log("sophia", "[ERROR] " . $@) if $@;
         }
     }
-
-    #my $recipient = $where->[0];
 }
 
 sub irc_msg {
@@ -257,6 +265,7 @@ POE::Kernel->run();
 sub is_admin {
     my $who = $_[0];
     return 0 unless $who && $SOPHIA{admins};
+    return 1 if is_owner($who);
 
     my $host;
     for (keys %{$SOPHIA{admins}}) {

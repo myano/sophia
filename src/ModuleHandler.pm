@@ -70,8 +70,6 @@ sub sophia_command_add {
     $sophia::COMMANDS->{$module}{$command}{init} = $cmd_hook;
     $sophia::COMMANDS->{$module}{$command}{desc} = $cmd_desc;
     $sophia::COMMANDS->{$module}{$command}{help} = $cmd_help;
-
-    sophia_log('sophia', "[COMMAND] $module:$command added.");
 }
 
 sub sophia_command_del {
@@ -79,8 +77,6 @@ sub sophia_command_del {
     my $module = substr $module_command, 0, index($module_command, '.');
     my $command = substr $module_command, index($module_command, '.') + 1;
     delete $sophia::COMMANDS->{$module}{$command};
-
-    sophia_log('sophia', "[COMMAND] $module:$command removed.");
 }
 
 sub sophia_timer_add {

@@ -32,7 +32,7 @@ sub sophia_modload {
                     substr($who, 0, index($who, '!')),
                     $_)
             );
-            sophia_log('sophia', sprintf('Module %s reloaded requested by: %s.', $_, $who));
+            sophia_log('sophia', sprintf('Module %s loaded by: %s.', $_, $who));
         }
     }
 }
