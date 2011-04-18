@@ -19,26 +19,29 @@ unless ( -d "$Bin/../etc" ) {
 }
 
 open  CONFIG, "> $Bin/../etc/sophia.conf.example";
-print CONFIG "# indicates a comment line\n\n";
-print CONFIG "nick = \"sophia\"\n";
-print CONFIG "username = \"sophia\"\n";
-print CONFIG "realname = \"Sophia\"\n";
-print CONFIG "password = \"\"             # used with NickServ. Leave blank if it doesn't apply.\n";
-print CONFIG "usermode = \"+i\"\n";
+print CONFIG '# indicates a comment line' . "\n\n";
+print CONFIG 'nick = "sophia"' . "\n";
+print CONFIG 'username = "sophia"' . "\n";
+print CONFIG 'realname = "Sophia"' . "\n";
+print CONFIG 'password = ""             # used with NickServ. Leave blank if it doesn\'t apply.' . "\n";
+print CONFIG 'usermode = "+i"' . "\n";
 print CONFIG "\n\n";
-print CONFIG "server = \"chat.freenode.net\"\n";
-print CONFIG "port = \"6667\"\n";
+print CONFIG 'server = "chat.freenode.net"' . "\n";
+print CONFIG 'port = "6667"' . "\n";
 print CONFIG "\n\n";
-print CONFIG "# owners own the bot and have all rights\n";
-print CONFIG "owner = \"Kays\"\n";
-print CONFIG "owner = \"myano\"\n";
-print CONFIG "# admins have various rights and rights can be granted by owners\n";
-print CONFIG "admin = \"o{^_^}o\"\n";
-print CONFIG "# this is the trigger for commands\n";
-print CONFIG "trigger = \"!\"\n";
+print CONFIG '# owners own the bot and have all rights' . "\n";
+print CONFIG '# in hostmask format' . "\n";
+print CONFIG 'owner = "*!*@owner1"' . "\n";
+print CONFIG 'owner = "*!*@owner2"' . "\n";
+print CONFIG '# admins have various rights and rights can be granted by owners' . "\n";
+print CONFIG '# in hostmask format' . "\n";
+print CONFIG 'admin = "*!*@admin"' . "\n";
+print CONFIG '# this is the trigger for commands' . "\n";
+print CONFIG 'trigger = "!"' . "\n";
 print CONFIG "\n\n";
-print CONFIG "# join the following channels\n";
-print CONFIG "channel = \"#sophia\"\n";
+print CONFIG '# join the following channels' . "\n";
+print CONFIG 'channel = "#sophia"' . "\n";
+print CONFIG 'channel = "#sophia-dev"' . "\n";
 close CONFIG;
 
 printf "Successfully generated example config.\n";
