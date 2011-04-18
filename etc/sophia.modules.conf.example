@@ -1,15 +1,26 @@
 # indicates a comment line
 
-# These modules must be loaded!
+# These modules are recommended!
 loadmodule "common.main";
-loadmodule "system.main";
+loadmodule "sophia.main";
+loadmodule "sophia.restart";
+loadmodule "sophia.shutdown";
+loadmodule "sophia.join";
+loadmodule "sophia.part";
+loadmodule "sophia.modload";
+loadmodule "sophia.modunload";
+loadmodule "sophia.modreload";
+loadmodule "admin.main";
+loadmodule "admin.ban";
+loadmodule "admin.kick";
+loadmodule "admin.quiet";
+loadmodule "admin.topic";
+loadmodule "admin.unban";
+loadmodule "admin.unquiet";
 
 # These modules are optional
 loadmodule "public.main";
 loadmodule "public.urltitle";
-
-loadmodule "rss.main";
-loadmodule "rss.cnn";
 
 loadmodule "web.main";
 loadmodule "web.acronym";
