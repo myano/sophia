@@ -59,12 +59,12 @@ eval {
     1;
 } or print "not found (install Getopt:Long).\n";
 
-print "Checking for 'feature switch' ..... ";
+print "Checking for Switch ..... ";
 eval {
-    use feature 'switch';
+    use Switch;
     print "OK!\n";
     1;
-} or print "not found (install feature switch).\n";
+} or print "not found (install Switch).\n";
 
 print "Checking for HTTP::Request ..... ";
 eval {
