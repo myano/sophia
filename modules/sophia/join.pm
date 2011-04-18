@@ -16,10 +16,10 @@ sub deinit_sophia_join {
     delete_sub 'deinit_sophia_join';
 }
 
-sub deinit_sophia_join {
+sub sophia_join {
     my $param = $_[0];
     my @args = @{$param};
-    my ($who, $content) = @args[ARG1 .. ARG2];
+    my ($who, $content) = ($args[ARG0], $args[ARG2]);
     return unless is_owner($who);
 
     my @parts = split / /, $content;
