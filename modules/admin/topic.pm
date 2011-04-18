@@ -14,7 +14,7 @@ sub deinit_admin_topic {
     delete_sub 'init_admin_topic';
     delete_sub 'admin_topic';
     sophia_command_del 'admin.topic';
-    sophia_command_del 'sophia.topic';
+    sophia_global_command_del 'topic';
     delete_sub 'deinit_admin_topic';
 }
 

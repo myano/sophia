@@ -14,6 +14,7 @@ sub deinit_admin_deop {
     delete_sub 'init_admin_deop';
     delete_sub 'admin_deop';
     sophia_command_del 'admin.deop';
+    sophia_global_command_del 'deop';
     delete_sub 'deinit_admin_deop';
 }
 

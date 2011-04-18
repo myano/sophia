@@ -14,6 +14,7 @@ sub deinit_admin_ban {
     delete_sub 'init_admin_ban';
     delete_sub 'admin_ban';
     sophia_command_del 'admin.ban';
+    sophia_global_command_del 'ban';
     delete_sub 'deinit_admin_ban';
 }
 

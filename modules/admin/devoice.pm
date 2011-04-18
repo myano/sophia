@@ -14,6 +14,7 @@ sub deinit_admin_devoice {
     delete_sub 'init_admin_devoice';
     delete_sub 'admin_devoice';
     sophia_command_del 'admin.devoice';
+    sophia_global_command_del 'devoice';
     delete_sub 'deinit_admin_devoice';
 }
 

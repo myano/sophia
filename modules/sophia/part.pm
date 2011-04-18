@@ -12,7 +12,7 @@ sub init_sophia_part {
 sub deinit_sophia_part {
     delete_sub 'init_sophia_part';
     delete_sub 'sophia_part';
-    sophia_command_del 'sophia.part';
+    sophia_global_command_del 'part';
     delete_sub 'deinit_sophia_part';
 }
 

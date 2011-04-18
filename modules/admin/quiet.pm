@@ -14,6 +14,7 @@ sub deinit_admin_quiet {
     delete_sub 'init_admin_quiet';
     delete_sub 'admin_quiet';
     sophia_command_del 'admin.quiet';
+    sophia_global_command_del 'quiet';
     delete_sub 'deinit_admin_quiet';
 }
 

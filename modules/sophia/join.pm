@@ -12,7 +12,7 @@ sub init_sophia_join {
 sub deinit_sophia_join {
     delete_sub 'init_sophia_join';
     delete_sub 'sophia_join';
-    sophia_command_del 'sophia.join';
+    sophia_global_command_del 'join';
     delete_sub 'deinit_sophia_join';
 }
 

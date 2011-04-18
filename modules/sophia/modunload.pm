@@ -12,7 +12,7 @@ sub init_sophia_modunload {
 sub deinit_sophia_modunload {
     delete_sub 'init_sophia_modunload';
     delete_sub 'sophia_modunload';
-    sophia_command_del 'sophia.mod:unload';
+    sophia_global_command_del 'mod:unload';
     delete_sub 'deinit_sophia_modunload';
 }
 

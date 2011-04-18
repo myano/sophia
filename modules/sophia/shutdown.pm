@@ -12,7 +12,7 @@ sub init_sophia_shutdown {
 sub deinit_sophia_shutdown {
     delete_sub 'init_sophia_shutdown';
     delete_sub 'sophia_shutdown';
-    sophia_command_del 'sophia.shutdown';
+    sophia_global_command_del 'shutdown';
     delete_sub 'deinit_sophia_shutdown';
 }
 

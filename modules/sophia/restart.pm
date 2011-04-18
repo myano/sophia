@@ -12,7 +12,7 @@ sub init_sophia_restart {
 sub deinit_sophia_restart {
     delete_sub 'init_sophia_restart';
     delete_sub 'sophia_restart';
-    sophia_command_del 'sophia.restart';
+    sophia_global_command_del 'restart';
     delete_sub 'deinit_sophia_restart';
 }
 

@@ -14,7 +14,7 @@ sub deinit_admin_kick {
     delete_sub 'init_admin_kick';
     delete_sub 'admin_kick';
     sophia_command_del 'admin.kick';
-    sophia_command_del 'sophia.kick';
+    sophia_global_command_del 'kick';
     delete_sub 'deinit_admin_kick';
 }
 
