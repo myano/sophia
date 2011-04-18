@@ -38,13 +38,6 @@ eval {
     1;
 } or print "not found (install POSIX).\n";
 
-print "Checking for FindBin ..... ";
-eval {
-    require FindBin;
-    print "OK!\n";
-    1;
-} or print "not found (install FindBin).\n";
-
 print "Checking for Sub::Delete ..... ";
 eval {
     use Sub::Delete;
@@ -66,21 +59,6 @@ eval {
     1;
 } or print "not found (install Switch).\n";
 
-print "Checking for HTTP::Request ..... ";
-eval {
-    use HTTP::Request;
-    print "OK!\n";
-    1;
-} or print "not found (install HTTP::Request).\n";
-
-
-print "Checking for HTTP::Response ..... ";
-eval {
-    use HTTP::Response;
-    print "OK!\n";
-    1;
-} or print "not found (install HTTP::Response).\n";
-
 print "Checking for LWP::UserAgent ..... ";
 eval {
     use LWP::UserAgent;
@@ -88,20 +66,10 @@ eval {
     1;
 } or print "not found (install LWP::UserAgent).\n";
 
-print "Checking for URI::Heuristic ..... ";
+print "Checking for HTML::Entities ..... ";
 eval {
-    use URI::Heuristic;
+    use HTML::Entities;
     print "OK!\n";
     1;
-} or print "not found (install URI::Heuristic).\n";
-
-print "Checking for URI::Escape ..... ";
-eval {
-    use URI::Escape;
-    print "OK!\n";
-    1;
-} or print "not found (install URI::Escape).\n";
-
-
-
+} or print "not found (install HTML::Entities).\n";
 
