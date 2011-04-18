@@ -36,7 +36,7 @@ sub admin_kick {
     my $target = substr $content, 0, $idx;
     my $kick_msg = substr $content, $idx + 1;
 
-    $sophia::sophia->yield( kick => $where->[0] => $target => $kick_msg );
+    sophia_kick(\$where->[0], \$target, \$kick_msg);
 }
 
 1;

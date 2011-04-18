@@ -2,6 +2,18 @@ use strict;
 use warnings;
 use HTML::Entities;
 
+sub sophia_kick {
+    my ($chan, $nick, $text) = @_;
+    $chan = ${$chan};
+    $nick = ${$nick};
+    $text = ${$text};
+    return unless $chan && $nick;
+
+    $text = '' unless $text;
+
+    $sophia::sophia->yield( kick => $chan => $nick => $text );
+}
+
 sub sophia_write {
     my ($chans, $text) = @_;
     my @channels;
