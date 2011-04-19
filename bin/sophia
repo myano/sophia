@@ -228,7 +228,7 @@ sub irc_disconnected {
 }
 
 sub irc_error {
-    trigger_error('sophia', $_[ARG0]);
+    sophia_log('sophia', $_[ARG0]);
 }
 
 sub irc_join {
