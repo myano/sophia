@@ -21,11 +21,15 @@ use Sub::Delete;
 use Getopt::Long;
 use feature 'switch';
 
-our $VERSION = 'sophia-1.0-dev';
-our $CONFIG = 'sophia.conf';
-our $MODULES_CONFIG = 'sophia.modules.conf';
-our $DEBUG_MODE = 0;
-our $GLOBAL_MODULE = 'sophia';
+our %CONFIGURATIONS;
+%CONFIGURATIONS = (
+    VERSION         => 'sophia-1.0-dev',
+    MAIN_CONFIG     => 'sophia.conf',
+    MODULES_CONFIG  => 'sophia.modules.conf',
+    GLOBAL_MODULE   => 'sophia',
+    IN_DEBUG_MODE   => 0,
+    DO_RESTART      => 0,
+);
 
 require Main;
 
@@ -37,14 +41,14 @@ trigger_error('sophia', 'Currently, sophia is not supporting Windows.') if  $^O 
 
 # load configuration values
 # ... and if it doesn't exist?
-trigger_error('sophia', 'Missing config file.') unless -e "$Bin/../etc/$CONFIG";
+trigger_error('sophia', 'Missing config file.') unless -e "$Bin/../etc/$CONFIGURATIONS{MAIN_CONFIG}";
 
 my %opts;
 GetOptions(
     'debug' => \$opts{debug},
 );
 
-$DEBUG_MODE = 1 if $opts{debug};
+$CONFIGURATIONS{IN_DEBUG_MODE} = 1 if $opts{debug};
 
 require ModuleHandler;
 require SophiaGeneral;
@@ -69,7 +73,9 @@ my %SOPHIA = (
 # and to read the config ...
 my ($pred, $val);
 
-open CONF, "$Bin/../etc/$CONFIG" or trigger_error('sophia', "Error opening config file: $!");
+open CONF, "$Bin/../etc/$CONFIGURATIONS{MAIN_CONFIG}"
+    or trigger_error('sophia', "Error opening config file: $!");
+
 LINE: while (<CONF>) {
     chomp;
     s/^\s+//;
@@ -102,7 +108,7 @@ LINE: while (<CONF>) {
 close CONF;
 
 my $pid;
-unless ($DEBUG_MODE) {
+unless ($CONFIGURATIONS{IN_DEBUG_MODE}) {
     $pid = fork();
 
     unless ($pid == 0) {
@@ -120,7 +126,7 @@ open PIDFILE, "> $Bin/../etc/sophia.pid" or trigger_error('sophia', 'Missing etc
 print PIDFILE "$pid";
 close PIDFILE;
 
-unless ($DEBUG_MODE) {
+unless ($CONFIGURATIONS{IN_DEBUG_MODE}) {
     open STDIN, '/dev/null' or trigger_error('sophia', "sophia cannot read /dev/null: $!\n");
     open STDOUT, '>> /dev/null' or trigger_error('sophia', "sophia cannot write to /dev/null: $!\n");
     open STDERR, '>> /dev/null' or trigger_error('sophia', "sophia cannot write to /dev/null: $!\n");
@@ -142,16 +148,44 @@ POE::Session->create(
         _start      => \&_start,
         _stop       => \&_stop,
         irc_001     => \&irc_001,
-        irc_public  => \&irc_public,
+        irc_disconnected    => \&irc_disconnected,
+        irc_error   => \&irc_error,
+        irc_join    => \&irc_join,
+        irc_kick    => \&irc_kick,
         irc_msg     => \&irc_msg,
+        irc_nick    => \&irc_nick,
+        irc_notice  => \&irc_notice,
+        irc_part    => \&irc_part,
+        irc_public  => \&irc_public,
+        irc_quit    => \&irc_quit,
+        irc_shutdown    => \&irc_shutdown,
+        sig_int     => \&sig_int,
         load_timers => \&load_timers,
     },
     heap => { irc => \$sophia },
 );
 
+sub _default {
+	my ($event, $args) = @_[ARG0 .. $#_];
+	my @output = ( "$event: " );
+
+	for my $arg (@$args) {
+		if ( ref $arg eq 'ARRAY' ) {
+			push( @output, '[' . join(', ', @$arg ) . ']' );
+		}
+		else {
+			push ( @output, "'$arg'" );
+		}
+	}
+	print join ' ', @output, "\n";
+	return 0;
+}
+
 sub _start {
     my $heap = $_[HEAP];
     my $sophia = ${$heap->{irc}};
+
+    $_[KERNEL]->sig( INT => 'sig_int' );
 
     trigger_error('sophia', "Unable to get the sophia instance from heap (start): $!\n")
         unless $sophia;
@@ -189,9 +223,30 @@ sub irc_001 {
     $_[KERNEL]->alarm( 'load_timers' => time() + 1 );
 }
 
-sub load_timers {
-    sophia_load_timers(\$_[KERNEL]);
-    $_[KERNEL]->alarm( 'load_timers' => time() + 60 );
+sub irc_disconnected {
+    $sophia->yield('shutdown');
+}
+
+sub irc_error {
+    trigger_error('sophia', $_[ARG0]);
+}
+
+sub irc_join {
+}
+
+sub irc_kick {
+}
+
+sub irc_msg {
+}
+
+sub irc_nick {
+}
+
+sub irc_notice {
+}
+
+sub irc_part {
 }
 
 sub irc_public {
@@ -220,9 +275,9 @@ sub irc_public {
     }
 
     # sophia command / global trigger?
-    if ($sophia::COMMANDS->{$sophia::GLOBAL_MODULE}{$trigger}) {
+    if ($sophia::COMMANDS->{$CONFIGURATIONS{GLOBAL_MODULE}}{$trigger}) {
         eval {
-            $x = &{$sophia::COMMANDS->{$sophia::GLOBAL_MODULE}{$trigger}{init}}(\@_);
+            $x = &{$sophia::COMMANDS->{$CONFIGURATIONS{GLOBAL_MODULE}}{$trigger}{init}}(\@_);
             1;
         };
         sophia_log("sophia", "[ERROR] " . $@) if $@;
@@ -242,23 +297,29 @@ sub irc_public {
     }
 }
 
-sub irc_msg {
+sub irc_quit {
 }
 
-sub _default {
-	my ($event, $args) = @_[ARG0 .. $#_];
-	my @output = ( "$event: " );
+sub irc_shutdown {
+    if ($CONFIGURATIONS{DO_RESTART}) {
+        if ($CONFIGURATIONS{IN_DEBUG_MODE}) {
+            `$Bin/sophia --debug`;
+        }
+        else {
+            `$Bin/sophia`;
+        }
+    }
+    exit;
+}
 
-	for my $arg (@$args) {
-		if ( ref $arg eq 'ARRAY' ) {
-			push( @output, '[' . join(', ', @$arg ) . ']' );
-		}
-		else {
-			push ( @output, "'$arg'" );
-		}
-	}
-	print join ' ', @output, "\n";
-	return 0;
+sub sig_int {
+    $sophia->yield( quit => 'Shutting down ... ' );
+    $_[KERNEL]->sig_handled();
+}
+
+sub load_timers {
+    sophia_load_timers(\$_[KERNEL]);
+    $_[KERNEL]->alarm( 'load_timers' => time() + 60 );
 }
 
 POE::Kernel->run();

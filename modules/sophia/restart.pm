@@ -23,16 +23,8 @@ sub sophia_restart {
     return unless is_owner($who);
 
     sophia_log('sophia', sprintf('Restarting sophia requested by: %s', $who));
+    $sophia::SOPHIA_DO_RESTART = 1;
     $sophia::sophia->yield(quit => 'Restarting ... ');
-    $sophia::sophia->disconnect();
-    
-    if ($sophia::DEBUG_MODE) {
-        `$Bin/sophia --debug`;
-    }
-    else {
-        `$Bin/sophia`;
-    }
-    exit;
 }
 
 1;

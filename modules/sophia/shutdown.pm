@@ -24,8 +24,6 @@ sub sophia_shutdown {
 
     sophia_log('sophia', sprintf('Shutting down sophia requested by: %s.', $who));
     $sophia::sophia->yield(quit => 'Shutting down ... ');
-    $sophia::sophia->disconnect();
-    exit;
 }
 
 1;

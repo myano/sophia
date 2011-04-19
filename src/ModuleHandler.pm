@@ -1,6 +1,7 @@
 use strict;
 use warnings;
 
+my $global_module = $sophia::CONFIGURATIONS{GLOBAL_MODULE};
 sub sophia_module_load {
     my $module = $_[0];
     $module =~ s/\./\//;
@@ -66,7 +67,7 @@ sub sophia_command_add {
     my ($module, $command);
     $module = substr $module_command, 0, index($module_command, '.');
     $command = substr $module_command, index($module_command, '.') + 1;
-    return if $module eq $sophia::GLOBAL_MODULE;
+    return if $module eq $global_module;
 
     $sophia::COMMANDS->{$module}{$command}{init} = $cmd_hook;
     $sophia::COMMANDS->{$module}{$command}{desc} = $cmd_desc;
@@ -75,9 +76,9 @@ sub sophia_command_add {
 
 sub sophia_global_command_add {
     my ($command, $cmd_hook, $cmd_desc, $cmd_help) = @_;
-    $sophia::COMMANDS->{$sophia::GLOBAL_MODULE}{$command}{init} = $cmd_hook;
-    $sophia::COMMANDS->{$sophia::GLOBAL_MODULE}{$command}{desc} = $cmd_desc;
-    $sophia::COMMANDS->{$sophia::GLOBAL_MODULE}{$command}{help} = $cmd_help;
+    $sophia::COMMANDS->{$global_module}{$command}{init} = $cmd_hook;
+    $sophia::COMMANDS->{$global_module}{$command}{desc} = $cmd_desc;
+    $sophia::COMMANDS->{$global_module}{$command}{help} = $cmd_help;
 }
 
 sub sophia_command_del {
@@ -86,7 +87,7 @@ sub sophia_command_del {
 
     my $module = substr $module_command, 0, index($module_command, '.');
     my $command = substr $module_command, index($module_command, '.') + 1;
-    return unless $module && $command && $module ne $sophia::GLOBAL_MODULE;
+    return unless $module && $command && $module ne $global_module;
 
     delete $sophia::COMMANDS->{$module}{$command};
 }
@@ -95,7 +96,7 @@ sub sophia_global_command_del {
     my $command = $_[0];
     return unless $command;
 
-    delete $sophia::COMMANDS->{$sophia::GLOBAL_MODULE}{$command};
+    delete $sophia::COMMANDS->{$global_module}{$command};
 }
 
 sub sophia_timer_add {
@@ -105,9 +106,9 @@ sub sophia_timer_add {
 }
 
 sub sophia_load_modules {
-    my $modconf = $sophia::MODULES_CONFIG;
+    open MODULES, "$Bin/../etc/$sophia::CONFIGURATIONS{MODULES_CONFIG}"
+        or trigger_error('sophia', "Error opening modules config: $!");
 
-    open MODULES, "$Bin/../etc/$modconf" or trigger_error('sophia', "Error opening modules config: $!");
     LINE: while (<MODULES>) {
         chomp;
         s/^\s+//;
