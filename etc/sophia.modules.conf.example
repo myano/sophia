@@ -2,6 +2,7 @@
 
 # These modules are recommended!
 loadmodule "common.main";
+
 loadmodule "sophia.main";
 loadmodule "sophia.restart";
 loadmodule "sophia.shutdown";
@@ -10,17 +11,30 @@ loadmodule "sophia.part";
 loadmodule "sophia.modload";
 loadmodule "sophia.modunload";
 loadmodule "sophia.modreload";
+
 loadmodule "admin.main";
 loadmodule "admin.ban";
+loadmodule "admin.deop";
+loadmodule "admin.devoice";
 loadmodule "admin.kick";
+loadmodule "admin.op";
 loadmodule "admin.quiet";
 loadmodule "admin.topic";
 loadmodule "admin.unban";
 loadmodule "admin.unquiet";
+loadmodule "admin.voice";
 
 # These modules are optional
+loadmodule "google.main";
+loadmodule "google.calc";
+loadmodule "google.translate";
+
 loadmodule "public.main";
 loadmodule "public.urltitle";
 
+loadmodule "games.main";
+loadmodule "games.roulette";
+
 loadmodule "web.main";
 loadmodule "web.acronym";
+loadmodule "web.ln_s";
