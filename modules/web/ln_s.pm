@@ -28,6 +28,9 @@ sub web_lns {
     $content =~ s/^\s*//;
     return unless $content =~ /^http:\/\//;
 
+    $idx = index $content, ' ';
+    $content = substr($content, 0, $idx) unless $idx == -1;
+
     my $result = get_lns(\$content);
     $result = ${$result};
     return unless $result;
