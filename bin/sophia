@@ -275,14 +275,6 @@ sub irc_part {
 sub irc_public {
     exec_events($EVENTSCONF{public}, \@_);
     exec_triggers(\@_);
-    # public commands
-    #for (keys %{$sophia::COMMANDS->{public}}) {
-    #eval {
-    #&{$sophia::COMMANDS->{public}{$_}{init}}(\@_);
-    #1;
-    #};
-    #sophia_log('sophia', '[ERROR] ' . $@) if $@;
-    #}
 }
 
 sub irc_quit {
@@ -330,7 +322,7 @@ sub exec_triggers {
     my $content = $args[ARG2];
 
     # triggers ?
-    return unless $content =~ /^$SOPHIA{trigger}/;
+    return unless $content && $content =~ /^$SOPHIA{trigger}/;
     $content =~ s/^$SOPHIA{trigger}//;
 
     my ($module, $command, $trigger, $x);
