@@ -3,13 +3,19 @@
 use strict;
 use warnings;
 use FindBin qw($Bin);
+use Getopt::Long;
 
-if ( -e "$Bin/../etc/sophia.conf" ) {
+my $force = 0;
+GetOptions(
+    'force' => \$force,
+);
+
+if ( !$force && -e "$Bin/../etc/sophia.conf" ) {
     print "sophia.conf file already exists.\n";
     exit;
 }
 
-if ( -e "$Bin/../etc/sophia.conf.example" ) {
+if ( !$force && -e "$Bin/../etc/sophia.conf.example" ) {
     print "Check sophia.conf.example in etc directory.\n";
     exit;
 }
@@ -26,7 +32,7 @@ print CONFIG 'realname = "Sophia"' . "\n";
 print CONFIG 'password = ""             # used with NickServ. Leave blank if it doesn\'t apply.' . "\n";
 print CONFIG 'usermode = "+i"' . "\n";
 print CONFIG "\n\n";
-print CONFIG 'server = "chat.freenode.net"' . "\n";
+print CONFIG 'server = "irc.domain.net"' . "\n";
 print CONFIG 'port = "6667"' . "\n";
 print CONFIG "\n\n";
 print CONFIG '# owners own the bot and have all rights' . "\n";

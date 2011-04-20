@@ -7,19 +7,21 @@ password = ""             # used with NickServ. Leave blank if it doesn't apply.
 usermode = "+i"
 
 
-server = "chat.freenode.net"
+server = "irc.domain.net"
 port = "6667"
 
 
 # owners own the bot and have all rights
-owner = "Kays"
-owner = "myano"
+# in hostmask format
+owner = "*!*@owner1"
+owner = "*!*@owner2"
 # admins have various rights and rights can be granted by owners
-admin = "o{^_^}o"
+# in hostmask format
+admin = "*!*@admin"
 # this is the trigger for commands
 trigger = "!"
 
 
 # join the following channels
-channel = "##sophia-dev"
-channel = "##Kays"
+channel = "#sophia"
+channel = "#sophia-dev"
