@@ -53,7 +53,18 @@ $CONFIGURATIONS{IN_DEBUG_MODE} = 1 if $opts{debug};
 require ModuleHandler;
 require SophiaGeneral;
 
-our (%COMMANDS, %MODULES, %TIMERS, $sophia);
+our (%COMMANDS, %MODULES, %TIMERS, %EVENTS, %EVENTSCONF, $sophia);
+
+%EVENTSCONF = (
+    join            => 'join',
+    kick            => 'kick',
+    nick            => 'nick',
+    notice          => 'notice',
+    part            => 'part',
+    privmsg         => 'privmsg',
+    public          => 'public',
+    quit            => 'quit',
+);
 
 my %SOPHIA = (
     admins      => {},
@@ -232,72 +243,51 @@ sub irc_error {
 }
 
 sub irc_join {
+    exec_events($EVENTSCONF{join}, \@_);
+    exec_triggers(\@_);
 }
 
 sub irc_kick {
+    exec_events($EVENTSCONF{kick}, \@_);
+    exec_triggers(\@_);
 }
 
 sub irc_msg {
+    exec_events($EVENTSCONF{privmsg}, \@_);
+    exec_triggers(\@_);
 }
 
 sub irc_nick {
+    exec_events($EVENTSCONF{nick}, \@_);
+    exec_triggers(\@_);
 }
 
 sub irc_notice {
+    exec_events($EVENTSCONF{notice}, \@_);
+    exec_triggers(\@_);
 }
 
 sub irc_part {
+    exec_events($EVENTSCONF{part}, \@_);
+    exec_triggers(\@_);
 }
 
 sub irc_public {
-    my $content = $_[ARG2];
-
+    exec_events($EVENTSCONF{public}, \@_);
+    exec_triggers(\@_);
     # public commands
-    for (keys %{$sophia::COMMANDS->{public}}) {
-        eval {
-            &{$sophia::COMMANDS->{public}{$_}{init}}(\@_);
-            1;
-        };
-        sophia_log('sophia', '[ERROR] ' . $@) if $@;
-    }
-
-    # triggers ?
-    return unless $content =~ /^$SOPHIA{trigger}/;
-    $content =~ s/^$SOPHIA{trigger}//;
-
-    my ($module, $command, $trigger, $x);
-
-    if (index($content, ' ') > -1) {
-        $trigger = substr $content, 0, index($content, ' ');
-    }
-    else {
-        $trigger = $content;
-    }
-
-    # sophia command / global trigger?
-    if ($sophia::COMMANDS->{$CONFIGURATIONS{GLOBAL_MODULE}}{$trigger}) {
-        eval {
-            $x = &{$sophia::COMMANDS->{$CONFIGURATIONS{GLOBAL_MODULE}}{$trigger}{init}}(\@_);
-            1;
-        };
-        sophia_log("sophia", "[ERROR] " . $@) if $@;
-    }
-    # module:command trigger
-    elsif ($trigger =~ m/^([^:]+):(.+)$/) {
-        $module = $1;
-        $command = $2;
-
-        if ($sophia::COMMANDS->{$module}{$command}) {
-            eval {
-                $x = &{$sophia::COMMANDS->{$module}{$command}{init}}(\@_);
-                1;
-            };
-            sophia_log("sophia", "[ERROR] " . $@) if $@;
-        }
-    }
+    #for (keys %{$sophia::COMMANDS->{public}}) {
+    #eval {
+    #&{$sophia::COMMANDS->{public}{$_}{init}}(\@_);
+    #1;
+    #};
+    #sophia_log('sophia', '[ERROR] ' . $@) if $@;
+    #}
 }
 
 sub irc_quit {
+    exec_events($EVENTSCONF{quit}, \@_);
+    exec_triggers(\@_);
 }
 
 sub irc_shutdown {
@@ -323,6 +313,55 @@ sub load_timers {
 }
 
 POE::Kernel->run();
+
+sub exec_events {
+    my ($namespace, $args) = @_;
+    for (keys %{$sophia::EVENTS->{$namespace}}) {
+        eval {
+            &{$sophia::EVENTS->{$namespace}{$_}{init}}($args);
+            1;
+        } or sophia_log('sophia', '[ERROR] ' . $!) and sophia_log('sophia', '[ERROR] '. $@);
+    }
+}
+
+sub exec_triggers {
+    my $param = $_[0];
+    my @args = @{$param};
+    my $content = $args[ARG2];
+
+    # triggers ?
+    return unless $content =~ /^$SOPHIA{trigger}/;
+    $content =~ s/^$SOPHIA{trigger}//;
+
+    my ($module, $command, $trigger, $x);
+
+    if (index($content, ' ') > -1) {
+        $trigger = substr $content, 0, index($content, ' ');
+    }
+    else {
+        $trigger = $content;
+    }
+
+    # sophia command / global trigger?
+    if ($sophia::COMMANDS->{$CONFIGURATIONS{GLOBAL_MODULE}}{$trigger}) {
+        eval {
+            $x = &{$sophia::COMMANDS->{$CONFIGURATIONS{GLOBAL_MODULE}}{$trigger}{init}}($param);
+            1;
+        } or sophia_log('sophia', '[ERROR] ' . $!) and sophia_log('sophia', '[ERROR] '. $@);
+    }
+    # module:command trigger
+    elsif ($trigger =~ m/^([^:]+):(.+)$/) {
+        $module = $1;
+        $command = $2;
+
+        if ($sophia::COMMANDS->{$module}{$command}) {
+            eval {
+                $x = &{$sophia::COMMANDS->{$module}{$command}{init}}($param);
+                1;
+            } or sophia_log('sophia', '[ERROR] ' . $!) and sophia_log('sophia', '[ERROR] '. $@);
+        }
+    }
+}
 
 sub is_admin {
     my $who = $_[0];

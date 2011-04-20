@@ -81,6 +81,48 @@ sub sophia_global_command_add {
     $sophia::COMMANDS->{$global_module}{$command}{help} = $cmd_help;
 }
 
+sub sophia_event_join_hook {
+    sophia_event_hook($sophia::EVENTSCONF{join}, \@_); 
+}
+
+sub sophia_event_kick_hook {
+    sophia_event_hook($sophia::EVENTSCONF{kick}, \@_);
+}
+
+sub sophia_event_nick_hook {
+    sophia_event_hook($sophia::EVENTSCONF{nick}, \@_);
+}
+
+sub sophia_event_notice_hook {
+    sophia_event_hook($sophia::EVENTSCONF{notice}, \@_);
+}
+
+sub sophia_event_part_hook {
+    sophia_event_hook($sophia::EVENTSCONF{part}, \@_);
+}
+
+sub sophia_event_privmsg_hook {
+    sophia_event_hook($sophia::EVENTSCONF{privmsg}, \@_);
+}
+
+sub sophia_event_public_hook {
+    sophia_event_hook($sophia::EVENTSCONF{public}, \@_);
+}
+
+sub sophia_event_quit_hook {
+    sophia_event_hook($sophia::EVENTSCONF{quit}, \@_);
+}
+
+sub sophia_event_hook {
+    my ($event, $vals) = @_;
+    my ($mod_cmd, $cmd_hook, $cmd_desc, $cmd_help) = @{$vals};
+    return unless $event;
+
+    $sophia::EVENTS->{$event}{$mod_cmd}{init} = $cmd_hook;
+    $sophia::EVENTS->{$event}{$mod_cmd}{desc} = $cmd_desc;
+    $sophia::EVENTS->{$event}{$mod_cmd}{help} = $cmd_help;
+}
+
 sub sophia_command_del {
     my ($module_command) = @_;
     return unless $module_command;
@@ -97,6 +139,45 @@ sub sophia_global_command_del {
     return unless $command;
 
     delete $sophia::COMMANDS->{$global_module}{$command};
+}
+
+sub sophia_event_join_dehook {
+    sophia_event_dehook($sophia::EVENTSCONF{join}, $_[0]); 
+}
+
+sub sophia_event_kick_dehook {
+    sophia_event_dehook($sophia::EVENTSCONF{kick}, $_[0]);
+}
+
+sub sophia_event_nick_dehook {
+    sophia_event_dehook($sophia::EVENTSCONF{nick}, $_[0]);
+}
+
+sub sophia_event_notice_dehook {
+    sophia_event_dehook($sophia::EVENTSCONF{notice}, $_[0]);
+}
+
+sub sophia_event_part_dehook {
+    sophia_event_dehook($sophia::EVENTSCONF{part}, $_[0]);
+}
+
+sub sophia_event_privmsg_dehook {
+    sophia_event_dehook($sophia::EVENTSCONF{privmsg}, $_[0]);
+}
+
+sub sophia_event_public_dehook {
+    sophia_event_dehook($sophia::EVENTSCONF{public}, $_[0]);
+}
+
+sub sophia_event_quit_dehook {
+    sophia_event_dehook($sophia::EVENTSCONF{quit}, $_[0]);
+}
+
+sub sophia_event_dehook {
+    my ($event, $mod_cmd) = @_;
+    return unless $event && $mod_cmd;
+
+    delete $sophia::EVENTS->{$event}{$mod_cmd};
 }
 
 sub sophia_timer_add {
