@@ -2,7 +2,7 @@ use strict;
 use warnings;
 
 my %roulette_settings = (
-    'COMPLEXITY'    => 5, # the higher the number, the harder 1the game
+    'COMPLEXITY'    => 5, # the higher the number, the harder the game
     'TICK'          => '*TICK*',
     'KICK_REASON'   => 'SNIPED! YOU LOSE!',
     'GAME_STARTED'  => 0,
