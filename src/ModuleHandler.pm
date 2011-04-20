@@ -5,9 +5,15 @@ my $global_module = $sophia::CONFIGURATIONS{GLOBAL_MODULE};
 sub sophia_module_load {
     my $module = $_[0];
     $module =~ s/\./\//;
-    return -1 unless -e "$Bin/../modules/$module.pm";
-    do "$Bin/../modules/$module.pm" and return 1
-        or sophia_log('sophia', $!) and sophia_log('sophia', $@) and return 0;
+    return 0 unless -e "$Bin/../modules/$module.pm";
+
+    unless (my $fd = do "$Bin/../modules/$module.pm") {
+        sophia_log('sophia', "[MODULE] modules/$module.pm cannot be read: $!") unless defined $fd || $!;
+        sophia_log('sophia', "[MODULE] modules/$module.pm failed to compile: $@") if $@;
+        sophia_log('sophia', "[MODULE] modules/$module.pm read and compiled but failed to run") unless $fd;
+        return 0;
+    }
+    return 1;
 }
 
 sub sophia_module_add {
