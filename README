@@ -7,19 +7,39 @@
 #
 #       sophia Perl IRC bot
 
-INSTALL / SETUP
+
+TABLE OF CONTENTS
+-----------------
+    1. INSTALL
+    2. RUN
+    3. TROUBLE / HELP
+    4. CONTRIBUTIONS
+
+
+1. INSTALL
+----------
 
 Run "./configure" to make sure you have the required packages installed. If you do not have the required packages you can install them through CPAN.
 
-PREP
-
 You need to set a configuration file. Copy etc/sophia.conf.example to etc/sophia.conf. Once you copy this file open it up and change the necessary settings. Also if you want all the modules to load on your first start, copy etc/sophia.modules.conf.example to etc/sophia.modules.conf.
 
-RUN
+
+2. RUN
+------
 
 To launch sophia run "./bin/sophia"
 
 
-TROUBLE / HELP
+3. TROUBLE / HELP
+-----------------
 
-You can reach yano or Kays on irc.freenode.net/6667 in ##sophia-dev
+If you need to re-generate a configuration file run "./bin/genconfig".
+
+You can reach the development team on irc.freenode.net/6667 in ##sophia-dev
+
+
+4. CONTRIBUTIONS
+----------------
+
+Kays
+yano
