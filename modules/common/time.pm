@@ -250,7 +250,7 @@ sub common_time {
 
     if ( $content =~ /^[+-]?\d+$/ ) {
         my $offset = $content;
-        if ($offset > 100000) {
+        if (($offset > 100000) || ($offset < 100000)) {
             return;
         }
         my $offsetsec = $offset * 3600;
