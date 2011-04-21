@@ -1,26 +1,26 @@
 use strict;
 use warnings;
 
-sophia_module_add('web.dictionary', '1.0', \&init_web_dictionary, \&deinit_web_dictionary);
+sophia_module_add('google.dictionary', '1.0', \&init_google_dictionary, \&deinit_google_dictionary);
 
-sub init_web_dictionary {
-    sophia_command_add('web.dict', \&web_dictionary, 'Defines a word.', '');
-    sophia_global_command_add('dict', \&web_dictionary, 'Defines a word.', '');
+sub init_google_dictionary {
+    sophia_command_add('google.dict', \&google_dictionary, 'Defines a word.', '');
+    sophia_global_command_add('dict', \&google_dictionary, 'Defines a word.', '');
 
     return 1;
 }
 
-sub deinit_web_dictionary {
-    delete_sub 'init_web_dictionary';
-    delete_sub 'web_dictionary';
-    sophia_command_del 'web.dict';
-    delete_sub 'deinit_web_dictionary';
+sub deinit_google_dictionary {
+    delete_sub 'init_google_dictionary';
+    delete_sub 'google_dictionary';
+    sophia_command_del 'google.dict';
+    delete_sub 'deinit_google_dictionary';
 }
 
 my $max_entries = 2;
 my $bold = POE::Component::IRC::Common::BOLD;
 
-sub web_dictionary {
+sub google_dictionary {
     my $param = $_[0];
     my @args = @{$param};
     my ($where, $content) = @args[ARG1, ARG2];
