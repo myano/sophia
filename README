@@ -1,14 +1,25 @@
-This is an IRC bot to connect to IRC networks.
-
-Many things are still up in the air. However, the main point is not to use Python's asynchat/asyncore library. We have moved to writing this in Perl.
-
-
+#                   _     _       
+#   ___  ___  _ __ | |__ (_) __ _ 
+#  / __|/ _ \| '_ \| '_ \| |/ _` |
+#  \__ \ (_) | |_) | | | | | (_| |
+#  |___/\___/| .__/|_| |_|_|\__,_|
+#  =========~|_|~=================
+#
+#       sophia Perl IRC bot
 
 INSTALL / SETUP
 
-Run "./configure" to make sure you have the required packages installed.
+Run "./configure" to make sure you have the required packages installed. If you do not have the required packages you can instal them through CPAN.
+
+PREP
+
+You need to set a configuration file. Copy etc/sophia.conf.example to etc/sophia.conf. Once you copy this file open it up and change the necessary settings. Also if you want all the modules to load on your first start, copy etc/sophia.modules.conf.example to etc/sophia.modules.conf.
 
 RUN
 
-Run "./bin/sophia" to start sophia!
+To launch sophia run "./bin/sophia"
 
+
+TROUBLE / HELP
+
+You can reach yano or Kays on irc.freenode.net/6667 in ##sophia-dev
