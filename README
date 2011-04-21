@@ -9,7 +9,7 @@
 
 INSTALL / SETUP
 
-Run "./configure" to make sure you have the required packages installed. If you do not have the required packages you can instal them through CPAN.
+Run "./configure" to make sure you have the required packages installed. If you do not have the required packages you can install them through CPAN.
 
 PREP
 
