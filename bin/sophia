@@ -111,7 +111,7 @@ LINE: while (<CONF>) {
         }
         when ("realname") { $SOPHIA{ircname} = $val; }
         when ("server")   { $SOPHIA{server} = $val; }
-        when ("trigger")  { $SOPHIA{trigger} = $val; }
+        when ("trigger")  { $SOPHIA{trigger} = sprintf('\%s', $val); }
         when ("usermode") { $SOPHIA{usermode} = $val; }
         when ("username") { $SOPHIA{username} = $val; }
     }
