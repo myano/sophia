@@ -70,7 +70,6 @@ sub games_roulette {
     
     if ($rand == $roulette_settings{'NUMBER'}) {
         sophia_kick(\$where->[0], \substr($who, 0, index($who, '!')), \$roulette_settings{'KICK_REASON'});
-        sophia_write( \$where->[0], \'ENDED' );
         &games_roulette_stop;
         return;
     }
