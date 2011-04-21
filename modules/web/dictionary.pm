@@ -5,6 +5,7 @@ sophia_module_add('web.dictionary', '1.0', \&init_web_dictionary, \&deinit_web_d
 
 sub init_web_dictionary {
     sophia_command_add('web.dict', \&web_dictionary, 'Defines a word.', '');
+    sophia_global_command_add('dict', \&web_dictionary, 'Defines a word.', '');
 
     return 1;
 }
