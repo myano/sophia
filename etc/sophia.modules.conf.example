@@ -25,6 +25,8 @@ loadmodule "admin.unquiet";
 loadmodule "admin.voice";
 
 # These modules are optional
+loadmodule "common.time";
+
 loadmodule "google.main";
 loadmodule "google.calc";
 loadmodule "google.translate";
@@ -37,4 +39,6 @@ loadmodule "games.roulette";
 
 loadmodule "web.main";
 loadmodule "web.acronym";
+loadmodule "web.dictionary";
 loadmodule "web.ln_s";
+loadmodule "web.wikipedia";
