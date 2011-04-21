@@ -61,13 +61,6 @@ sub main_packages {
         1;
     } or print "not found (install Switch).\n";
 
-    print "Checking for LWP::UserAgent ..... ";
-    eval {
-        use LWP::UserAgent;
-        print "OK!\n";
-        1;
-    } or print "not found (install LWP::UserAgent).\n";
-
     print "Checking for HTML::Entities ..... ";
     eval {
         use HTML::Entities;
