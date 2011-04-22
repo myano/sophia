@@ -35,8 +35,9 @@ sub get_http_response {
 
 sub get_file_contents {
     my $response = get_http_response($_[0]);
+    $response = ${$response};
 
-    return if ($response->is_error());
+    return if $response->is_error;
     return \$response->content;
 }
 
