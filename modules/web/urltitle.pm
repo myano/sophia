@@ -16,6 +16,7 @@ sub deinit_web_urltitle {
     delete_sub 'deinit_web_urltitle';
 }
 
+my $max_redirects = 10;
 sub web_urltitle {
     my $param = $_[0];
     my @args = @{$param};
@@ -23,9 +24,19 @@ sub web_urltitle {
 
     return unless $content =~ /^http:\/\/[^ ]+$/;
 
-    my $objHTTP = get_file_contents(\$content);
+    my $objHTTP = get_http_response(\$content);
     $objHTTP = ${$objHTTP};
 
+    REQUEST: for (1 .. $max_redirects) {
+        if ($objHTTP->code =~ /^3/) {
+            $objHTTP = get_http_response(\$objHTTP->header('Location'));
+            $objHTTP = ${$objHTTP};
+        }
+        return if $objHTTP->is_error;
+        last REQUEST if $objHTTP->is_success;
+    }
+
+    $objHTTP = $objHTTP->content;
     return if index($objHTTP, '<title>') == -1;
 
     my $start = index($objHTTP, '<title>') + 7;

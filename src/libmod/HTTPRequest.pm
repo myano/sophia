@@ -17,17 +17,24 @@ sub loadXML {
     return \$objXML->parse_string($result);
 }
 
-sub get_file_contents {
-    my $url = $_[0];
-    $url = ${$url};
-    return unless ($url =~ m/^http:\/\/[^ ]+$/);
+sub get_http_response {
+    my $uri = $_[0];
+    $uri = ${$uri};
+    return unless ($uri =~ /^https?:\/\/[^ ]+$/);
 
-    $url = URI::Heuristic::uf_urlstr($url);
+    $uri = URI::Heuristic::uf_urlstr($uri);
     my $ua = LWP::UserAgent->new;
+    $ua->timeout(10);
+    $ua->env_proxy;
+    $ua->max_redirect(0);
     $ua->agent("Mozilla/5.0 (Windows; U; Windows NT 6.0; en-US; rv:1.9.1.6) Gecko/20091201 Firefox/3.5.6 GTB5");
+    my $response = $ua->get($uri);
 
-    my $req = HTTP::Request->new( GET => $url );
-    my $response = $ua->request($req);
+    return \$response;
+}
+
+sub get_file_contents {
+    my $response = get_http_response($_[0]);
 
     return if ($response->is_error());
     return \$response->content;
@@ -36,6 +43,8 @@ sub get_file_contents {
 sub get_lns {
     my $uri = $_[0];
     $uri = ${$uri};
+    return unless ($uri =~ /^https?:\/\/[^ ]+$/);
+
     $uri = URI::Heuristic::uf_urlstr($uri);
 
     my $ua = LWP::UserAgent->new;
