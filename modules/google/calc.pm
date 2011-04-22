@@ -5,6 +5,7 @@ sophia_module_add('google.calc', '1.0', \&init_google_calc, \&deinit_google_calc
 
 sub init_google_calc {
     sophia_command_add('google.calc', \&google_calc, 'Uses Google for calculating stuff.', '');
+    sophia_global_command_add('calc', \&google_calc, 'Uses Google for calculating stuff.', '');
 
     return 1;
 }
