@@ -38,10 +38,16 @@ sub web_wikipedia {
 
     $idx = index $objXML, '>', $idx + 1;
     my $result = substr $objXML, $idx + 1, index($objXML, '</Description>', $idx) - $idx - 1;
+    unless (length($result) > 2) {
+        $result = '';
+    }
+    else {
+        $result .= '   ';
+    }
 
     $idx = index $objXML, '<Url ', $idx;
     $idx = index $objXML, '>', $idx + 1;
-    $result .= '  Read: ' . substr($objXML, $idx + 1, index($objXML, '</Url>', $idx) - $idx - 1);
+    $result .= 'Read: ' . substr($objXML, $idx + 1, index($objXML, '</Url>', $idx) - $idx - 1);
 
     sophia_write( \$where->[0], \$result );
 }
