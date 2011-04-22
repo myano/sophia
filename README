@@ -14,6 +14,7 @@ TABLE OF CONTENTS
     2. RUN
     3. TROUBLE / HELP
     4. CONTRIBUTIONS
+    5. LICENSE
 
 
 1. INSTALL
@@ -48,4 +49,4 @@ yano
 5. LICENSE
 ----------
 
-Sophia is licensed under the Eiffel Forum License version 2. A fully copy of the license can be found in the LICENSE file. 
+sophia is licensed under the Eiffel Forum License version 2. A fully copy of the license can be found in the LICENSE file. 
