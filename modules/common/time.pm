@@ -241,12 +241,10 @@ sub common_time {
 
     my $idx = index $content, ' ';
     $content = $idx > -1 ? substr($content, $idx + 1) : '';
-
-    if ( $content =~ /^[+-]?\d+$/ ) {
+    $content =~ s/\s+//g;
+    if ( $content =~ /[+-]?\d+/ ) {
         my $offset = $content;
-        if (($offset > 100000) || ($offset < 100000)) {
-            return;
-        }
+        return if abs($offset) > 100000;
         my $offsetsec = $offset * 3600;
         sophia_write( \$where->[0], \sprintf('%s %s', scalar(gmtime(time() + $offsetsec)), $offset) );
     }
