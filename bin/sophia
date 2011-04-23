@@ -125,6 +125,11 @@ unless ($CONFIGURATIONS{IN_DEBUG_MODE}) {
     unless ($pid == 0) {
         print "sophia forked into the background with pid: $pid\n";
         sophia_log('sophia',"sophia forked into the background with pid: $pid");
+
+        open PIDFILE, "> $Bin/../etc/sophia.pid" or trigger_error('sophia', 'Missing etc directory.');
+        print PIDFILE "$pid";
+        close PIDFILE;
+
         exit;
     }
     setsid or trigger_error('sophia', "sophia cannot start a new session: $!");
@@ -132,10 +137,6 @@ unless ($CONFIGURATIONS{IN_DEBUG_MODE}) {
 else {
     $pid = $$;
 }
-
-open PIDFILE, "> $Bin/../etc/sophia.pid" or trigger_error('sophia', 'Missing etc directory.');
-print PIDFILE "$pid";
-close PIDFILE;
 
 unless ($CONFIGURATIONS{IN_DEBUG_MODE}) {
     open STDIN, '/dev/null' or trigger_error('sophia', "sophia cannot read /dev/null: $!\n");
