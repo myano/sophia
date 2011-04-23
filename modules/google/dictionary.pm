@@ -58,6 +58,7 @@ sub google_dictionary {
         $idx += 8;
         
         $result = substr($objHTML, $idx, index($objHTML, '"', $idx) - $idx);
+        $result =~ s/\\x22/"/g;
         $result =~ s/\\x27/'/g;
         $result =~ s/\\x3c\/?em\\x3e//g;
         push @results, sprintf($bold . '%s: ' . $bold . '%s', $term, $result);
