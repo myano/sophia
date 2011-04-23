@@ -23,9 +23,9 @@ sub web_urltitle {
     my ($where, $content) = ($args[ARG1], $args[ARG2]);
 
     my $objHTTP = get_http_response(\$content);
-    $objHTTP = ${$objHTTP};
-
     return unless $objHTTP;
+    
+    $objHTTP = ${$objHTTP};
 
     REQUEST: for (1 .. $max_redirects) {
         if ($objHTTP->code =~ /^3/) {
