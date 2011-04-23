@@ -22,10 +22,10 @@ sub web_urltitle {
     my @args = @{$param};
     my ($where, $content) = ($args[ARG1], $args[ARG2]);
 
-    return unless $content =~ /^http:\/\/[^ ]+$/;
-
     my $objHTTP = get_http_response(\$content);
     $objHTTP = ${$objHTTP};
+
+    return unless $objHTTP;
 
     REQUEST: for (1 .. $max_redirects) {
         if ($objHTTP->code =~ /^3/) {
