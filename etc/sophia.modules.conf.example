@@ -25,20 +25,20 @@ loadmodule "admin.unquiet";
 loadmodule "admin.voice";
 
 # These modules are optional
-loadmodule "common.time";
+# loadmodule "common.time";
 
-loadmodule "google.main";
-loadmodule "google.calc";
-loadmodule "google.translate";
+# loadmodule "google.main";
+# loadmodule "google.calc";
+# loadmodule "google.dictionary";
+# loadmodule "google.translate";
 
-loadmodule "public.main";
-loadmodule "public.urltitle";
+# loadmodule "public.main";
+# loadmodule "public.urltitle";
 
-loadmodule "games.main";
-loadmodule "games.roulette";
+# loadmodule "games.main";
+# loadmodule "games.roulette";
 
-loadmodule "web.main";
-loadmodule "web.acronym";
-loadmodule "web.dictionary";
-loadmodule "web.ln_s";
-loadmodule "web.wikipedia";
+# loadmodule "web.main";
+# loadmodule "web.acronym";
+# loadmodule "web.ln_s";
+# loadmodule "web.wikipedia";
