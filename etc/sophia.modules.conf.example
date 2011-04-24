@@ -1,8 +1,6 @@
 # indicates a comment line
 
 # These modules are recommended!
-loadmodule "common.main";
-
 loadmodule "sophia.main";
 loadmodule "sophia.restart";
 loadmodule "sophia.shutdown";
@@ -25,15 +23,14 @@ loadmodule "admin.unquiet";
 loadmodule "admin.voice";
 
 # These modules are optional
+# loadmodule "common.main";
 # loadmodule "common.time";
 
 # loadmodule "google.main";
 # loadmodule "google.calc";
 # loadmodule "google.dictionary";
 # loadmodule "google.translate";
-
-# loadmodule "public.main";
-# loadmodule "public.urltitle";
+# loadmodule "google.weather";
 
 # loadmodule "games.main";
 # loadmodule "games.roulette";
@@ -41,4 +38,5 @@ loadmodule "admin.voice";
 # loadmodule "web.main";
 # loadmodule "web.acronym";
 # loadmodule "web.ln_s";
+# loadmodule "web.urltitle";
 # loadmodule "web.wikipedia";
