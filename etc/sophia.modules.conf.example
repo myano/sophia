@@ -30,7 +30,6 @@ loadmodule "admin.voice";
 # loadmodule "google.calc";
 # loadmodule "google.dictionary";
 # loadmodule "google.translate";
-# loadmodule "google.weather";
 
 # loadmodule "games.main";
 # loadmodule "games.roulette";
