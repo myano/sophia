@@ -51,9 +51,8 @@ GetOptions(
 $CONFIGURATIONS{IN_DEBUG_MODE} = 1 if $opts{debug};
 
 require ModuleHandler;
-require SophiaGeneral;
 
-our (%COMMANDS, %MODULES, %TIMERS, %EVENTS, %EVENTSCONF, $sophia);
+our (%COMMANDS, %MODULES, %TIMERS, %EVENTS, %EVENTSCONF);
 
 %EVENTSCONF = (
     join            => 'join',
@@ -144,7 +143,7 @@ unless ($CONFIGURATIONS{IN_DEBUG_MODE}) {
     open STDERR, '>> /dev/null' or trigger_error('sophia', "sophia cannot write to /dev/null: $!\n");
 }
 
-$sophia = POE::Component::IRC->spawn(
+my $sophia = POE::Component::IRC->spawn(
     Nick        => $SOPHIA{nick},
     Username    => $SOPHIA{username},
     Password    => $SOPHIA{password},
@@ -195,8 +194,6 @@ sub _default {
 
 sub _start {
     my $heap = $_[HEAP];
-    my $sophia = ${$heap->{sophia}};
-
     $_[KERNEL]->sig( INT => 'sig_int' );
 
     trigger_error('sophia', "Unable to get the sophia instance from heap (start): $!\n")
@@ -213,7 +210,6 @@ sub _stop {
 
 sub irc_001 {
     my $sender = $_[SENDER];
-    my $sophia = ${$_[HEAP]->{sophia}};
     
     trigger_error('sophia', "Unable to get a sophia instance from heap (001): $!\n")
         unless $sophia;
@@ -383,4 +379,28 @@ sub is_owner {
     }
 
     return 0;
+}
+
+sub sophia_write {
+    my ($chans, $text) = @_;
+    my @channels;
+    my @output;
+
+    if (ref($chans) eq "SCALAR") {
+        push @channels, $$chans;
+    }
+    elsif (ref($chans) eq "ARRAY") {
+        @channels = @$chans;
+    }
+
+    if (ref($text) eq "SCALAR") {
+        push @output, $$text;
+    }
+    elsif (ref($text) eq "ARRAY") {
+        @output = @$text;
+    }
+
+    for my $chan (@channels) {
+        $sophia->yield(privmsg => $chan => $_) for @output;
+    }
 }

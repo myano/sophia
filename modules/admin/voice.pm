@@ -21,7 +21,7 @@ sub deinit_admin_voice {
 sub admin_voice {
     my $param = $_[0];
     my @args = @{$param};
-    my ($who, $where, $content) = @args[ARG0 .. ARG2];
+    my ($heap, $who, $where, $content) = @args[HEAP, ARG0 .. ARG2];
     return unless is_admin($who);
 
     my $idx = index $content, ' ';
@@ -30,14 +30,15 @@ sub admin_voice {
         $content =~ s/^\s+//;
     }
 
+    my $sophia = ${$heap->{sophia}};
     unless ($idx > -1 && $content) {
         $content = substr $who, 0, index($who, '!');
-        $sophia::sophia->yield( mode => $where->[0] => '+v' => $content );
+        $sophia->yield( mode => $where->[0] => '+v' => $content );
         return;
     }
 
     my @parts = split / /, $content;
-    $sophia::sophia->yield( mode => $where->[0] => sprintf('+%s', 'v' x scalar(@parts)) => $content );
+    $sophia->yield( mode => $where->[0] => sprintf('+%s', 'v' x scalar(@parts)) => $content );
 }
 
 1;

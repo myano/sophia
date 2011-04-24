@@ -19,12 +19,13 @@ sub deinit_sophia_restart {
 sub sophia_restart {
     my $param = $_[0];
     my @args = @{$param};
-    my $who = $args[ARG0];
+    my ($heap, $who) = @args[HEAP, ARG0];
     return unless is_owner($who);
 
+    my $sophia = ${$heap->{sophia}};
     sophia_log('sophia', sprintf('Restarting sophia requested by: %s', $who));
     $sophia::CONFIGURATIONS{DO_RESTART} = 1;
-    $sophia::sophia->yield(quit => 'Restarting ... ');
+    $sophia->yield(quit => 'Restarting ... ');
 }
 
 1;
