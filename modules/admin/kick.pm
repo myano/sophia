@@ -21,7 +21,7 @@ sub deinit_admin_kick {
 sub admin_kick {
     my $param = $_[0];
     my @args = @{$param};
-    my ($who, $where, $content) = @args[ARG0 .. ARG2];
+    my ($heap, $who, $where, $content) = @args[HEAP, ARG0 .. ARG2];
     return unless is_admin($who);
     
     my $idx = index $content, ' ';
@@ -36,7 +36,8 @@ sub admin_kick {
     my $target = substr $content, 0, $idx;
     my $kick_msg = substr $content, $idx + 1;
 
-    sophia_kick(\$where->[0], \$target, \$kick_msg);
+    my $sophia = ${$heap->{sophia}};
+    $sophia->yield( kick => $where->[0] => $target => $kick_msg );
 }
 
 1;
