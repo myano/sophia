@@ -21,7 +21,7 @@ sub deinit_admin_deop {
 sub admin_deop {
     my $param = $_[0];
     my @args = @{$param};
-    my ($who, $where, $content) = @args[ARG0 .. ARG2];
+    my ($heap, $who, $where, $content) = @args[HEAP, ARG0 .. ARG2];
     return unless is_admin($who);
 
     my $idx = index $content, ' ';
@@ -30,14 +30,15 @@ sub admin_deop {
         $content =~ s/^\s+//;
     }
 
+    my $sophia = ${$heap->{sophia}};
     unless ($idx > -1 && $content) {
         $content = substr $who, 0, index($who, '!');
-        $sophia::sophia->yield( mode => $where->[0] => "-o" => $content );
+        $sophia->yield( mode => $where->[0] => "-o" => $content );
         return;
     }
 
     my @parts = split / /, $content;
-    $sophia::sophia->yield( mode => $where->[0] => sprintf('-%s', 'o' x scalar(@parts)) => $content );
+    $sophia->yield( mode => $where->[0] => sprintf('-%s', 'o' x scalar(@parts)) => $content );
 }
 
 1;

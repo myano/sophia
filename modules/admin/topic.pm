@@ -21,18 +21,19 @@ sub deinit_admin_topic {
 sub admin_topic {
     my $param = $_[0];
     my @args = @{$param};
-    my ($who, $where, $content) = @args[ARG0 .. ARG2];
+    my ($heap, $who, $where, $content) = @args[HEAP, ARG0 .. ARG2];
 
+    my $sophia = ${$heap->{sophia}};
     my $idx = index $content, ' ';
     unless ($idx > -1) {
-        $sophia::sophia->yield( topic => $where->[0] );
+        $sophia->yield( topic => $where->[0] );
         return;
     }
 
     return unless is_admin($who);
 
     $content = substr $content, $idx + 1;
-    $sophia::sophia->yield( topic => $where->[0] => $content );
+    $sophia->yield( topic => $where->[0] => $content );
 }
 
 1;

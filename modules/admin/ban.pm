@@ -21,7 +21,7 @@ sub deinit_admin_ban {
 sub admin_ban {
     my $param = $_[0];
     my @args = @{$param};
-    my ($who, $where, $content) = @args[ARG0 .. ARG2];
+    my ($heap, $who, $where, $content) = @args[HEAP, ARG0 .. ARG2];
     return unless is_admin($who);
 
     my $idx = index $content, ' ';
@@ -30,9 +30,10 @@ sub admin_ban {
     $content = substr $content, $idx + 1;
     return unless $content;
 
+    my $sophia = ${$heap->{sophia}};
     my @parts = split / /, $content;
 
-    $sophia::sophia->yield( mode => $where->[0] => sprintf('+%s', 'b' x scalar(@parts)) => $content );
+    $sophia->yield( mode => $where->[0] => sprintf('+%s', 'b' x scalar(@parts)) => $content );
 }
 
 1;
