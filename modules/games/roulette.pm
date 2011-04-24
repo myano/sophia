@@ -33,7 +33,7 @@ sub deinit_games_roulette {
 sub games_roulette {
     my $param = $_[0];
     my @args = @{$param};
-    my ($who, $where, $content) = @args[ARG0 .. ARG2];
+    my ($heap, $who, $where, $content) = @args[HEAP, ARG0 .. ARG2];
 
     my $idx = index $content, ' ';
     unless ($idx == -1) {
@@ -57,6 +57,7 @@ sub games_roulette {
 
     return if $who eq $roulette_settings{'LAST_PLAYER'};
 
+    my $sophia = ${$heap->{sophia}};
     $roulette_settings{'LAST_PLAYER'} = $who;
     $roulette_settings{'LAST_ACTIVE'} = time;
     my $rand = int(rand $roulette_settings{'COMPLEXITY'});
@@ -69,7 +70,7 @@ sub games_roulette {
     }
     
     if ($rand == $roulette_settings{'NUMBER'}) {
-        sophia_kick(\$where->[0], \substr($who, 0, index($who, '!')), \$roulette_settings{'KICK_REASON'});
+        $sophia->yield( kick => $where->[0] => substr($who, 0, index($who, '!')) => $roulette_settings{'KICK_REASON'} );
         &games_roulette_stop;
         return;
     }

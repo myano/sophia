@@ -174,7 +174,7 @@ POE::Session->create(
         sig_int     => \&sig_int,
         load_timers => \&load_timers,
     },
-    heap => { irc => \$sophia },
+    heap => { sophia => \$sophia },
 );
 
 sub _default {
@@ -195,7 +195,7 @@ sub _default {
 
 sub _start {
     my $heap = $_[HEAP];
-    my $sophia = ${$heap->{irc}};
+    my $sophia = ${$heap->{sophia}};
 
     $_[KERNEL]->sig( INT => 'sig_int' );
 
@@ -213,7 +213,7 @@ sub _stop {
 
 sub irc_001 {
     my $sender = $_[SENDER];
-    my $sophia = $sender->get_heap();
+    my $sophia = ${$_[HEAP]->{sophia}};
     
     trigger_error('sophia', "Unable to get a sophia instance from heap (001): $!\n")
         unless $sophia;
