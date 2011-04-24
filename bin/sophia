@@ -23,7 +23,7 @@ use feature 'switch';
 
 our %CONFIGURATIONS;
 %CONFIGURATIONS = (
-    VERSION         => 'sophia-1.0-dev',
+    VERSION         => 'sophia-1.0',
     MAIN_CONFIG     => 'sophia.conf',
     MODULES_CONFIG  => 'sophia.modules.conf',
     GLOBAL_MODULE   => 'sophia',
