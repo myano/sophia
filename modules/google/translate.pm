@@ -35,11 +35,8 @@ sub google_translate {
     if ($objHTTP =~ m/{"translatedText":"([^"]+)"}/) {
         my $val = $1;
         $val =~ s/\\u0026/&/g;
-        sophia_write( \$where->[0], \$val );
+        sophia_write( \$where->[0], \decode_entities($val) );
     }
-
-    ($objHTTP, $content) = undef;
-    @args = undef;
 }
 
 1;
