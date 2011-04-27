@@ -45,7 +45,7 @@ sub web_urltitle {
     $title =~ s/^\s+//;
     $title =~ s/\n//;
     $title =~ s/\s{2,}/ /;
-    sophia_write( \$where->[0], \$title );
+    sophia_write( \$where->[0], \decode_entities($title) );
 }
 
 1;
