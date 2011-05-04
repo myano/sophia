@@ -33,7 +33,7 @@ sub google_calc {
     if ($objHTML =~ /<h(2|3) class=r( [^>]+)?><b>(.+?) = (.+?)<\/b><\/h(2|3)>/) {
         my ($eq, $ans) = ($3, $4);
         $eq =~ s/<font size=-2> <\/font>/,/g;
-        $ans =~ s/<sup>(\d+)<\/sup>/^$1/g;
+        $ans =~ s/<sup>([^<]+)<\/sup>/^$1/g;
         $ans =~ s/<font size=-2> <\/font>/,/g;
 
         sophia_write( \$where->[0], \sprintf('%s = %s', $eq, $ans) );
