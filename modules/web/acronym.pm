@@ -26,19 +26,19 @@ sub web_acronym {
     $content = substr $content, index($content, ' ') + 1;
     $content =~ s/ /+/g;
 
-    my $objHTTP = get_file_contents(\sprintf('http://acronyms.thefreedictionary.com/%s', $content));
-    $objHTTP = ${$objHTTP};
+    my $response = http_get(sprintf('http://acronyms.thefreedictionary.com/%s', $content));
+    return unless $response;
 
     my @acronyms;
     my ($idx, $acronym) = (0, '');
 
     FOR: for (1 .. $max) {
-        $idx = index $objHTTP, '<td class=acr>', $idx;
+        $idx = index $response, '<td class=acr>', $idx;
         last FOR unless $idx > -1;
 
-        $idx = index $objHTTP, '<td>', $idx + 1;
+        $idx = index $response, '<td>', $idx + 1;
         
-        $acronym = substr $objHTTP, $idx + 4, index($objHTTP, '</td>', $idx + 1) - $idx - 4;
+        $acronym = substr $response, $idx + 4, index($response, '</td>', $idx + 1) - $idx - 4;
         $acronym =~ s/<[^>]+>//g;
 
         push @acronyms, $acronym;

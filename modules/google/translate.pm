@@ -29,10 +29,10 @@ sub google_translate {
     $lang =~ s/ /+/g;
     $text =~ s/ /+/g;
 
-    my $objHTTP = get_file_contents(\sprintf('http://ajax.googleapis.com/ajax/services/language/translate?v=1.0&q=%s&langpair=%s', $text, $lang));
-    $objHTTP = ${$objHTTP};
+    my $response = http_get(sprintf('http://ajax.googleapis.com/ajax/services/language/translate?v=1.0&q=%s&langpair=%s', $text, $lang));
+    return unless $response;
 
-    if ($objHTTP =~ m/{"translatedText":"([^"]+)"}/) {
+    if ($response =~ m/{"translatedText":"([^"]+)"}/) {
         my $val = $1;
         $val =~ s/\\u0026/&/g;
         sophia_write( \$where->[0], \decode_entities($val) );
