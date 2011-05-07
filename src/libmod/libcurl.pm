@@ -3,7 +3,7 @@ use warnings;
 use WWW::Curl::Easy;
 use XML::LibXML;
 
-sub loadXML2 {
+sub loadXML {
     my $uri = $_[0];
     my $result = http_get($uri);
     return unless $result;
@@ -12,7 +12,7 @@ sub loadXML2 {
     return \$objXML->parse_string($result);
 }
 
-sub http_get {
+sub curl_get {
     my $uri = $_[0];
     return unless ($uri =~ /^https?:\/\/[^ ]+$/);
 
@@ -37,7 +37,7 @@ sub http_get {
     return;
 }
 
-sub http_post {
+sub curl_post {
     my ($uri, $postdata) = @_;
     return unless ($uri =~ /^https?:\/\/[^ ]+$/);
     

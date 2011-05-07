@@ -26,7 +26,7 @@ sub web_acronym {
     $content = substr $content, index($content, ' ') + 1;
     $content =~ s/ /+/g;
 
-    my $response = http_get(sprintf('http://acronyms.thefreedictionary.com/%s', $content));
+    my $response = curl_get(sprintf('http://acronyms.thefreedictionary.com/%s', $content));
     return unless $response;
 
     my @acronyms;

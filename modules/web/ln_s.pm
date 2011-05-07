@@ -35,7 +35,7 @@ sub web_lns {
         url => $content,
     );
     
-    my $response = http_post('http://ln-s.net/home/api.jsp', \%postdata);
+    my $response = curl_post('http://ln-s.net/home/api.jsp', \%postdata);
     return unless $response;
     
     my @parts = split / /, $response;

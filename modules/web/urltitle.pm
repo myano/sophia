@@ -22,7 +22,7 @@ sub web_urltitle {
     my @args = @{$param};
     my ($where, $content) = ($args[ARG1], $args[ARG2]);
 
-    my $response = http_get($content);
+    my $response = curl_get($content);
     return unless $response;
 
     open FILE, '> text.txt';

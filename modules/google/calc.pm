@@ -27,7 +27,7 @@ sub google_calc {
     $content =~ s/\^/\%5E/g;
     $content =~ s/ /\+/g;
 
-    my $response = http_get(sprintf('http://www.google.com/search?q=%s', $content));
+    my $response = curl_get(sprintf('http://www.google.com/search?q=%s', $content));
     return unless $response;
 
     if ($response =~ /<h(2|3) class=r( [^>]+)?><b>(.+?) = (.+?)<\/b><\/h(2|3)>/) {

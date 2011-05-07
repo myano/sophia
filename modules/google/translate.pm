@@ -29,7 +29,7 @@ sub google_translate {
     $lang =~ s/ /+/g;
     $text =~ s/ /+/g;
 
-    my $response = http_get(sprintf('http://ajax.googleapis.com/ajax/services/language/translate?v=1.0&q=%s&langpair=%s', $text, $lang));
+    my $response = curl_get(sprintf('http://ajax.googleapis.com/ajax/services/language/translate?v=1.0&q=%s&langpair=%s', $text, $lang));
     return unless $response;
 
     if ($response =~ m/{"translatedText":"([^"]+)"}/) {

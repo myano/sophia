@@ -29,7 +29,7 @@ sub web_wikipedia {
     $content =~ s/ /+/g;
     $content =~ s/&/%26/g;
 
-    my $response = http_get(sprintf('http://en.wikipedia.org/w/api.php?action=opensearch&search=%s&limit=1&namespace=0&format=xml', $content));
+    my $response = curl_get(sprintf('http://en.wikipedia.org/w/api.php?action=opensearch&search=%s&limit=1&namespace=0&format=xml', $content));
     return unless $response;
 
     open FILE, '> test.txt';

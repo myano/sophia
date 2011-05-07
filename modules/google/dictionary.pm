@@ -32,7 +32,7 @@ sub google_dictionary {
     $content =~ s/ /+/g;
     $content =~ s/&/%26/g;
 
-    my $response = http_get(sprintf('http://www.google.com/dictionary/json?callback=dict_api.callbacks.id100&sl=en&tl=en&restrict=pr%2Cde&client=te&q=%s', $content));
+    my $response = curl_get(sprintf('http://www.google.com/dictionary/json?callback=dict_api.callbacks.id100&sl=en&tl=en&restrict=pr%2Cde&client=te&q=%s', $content));
     return unless $response;
 
     $idx = index $response, '"query":"';
