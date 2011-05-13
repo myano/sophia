@@ -25,13 +25,10 @@ sub web_urltitle {
     my $response = curl_get($content);
     return unless $response;
 
-    open FILE, '> text.txt';
-    print FILE "$response";
-    close FILE;
+    my $start = index $response, '<title>';
+    return unless $start > -1;
 
-    return if index($response, '<title>') == -1;
-
-    my $start = index($response, '<title>') + 7;
+    $start = index($response, '<title>') + 7;
     my $end = index($response, '</title>') - $start;
     my $title = substr $response, $start, $end;
     $title =~ s/^\s+//;
