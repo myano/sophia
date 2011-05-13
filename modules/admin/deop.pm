@@ -22,7 +22,9 @@ sub admin_deop {
     my $param = $_[0];
     my @args = @{$param};
     my ($heap, $who, $where, $content) = @args[HEAP, ARG0 .. ARG2];
-    return unless is_admin($who);
+
+    my $perms = sophia_get_host_perms($who, $where->[0]);
+    return unless $perms & SOPHIA_ACL_OP || $perms & SOPHIA_ACL_AUTOOP;
 
     my $idx = index $content, ' ';
     unless ($idx == -1) {

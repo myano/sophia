@@ -22,7 +22,9 @@ sub admin_unban {
     my $param = $_[0];
     my @args = @{$param};
     my ($heap, $who, $where, $content) = @args[HEAP, ARG0 .. ARG2];
-    return unless is_admin($who);
+
+    my $perms = sophia_get_host_perms($who, $where->[0]);
+    return unless $perms & SOPHIA_ACL_ADMIN;
 
     my $idx = index $content, ' ';
     return unless $idx > -1;

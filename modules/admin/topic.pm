@@ -23,6 +23,9 @@ sub admin_topic {
     my @args = @{$param};
     my ($heap, $who, $where, $content) = @args[HEAP, ARG0 .. ARG2];
 
+    my $perms = sophia_get_host_perms($who, $where->[0]);
+    return unless $perms & SOPHIA_ACL_CHANGETOPIC;
+
     my $sophia = ${$heap->{sophia}};
     my $idx = index $content, ' ';
     unless ($idx > -1) {

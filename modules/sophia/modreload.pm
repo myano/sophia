@@ -20,7 +20,9 @@ sub sophia_modreload {
     my $param = $_[0];
     my @args = @{$param};
     my ($who, $where, $content) = @args[ARG0 .. ARG2];
-    return unless is_owner($who);
+
+    my $perms = sophia_get_host_perms($who);
+    return unless $perms & SOPHIA_ACL_FOUNDER;
 
     my @parts = split / /, $content;
     shift @parts;
