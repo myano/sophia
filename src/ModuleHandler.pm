@@ -193,9 +193,9 @@ sub sophia_timer_add {
 }
 
 sub sophia_load_modules {
-    return if ! -e "$Bin/../etc/$sophia::CONFIGURATIONS{MODULES_CONFIG}";
+    return unless -e $sophia::CONFIGURATIONS{MODULES_CONFIG};
 
-    open MODULES, "$Bin/../etc/$sophia::CONFIGURATIONS{MODULES_CONFIG}"
+    open MODULES, $sophia::CONFIGURATIONS{MODULES_CONFIG}
         or sophia_log('sophia', "Error opening modules config: $!");
 
     LINE: while (<MODULES>) {

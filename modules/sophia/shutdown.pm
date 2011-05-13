@@ -20,7 +20,9 @@ sub sophia_shutdown {
     my $param = $_[0];
     my @args = @{$param};
     my ($heap, $who) = @args[HEAP, ARG0];
-    return unless is_owner($who);
+
+    my $perms = sophia_get_host_perms($who);
+    return unless $perms & SOPHIA_ACL_FOUNDER;
 
     my $sophia = ${$heap->{sophia}};
     sophia_log('sophia', sprintf('Shutting down sophia requested by: %s.', $who));

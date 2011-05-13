@@ -14,18 +14,19 @@ use strict;
 use warnings;
 use Carp qw(carp croak);
 use FindBin qw($Bin);
+use Getopt::Long;
 use lib "$Bin/../src";
 use POE qw(Component::IRC);
 use POSIX qw(setsid);
 use Sub::Delete;
-use Getopt::Long;
 use feature 'switch';
 
 our %CONFIGURATIONS;
 %CONFIGURATIONS = (
     VERSION         => 'sophia-2.0.0-dev',
-    MAIN_CONFIG     => 'sophia.conf',
-    MODULES_CONFIG  => 'sophia.modules.conf',
+    MAIN_CONFIG     => "$Bin/../etc/sophia.conf",
+    MODULES_CONFIG  => "$Bin/../etc/sophia.modules.conf",
+    ACL_DB          => "$Bin/../etc/sophia.acl.db",
     GLOBAL_MODULE   => 'sophia',
     IN_DEBUG_MODE   => 0,
     DO_RESTART      => 0,
@@ -41,16 +42,18 @@ trigger_error('sophia', 'Currently, sophia is not supporting Windows.') if  $^O 
 
 # load configuration values
 # ... and if it doesn't exist?
-trigger_error('sophia', 'Missing config file.') unless -e "$Bin/../etc/$CONFIGURATIONS{MAIN_CONFIG}";
+trigger_error('sophia', 'Missing config file.') unless -e $CONFIGURATIONS{MAIN_CONFIG};
 
 my %opts;
 GetOptions(
-    'debug' => \$opts{debug},
+    'debug!' => \$opts{debug},
 );
 
 $CONFIGURATIONS{IN_DEBUG_MODE} = 1 if $opts{debug};
 
 require ModuleHandler;
+require ACL;
+require ACLHandler;
 
 our (%COMMANDS, %MODULES, %TIMERS, %EVENTS, %EVENTSCONF);
 
@@ -71,6 +74,8 @@ my %SOPHIA = (
     ircname     => 'sophia',
     nick        => 'sophia',
     owners      => {},
+    owner_name  => '',
+    owner_host  => '',
     password    => '',
     port        => 6667,
     server      => 'chat.freenode.net',
@@ -83,7 +88,7 @@ my %SOPHIA = (
 # and to read the config ...
 my ($pred, $val);
 
-open CONF, "$Bin/../etc/$CONFIGURATIONS{MAIN_CONFIG}"
+open CONF, $CONFIGURATIONS{MAIN_CONFIG}
     or trigger_error('sophia', "Error opening config file: $!");
 
 LINE: while (<CONF>) {
@@ -96,26 +101,31 @@ LINE: while (<CONF>) {
     $val = substr $val, 0, index($val, '"');
 
     given ($pred) {
-        when ("admin")    { $SOPHIA{admins}{$val} = 1; }
-        when ("channel")  { $SOPHIA{channels}{$val} = 1; }
-        when ("nick")     { $SOPHIA{nick} = $val; }
-        when ("owner")    { $SOPHIA{owners}{$val} = 1; }
-        when ("password") { $SOPHIA{password} = $val; }
-        when ("port")     {
+        when ('admin')    { $SOPHIA{admins}{$val} = 1; }
+        when ('channel')  { $SOPHIA{channels}{$val} = 1; }
+        when ('nick')     { $SOPHIA{nick} = $val; }
+        when ('owner')    { $SOPHIA{owners}{$val} = 1; }
+        when ('owner_name') { $SOPHIA{owner_name} = $val; }
+        when ('owner_host') { $SOPHIA{owner_host} = $val; }
+        when ('password') { $SOPHIA{password} = $val; }
+        when ('port')     {
             if ( $val =~ /^\+/ ) {
                 $SOPHIA{usessl} = 1;
                 $val =~ s/^\+//;
             }
             $SOPHIA{port} = $val;
         }
-        when ("realname") { $SOPHIA{ircname} = $val; }
-        when ("server")   { $SOPHIA{server} = $val; }
-        when ("trigger")  { $SOPHIA{trigger} = sprintf('\%s', $val); }
-        when ("usermode") { $SOPHIA{usermode} = $val; }
-        when ("username") { $SOPHIA{username} = $val; }
+        when ('realname') { $SOPHIA{ircname} = $val; }
+        when ('server')   { $SOPHIA{server} = $val; }
+        when ('trigger')  { $SOPHIA{trigger} = sprintf('\%s', $val); }
+        when ('usermode') { $SOPHIA{usermode} = $val; }
+        when ('username') { $SOPHIA{username} = $val; }
     }
 }
 close CONF;
+
+sophia_user_add($SOPHIA{owner_name}, '+votsfAF');
+sophia_map_host2uid($SOPHIA{owner_name}, $SOPHIA{owner_host});
 
 my $pid;
 unless ($CONFIGURATIONS{IN_DEBUG_MODE}) {
@@ -350,35 +360,6 @@ sub exec_triggers {
             } or sophia_log('sophia', '[ERROR] ' . $!) and sophia_log('sophia', '[ERROR] '. $@);
         }
     }
-}
-
-sub is_admin {
-    my $who = $_[0];
-    return 0 unless $who && $SOPHIA{admins};
-    return 1 if is_owner($who);
-
-    my $host;
-    for (keys %{$SOPHIA{admins}}) {
-        $host = $_;
-        $host =~ s/\*/.*?/g;
-        return 1 if $who =~ /$host/;
-    }
-
-    return 0;
-}
-
-sub is_owner {
-    my $who = $_[0];
-    return 0 unless $who && $SOPHIA{owners};
-
-    my $host;
-    for (keys %{$SOPHIA{owners}}) {
-        $host = $_;
-        $host =~ s/\*/.*?/g;
-        return 1 if $who =~ /$host/;
-    }
-
-    return 0;
 }
 
 sub sophia_write {

@@ -35,6 +35,8 @@ sub games_roulette {
     my @args = @{$param};
     my ($heap, $who, $where, $content) = @args[HEAP, ARG0 .. ARG2];
 
+    my $perms = sophia_get_host_perms($who, $where->[0]);
+
     my $idx = index $content, ' ';
     unless ($idx == -1) {
         $content = substr $content, $idx + 1;
@@ -44,7 +46,7 @@ sub games_roulette {
         if (index($content, 'stop') == 0) {
             return unless $roulette_settings{'GAME_STARTED'};
 
-            if (is_admin($who) || time - $roulette_settings{'LAST_ACTIVE'} >= $roulette_settings{'TIMEOUT'}) {
+            if ($perms & SOPHIA_ACL_ADMIN || time - $roulette_settings{'LAST_ACTIVE'} >= $roulette_settings{'TIMEOUT'}) {
                 &games_roulette_stop;
                 sophia_write( \$where->[0], \'Game roulette stopped.' );
             }
