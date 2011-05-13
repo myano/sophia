@@ -326,10 +326,14 @@ sub exec_events {
 sub exec_triggers {
     my $param = $_[0];
     my @args = @{$param};
-    my $content = $args[ARG2];
+    my ($who, $content) = @args[ARG0,ARG2];
 
     # triggers ?
     return unless $content && $content =~ /^$SOPHIA{trigger}/;
+
+    my $perms = sophia_get_host_perms($who);
+    return if $perms & SOPHIA_ACL_BANNED;
+
     $content =~ s/^$SOPHIA{trigger}//;
 
     my ($module, $command, $trigger, $x);
