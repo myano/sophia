@@ -36,6 +36,13 @@ my %SOPHIA_ACL_FLAGS = (
 
 my (%SOPHIA_ACL_GROUPS, %SOPHIA_ACL_USERS, %SOPHIA_ACL_HOST2UID);
 
+my %SOPHIA_ACL_MASTER = (
+    UID         => '',
+    HOSTMASK    => '',
+    FLAGS       => sophia_acl_bits2flags(SOPHIA_FOUNDER),
+    FLAGBITS    => SOPHIA_FOUNDER,
+);
+
 sub sophia_acl_groups {
     return \%SOPHIA_ACL_GROUPS;
 }
@@ -128,13 +135,14 @@ sub sophia_group_del {
 sub sophia_user_add {
     my ($uid, $flags) = @_;
     $uid = lc $uid;
-    return 0 if sophia_user_exists($uid);
+    return 0 if sophia_user_exists($uid) || sophia_is_master($uid);
 
     %{$SOPHIA_ACL_USERS{$uid}} = (
         FLAGS       => SOPHIA_ACL_NONE,
         GROUPS      => {},
         HOSTMASKS   => {},
         CHANNELS    => {},
+        IS_MASTER   => 0,
     );
 
     sophia_user_flags($uid, $flags);
@@ -169,7 +177,7 @@ sub sophia_get_user_perms {
 sub sophia_user_chanflags {
     my ($uid, $chan, $flags) = @_;
     ($uid, $chan) = (lc $uid, lc $chan);
-    return 0 unless sophia_user_exists($uid) && $chan && $flags;
+    return 0 unless sophia_user_exists($uid) && !sophia_is_master($uid) && $chan && $flags;
 
     my @flaglist = split //, $flags;
     my $dir = undef;
@@ -190,7 +198,7 @@ sub sophia_user_chanflags {
 sub sophia_user_flags {
     my ($uid, $flags) = @_;
     $uid = lc $uid;
-    return 0 unless sophia_user_exists($uid) && $flags;
+    return 0 unless sophia_user_exists($uid) && !sophia_is_master($uid) && $flags;
 
     my @flaglist = split //, $flags;
     my $dir = undef;
@@ -242,6 +250,7 @@ sub sophia_userhost_del {
     my ($uid, $host) = @_;
     ($uid, $host) = (lc $uid, lc $host);
     return 0 unless sophia_user_exists($uid) && $host;
+    return 0 if sophia_is_master($uid) && $host eq $SOPHIA_ACL_MASTER{HOSTMASK};
 
     delete $SOPHIA_ACL_USERS{$uid}{HOSTMASKS}{$host};
     sophia_unmap_host2uid($host);
@@ -251,12 +260,48 @@ sub sophia_userhost_del {
 sub sophia_user_del {
     my $uid = $_[0];
     $uid = lc $uid;
-    return 0 unless sophia_user_exists($uid);
+    return 0 unless sophia_user_exists($uid) && !sophia_is_master($uid);
 
-    sophia_unmap_host2uid $_ for keys %{$SOPHIA_ACL_USERS{$uid}{HOSTMASKS}};
+    sophia_unmap_host2uid($_) for keys %{$SOPHIA_ACL_USERS{$uid}{HOSTMASKS}};
 
     delete $SOPHIA_ACL_USERS{$uid};
     return 1;
+}
+
+sub sophia_set_master {
+    my ($uid, $host) = @_;
+    ($uid, $host) = (lc $uid, lc $host);
+    return 0 unless sophia_user_exists($uid);
+
+    $SOPHIA_ACL_USERS{$SOPHIA_ACL_MASTER{UID}}{IS_MASTER} = 0 if $SOPHIA_ACL_MASTER{UID};
+    $SOPHIA_ACL_USERS{$uid}{IS_MASTER} = 1;
+    $SOPHIA_ACL_MASTER{UID} = $uid;
+    $SOPHIA_ACL_MASTER{HOSTMASK} = $host;
+    sophia_map_host2uid($uid, $host);
+    return 1;
+}
+
+sub sophia_has_master {
+    return defined $SOPHIA_ACL_MASTER{UID};
+}
+
+sub sophia_is_master {
+    my $uid = $_[0];
+    $uid = lc $uid;
+    return $uid eq $SOPHIA_ACL_MASTER{UID};
+}
+
+sub sophia_get_master {
+    return \%SOPHIA_ACL_MASTER;
+}
+
+sub sophia_reload_master {
+    return if $SOPHIA_ACL_MASTER{UID} eq '';
+
+    my $uid = $SOPHIA_ACL_MASTER{UID};
+    $SOPHIA_ACL_USERS{$uid}{FLAGS} = $SOPHIA_ACL_MASTER{FLAGBITS};
+    $SOPHIA_ACL_USERS{$uid}{IS_MASTER} = 1;
+    sophia_map_host2uid($uid, $SOPHIA_ACL_MASTER{HOSTMASK});
 }
 
 sub sophia_uid_from_host {

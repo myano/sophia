@@ -125,7 +125,8 @@ LINE: while (<CONF>) {
 close CONF;
 
 sophia_user_add($SOPHIA{owner_name}, '+votsfAF');
-sophia_map_host2uid($SOPHIA{owner_name}, $SOPHIA{owner_host});
+sophia_set_master($SOPHIA{owner_name}, $SOPHIA{owner_host});
+&sophia_acl_db_load;
 
 my $pid;
 unless ($CONFIGURATIONS{IN_DEBUG_MODE}) {
@@ -290,6 +291,7 @@ sub irc_quit {
 }
 
 sub irc_shutdown {
+    &sophia_acl_db_save;
     if ($CONFIGURATIONS{DO_RESTART}) {
         if ($CONFIGURATIONS{IN_DEBUG_MODE}) {
             `$Bin/sophia --debug`;
@@ -332,7 +334,7 @@ sub exec_triggers {
     return unless $content && $content =~ /^$SOPHIA{trigger}/;
 
     my $perms = sophia_get_host_perms($who);
-    return if $perms & SOPHIA_ACL_BANNED;
+    return if $perms & 0x0040;
 
     $content =~ s/^$SOPHIA{trigger}//;
 
