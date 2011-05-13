@@ -23,6 +23,8 @@ sub google_translate {
     $content = substr $content, index($content, ' ') + 1;
     $content =~ s/^\s+//;
 
+    return unless $content;
+
     my $lang = substr $content, 0, index($content, ' ');
     my $text = substr $content, index($content, ' ') + 1;
 
