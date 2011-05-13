@@ -10,14 +10,10 @@ usermode = "+i"
 server = "irc.domain.net"
 port = "6667"
 
+owner_nick = "owner"
+owner_host = "*!*@domain.net"
 
-# owners own the bot and have all rights
-# in hostmask format
-owner = "*!*@owner1"
-owner = "*!*@owner2"
-# admins have various rights and rights can be granted by owners
-# in hostmask format
-admin = "*!*@admin"
+
 # this is the trigger for commands
 trigger = "!"
 

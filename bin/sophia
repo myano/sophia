@@ -69,11 +69,9 @@ our (%COMMANDS, %MODULES, %TIMERS, %EVENTS, %EVENTSCONF);
 );
 
 my %SOPHIA = (
-    admins      => {},
     channels    => {},
     ircname     => 'sophia',
     nick        => 'sophia',
-    owners      => {},
     owner_name  => '',
     owner_host  => '',
     password    => '',
@@ -101,10 +99,8 @@ LINE: while (<CONF>) {
     $val = substr $val, 0, index($val, '"');
 
     given ($pred) {
-        when ('admin')    { $SOPHIA{admins}{$val} = 1; }
         when ('channel')  { $SOPHIA{channels}{$val} = 1; }
         when ('nick')     { $SOPHIA{nick} = $val; }
-        when ('owner')    { $SOPHIA{owners}{$val} = 1; }
         when ('owner_name') { $SOPHIA{owner_name} = $val; }
         when ('owner_host') { $SOPHIA{owner_host} = $val; }
         when ('password') { $SOPHIA{password} = $val; }
