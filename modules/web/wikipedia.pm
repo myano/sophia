@@ -13,7 +13,7 @@ sub init_web_wikipedia {
 sub deinit_web_wikipedia {
     delete_sub 'init_web_wikipedia';
     delete_sub 'web_wikipedia';
-    sophia_command_del 'web.wik';
+    sophia_command_del 'web.wiki';
     delete_sub 'deinit_web_wikipedia';
 }
 
