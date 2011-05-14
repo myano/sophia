@@ -1,6 +1,17 @@
 # indicates a comment line
 
 # These modules are recommended!
+loadmodule "acl.main";
+loadmodule "acl.add";
+loadmodule "acl.chanflags";
+loadmodule "acl.del";
+loadmodule "acl.flags";
+loadmodule "acl.group";
+loadmodule "acl.load";
+loadmodule "acl.save";
+loadmodule "acl.user";
+loadmodule "acl.usergroup";
+
 loadmodule "sophia.main";
 loadmodule "sophia.restart";
 loadmodule "sophia.shutdown";
