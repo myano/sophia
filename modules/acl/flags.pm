@@ -53,7 +53,7 @@ sub acl_flags_group {
         return;
     }
 
-    sophia_group_flags($opts[2], $opts[3]);
+   return unless sophia_group_flags($opts[2], $opts[3]);
 
     my $groups = &sophia_acl_groups;
     my $group = $groups->{$opts[2]};
@@ -73,7 +73,7 @@ sub acl_flags_user {
         return;
     }
 
-    sophia_user_flags($opts[2], $opts[3]);
+    return unless sophia_user_flags($opts[2], $opts[3]);
 
     my $users = &sophia_acl_users;
     my $user = $users->{$opts[2]};

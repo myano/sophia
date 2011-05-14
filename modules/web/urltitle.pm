@@ -25,16 +25,21 @@ sub web_urltitle {
     my $response = curl_get($content);
     return unless $response;
 
+    $response =~ s/<(\/?)title[^>]*>/<$1title>/g;
+    $response =~ s/['"]<title>//g;  # www.thelantern.com sucks!
+
     my $start = index $response, '<title>';
     return unless $start > -1;
 
-    $start = index($response, '<title>') + 7;
-    my $end = index($response, '</title>') - $start;
+    $start += 7;
+    my $end = index($response, '</title>', $start) - $start;
     my $title = substr $response, $start, $end;
     $title =~ s/^\s+//;
     $title =~ s/\n//;
     $title =~ s/\s{2,}/ /;
-    sophia_write( \$where->[0], \decode_entities($title) );
+
+    my $sophia = ${$args[HEAP]->{sophia}};
+    $sophia->yield(privmsg => $where->[0] => decode_entities($title));
 }
 
 1;

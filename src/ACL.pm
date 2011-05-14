@@ -83,7 +83,15 @@ sub sophia_group_flags {
         $dir = 1 if $_ eq '+';
         $dir = 0 if $_ eq '-';
         
-        next FLAG if !defined $dir || !defined $SOPHIA_ACL_FLAGS{$_};
+        next FLAG if !defined $dir;
+
+        if ($_ eq '*') {
+            $SOPHIA_ACL_GROUPS{$group_name}{FLAGS} |= SOPHIA_ADMIN if $dir;
+            $SOPHIA_ACL_GROUPS{$group_name}{FLAGS} &= ~SOPHIA_ADMIN if !$dir;
+            next FLAG;
+        }
+        
+        next FLAG if !defined $SOPHIA_ACL_FLAGS{$_};
         $SOPHIA_ACL_GROUPS{$group_name}{FLAGS} |= $SOPHIA_ACL_FLAGS{$_} if $dir;
         $SOPHIA_ACL_GROUPS{$group_name}{FLAGS} &= ~$SOPHIA_ACL_FLAGS{$_} if !$dir;
     }
@@ -104,7 +112,15 @@ sub sophia_group_chanflags {
         $dir = 1 if $_ eq '+';
         $dir = 0 if $_ eq '-';
 
-        next FLAG if !defined $dir || !defined $SOPHIA_ACL_FLAGS{$_};
+        next FLAG if !defined $dir;
+
+        if ($_ eq '*') {
+            $SOPHIA_ACL_GROUPS{$group_name}{CHANNELS}{$chan} |= SOPHIA_ADMIN if $dir;
+            $SOPHIA_ACL_GROUPS{$group_name}{CHANNELS}{$chan} &= ~SOPHIA_ADMIN if !$dir;
+            next FLAG;
+        }
+        
+        next FLAG if !defined $SOPHIA_ACL_FLAGS{$_};
         $SOPHIA_ACL_GROUPS{$group_name}{CHANNELS}{$chan} |= $SOPHIA_ACL_FLAGS{$_} if $dir;
         $SOPHIA_ACL_GROUPS{$group_name}{CHANNELS}{$chan} &= ~$SOPHIA_ACL_FLAGS{$_} if !$dir;
     }
@@ -187,7 +203,15 @@ sub sophia_user_chanflags {
         $dir = 1 if $_ eq '+';
         $dir = 0 if $_ eq '-';
 
-        next FLAG if !defined $dir || !defined $SOPHIA_ACL_FLAGS{$_};
+        next FLAG if !defined $dir;
+        
+        if ($_ eq '*') {
+            $SOPHIA_ACL_USERS{$uid}{CHANNELS}{$chan} |= SOPHIA_ADMIN if $dir;
+            $SOPHIA_ACL_USERS{$uid}{CHANNELS}{$chan} &= ~SOPHIA_ADMIN if !$dir;
+            next FLAG;
+        }
+
+        next FLAG if !defined $SOPHIA_ACL_FLAGS{$_};
         $SOPHIA_ACL_USERS{$uid}{CHANNELS}{$chan} |= $SOPHIA_ACL_FLAGS{$_} if $dir;
         $SOPHIA_ACL_USERS{$uid}{CHANNELS}{$chan} &= ~$SOPHIA_ACL_FLAGS{$_} if !$dir;
     }
@@ -207,7 +231,15 @@ sub sophia_user_flags {
         $dir = 1 if $_ eq '+';
         $dir = 0 if $_ eq '-';
 
-        next FLAG if !defined $dir || !defined $SOPHIA_ACL_FLAGS{$_};
+        next FLAG if !defined $dir;
+
+        if ($_ eq '*') {
+            $SOPHIA_ACL_USERS{$uid}{FLAGS} |= SOPHIA_ADMIN if $dir;
+            $SOPHIA_ACL_USERS{$uid}{FLAGS} &= ~SOPHIA_ADMIN if !$dir;
+            next FLAG;
+        }
+        
+        next FLAG if !defined $SOPHIA_ACL_FLAGS{$_};
         $SOPHIA_ACL_USERS{$uid}{FLAGS} |= $SOPHIA_ACL_FLAGS{$_} if $dir;
         $SOPHIA_ACL_USERS{$uid}{FLAGS} &= ~$SOPHIA_ACL_FLAGS{$_} if !$dir;
     }
