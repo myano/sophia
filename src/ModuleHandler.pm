@@ -122,11 +122,13 @@ sub sophia_event_quit_hook {
 sub sophia_event_hook {
     my ($event, $vals) = @_;
     my ($mod_cmd, $cmd_hook, $cmd_desc, $cmd_help) = @{$vals};
-    return unless $event;
+    return unless $event && $mod_cmd;
 
-    $sophia::EVENTS->{$event}{$mod_cmd}{init} = $cmd_hook;
-    $sophia::EVENTS->{$event}{$mod_cmd}{desc} = $cmd_desc;
-    $sophia::EVENTS->{$event}{$mod_cmd}{help} = $cmd_help;
+    my ($module, $command) = split /\./, $mod_cmd;
+
+    $sophia::EVENTS->{$event}{$module}{$command}{init} = $cmd_hook;
+    $sophia::EVENTS->{$event}{$module}{$command}{desc} = $cmd_desc;
+    $sophia::EVENTS->{$event}{$module}{$command}{help} = $cmd_help;
 }
 
 sub sophia_command_del {
@@ -183,7 +185,9 @@ sub sophia_event_dehook {
     my ($event, $mod_cmd) = @_;
     return unless $event && $mod_cmd;
 
-    delete $sophia::EVENTS->{$event}{$mod_cmd};
+    my ($module, $command) = split /\./, $mod_cmd;
+
+    delete $sophia::EVENTS->{$event}{$module}{$command};
 }
 
 sub sophia_timer_add {
