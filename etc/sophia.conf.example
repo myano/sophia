@@ -10,7 +10,7 @@ usermode = "+i"
 server = "irc.domain.net"
 port = "6667"
 
-owner_nick = "owner"
+owner_name = "owner"
 owner_host = "*!*@domain.net"
 
 
