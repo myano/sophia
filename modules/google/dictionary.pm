@@ -18,7 +18,6 @@ sub deinit_google_dictionary {
 }
 
 my $max_entries = 2;
-my $bold = POE::Component::IRC::Common::BOLD;
 
 sub google_dictionary {
     my $param = $_[0];
@@ -60,7 +59,7 @@ sub google_dictionary {
         $result =~ s/\\x22/"/g;
         $result =~ s/\\x27/'/g;
         $result =~ s/\\x3c\/?em\\x3e//g;
-        push @results, sprintf($bold . '%s: ' . $bold . '%s', $term, $result);
+        push @results, sprintf('%1$s%2$s:%1$s %3$s', "\x02", $term, $result);
     }
 
     return unless scalar(@results);
