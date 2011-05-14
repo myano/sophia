@@ -19,16 +19,19 @@ sub deinit_sophia_join {
 sub sophia_join {
     my $param = $_[0];
     my @args = @{$param};
-    my ($who, $content) = ($args[ARG0], $args[ARG2]);
-    return unless is_owner($who);
+    my ($heap, $who, $content) = @args[HEAP, ARG0, ARG2];
 
+    my $perms = sophia_get_host_perms($who);
+    return unless $perms & SOPHIA_ACL_FOUNDER;
+
+    my $sophia = ${$heap->{sophia}};
     my @parts = split / /, $content;
     shift @parts;
 
     for (@parts) {
         if (length) {
             sophia_log('sophia', sprintf('Joining (%s) requested by %s.', $_, $who));
-            $sophia::sophia->yield(join => $_);
+            $sophia->yield(join => $_);
         }
     }
 }

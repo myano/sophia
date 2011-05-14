@@ -19,11 +19,14 @@ sub deinit_sophia_shutdown {
 sub sophia_shutdown {
     my $param = $_[0];
     my @args = @{$param};
-    my $who = $args[ARG0];
-    return unless is_owner($who);
+    my ($heap, $who) = @args[HEAP, ARG0];
 
+    my $perms = sophia_get_host_perms($who);
+    return unless $perms & SOPHIA_ACL_FOUNDER;
+
+    my $sophia = ${$heap->{sophia}};
     sophia_log('sophia', sprintf('Shutting down sophia requested by: %s.', $who));
-    $sophia::sophia->yield(quit => 'Shutting down ... ');
+    $sophia->yield(quit => 'Shutting down ... ');
 }
 
 1;

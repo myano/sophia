@@ -33,7 +33,9 @@ sub deinit_games_roulette {
 sub games_roulette {
     my $param = $_[0];
     my @args = @{$param};
-    my ($who, $where, $content) = @args[ARG0 .. ARG2];
+    my ($heap, $who, $where, $content) = @args[HEAP, ARG0 .. ARG2];
+
+    my $perms = sophia_get_host_perms($who, $where->[0]);
 
     my $idx = index $content, ' ';
     unless ($idx == -1) {
@@ -44,7 +46,7 @@ sub games_roulette {
         if (index($content, 'stop') == 0) {
             return unless $roulette_settings{'GAME_STARTED'};
 
-            if (is_admin($who) || time - $roulette_settings{'LAST_ACTIVE'} >= $roulette_settings{'TIMEOUT'}) {
+            if ($perms & SOPHIA_ACL_ADMIN || time - $roulette_settings{'LAST_ACTIVE'} >= $roulette_settings{'TIMEOUT'}) {
                 &games_roulette_stop;
                 sophia_write( \$where->[0], \'Game roulette stopped.' );
             }
@@ -57,6 +59,7 @@ sub games_roulette {
 
     return if $who eq $roulette_settings{'LAST_PLAYER'};
 
+    my $sophia = ${$heap->{sophia}};
     $roulette_settings{'LAST_PLAYER'} = $who;
     $roulette_settings{'LAST_ACTIVE'} = time;
     my $rand = int(rand $roulette_settings{'COMPLEXITY'});
@@ -69,7 +72,7 @@ sub games_roulette {
     }
     
     if ($rand == $roulette_settings{'NUMBER'}) {
-        sophia_kick(\$where->[0], \substr($who, 0, index($who, '!')), \$roulette_settings{'KICK_REASON'});
+        $sophia->yield( kick => $where->[0] => substr($who, 0, index($who, '!')) => $roulette_settings{'KICK_REASON'} );
         &games_roulette_stop;
         return;
     }

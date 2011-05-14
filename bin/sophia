@@ -14,18 +14,19 @@ use strict;
 use warnings;
 use Carp qw(carp croak);
 use FindBin qw($Bin);
+use Getopt::Long;
 use lib "$Bin/../src";
 use POE qw(Component::IRC);
 use POSIX qw(setsid);
 use Sub::Delete;
-use Getopt::Long;
 use feature 'switch';
 
 our %CONFIGURATIONS;
 %CONFIGURATIONS = (
-    VERSION         => 'sophia-1.0',
-    MAIN_CONFIG     => 'sophia.conf',
-    MODULES_CONFIG  => 'sophia.modules.conf',
+    VERSION         => 'sophia-2.0.0-dev',
+    MAIN_CONFIG     => "$Bin/../etc/sophia.conf",
+    MODULES_CONFIG  => "$Bin/../etc/sophia.modules.conf",
+    ACL_DB          => "$Bin/../etc/sophia.acl.db",
     GLOBAL_MODULE   => 'sophia',
     IN_DEBUG_MODE   => 0,
     DO_RESTART      => 0,
@@ -41,19 +42,20 @@ trigger_error('sophia', 'Currently, sophia is not supporting Windows.') if  $^O 
 
 # load configuration values
 # ... and if it doesn't exist?
-trigger_error('sophia', 'Missing config file.') unless -e "$Bin/../etc/$CONFIGURATIONS{MAIN_CONFIG}";
+trigger_error('sophia', 'Missing config file.') unless -e $CONFIGURATIONS{MAIN_CONFIG};
 
 my %opts;
 GetOptions(
-    'debug' => \$opts{debug},
+    'debug!' => \$opts{debug},
 );
 
 $CONFIGURATIONS{IN_DEBUG_MODE} = 1 if $opts{debug};
 
 require ModuleHandler;
-require SophiaGeneral;
+require ACL;
+require ACLHandler;
 
-our (%COMMANDS, %MODULES, %TIMERS, %EVENTS, %EVENTSCONF, $sophia);
+our (%COMMANDS, %MODULES, %TIMERS, %EVENTS, %EVENTSCONF);
 
 %EVENTSCONF = (
     join            => 'join',
@@ -67,11 +69,11 @@ our (%COMMANDS, %MODULES, %TIMERS, %EVENTS, %EVENTSCONF, $sophia);
 );
 
 my %SOPHIA = (
-    admins      => {},
     channels    => {},
     ircname     => 'sophia',
     nick        => 'sophia',
-    owners      => {},
+    owner_name  => '',
+    owner_host  => '',
     password    => '',
     port        => 6667,
     server      => 'chat.freenode.net',
@@ -84,7 +86,7 @@ my %SOPHIA = (
 # and to read the config ...
 my ($pred, $val);
 
-open CONF, "$Bin/../etc/$CONFIGURATIONS{MAIN_CONFIG}"
+open CONF, $CONFIGURATIONS{MAIN_CONFIG}
     or trigger_error('sophia', "Error opening config file: $!");
 
 LINE: while (<CONF>) {
@@ -97,26 +99,30 @@ LINE: while (<CONF>) {
     $val = substr $val, 0, index($val, '"');
 
     given ($pred) {
-        when ("admin")    { $SOPHIA{admins}{$val} = 1; }
-        when ("channel")  { $SOPHIA{channels}{$val} = 1; }
-        when ("nick")     { $SOPHIA{nick} = $val; }
-        when ("owner")    { $SOPHIA{owners}{$val} = 1; }
-        when ("password") { $SOPHIA{password} = $val; }
-        when ("port")     {
+        when ('channel')  { $SOPHIA{channels}{$val} = 1; }
+        when ('nick')     { $SOPHIA{nick} = $val; }
+        when ('owner_name') { $SOPHIA{owner_name} = $val; }
+        when ('owner_host') { $SOPHIA{owner_host} = $val; }
+        when ('password') { $SOPHIA{password} = $val; }
+        when ('port')     {
             if ( $val =~ /^\+/ ) {
                 $SOPHIA{usessl} = 1;
                 $val =~ s/^\+//;
             }
             $SOPHIA{port} = $val;
         }
-        when ("realname") { $SOPHIA{ircname} = $val; }
-        when ("server")   { $SOPHIA{server} = $val; }
-        when ("trigger")  { $SOPHIA{trigger} = sprintf('\%s', $val); }
-        when ("usermode") { $SOPHIA{usermode} = $val; }
-        when ("username") { $SOPHIA{username} = $val; }
+        when ('realname') { $SOPHIA{ircname} = $val; }
+        when ('server')   { $SOPHIA{server} = $val; }
+        when ('trigger')  { $SOPHIA{trigger} = sprintf('\%s', $val); }
+        when ('usermode') { $SOPHIA{usermode} = $val; }
+        when ('username') { $SOPHIA{username} = $val; }
     }
 }
 close CONF;
+
+sophia_user_add($SOPHIA{owner_name}, '+votsfAF');
+sophia_set_master($SOPHIA{owner_name}, $SOPHIA{owner_host});
+&sophia_acl_db_load;
 
 my $pid;
 unless ($CONFIGURATIONS{IN_DEBUG_MODE}) {
@@ -144,7 +150,7 @@ unless ($CONFIGURATIONS{IN_DEBUG_MODE}) {
     open STDERR, '>> /dev/null' or trigger_error('sophia', "sophia cannot write to /dev/null: $!\n");
 }
 
-$sophia = POE::Component::IRC->spawn(
+my $sophia = POE::Component::IRC->spawn(
     Nick        => $SOPHIA{nick},
     Username    => $SOPHIA{username},
     Password    => $SOPHIA{password},
@@ -174,7 +180,7 @@ POE::Session->create(
         sig_int     => \&sig_int,
         load_timers => \&load_timers,
     },
-    heap => { irc => \$sophia },
+    heap => { sophia => \$sophia },
 );
 
 sub _default {
@@ -195,8 +201,6 @@ sub _default {
 
 sub _start {
     my $heap = $_[HEAP];
-    my $sophia = ${$heap->{irc}};
-
     $_[KERNEL]->sig( INT => 'sig_int' );
 
     trigger_error('sophia', "Unable to get the sophia instance from heap (start): $!\n")
@@ -213,7 +217,6 @@ sub _stop {
 
 sub irc_001 {
     my $sender = $_[SENDER];
-    my $sophia = $sender->get_heap();
     
     trigger_error('sophia', "Unable to get a sophia instance from heap (001): $!\n")
         unless $sophia;
@@ -284,6 +287,7 @@ sub irc_quit {
 }
 
 sub irc_shutdown {
+    &sophia_acl_db_save;
     if ($CONFIGURATIONS{DO_RESTART}) {
         if ($CONFIGURATIONS{IN_DEBUG_MODE}) {
             `$Bin/sophia --debug`;
@@ -320,10 +324,14 @@ sub exec_events {
 sub exec_triggers {
     my $param = $_[0];
     my @args = @{$param};
-    my $content = $args[ARG2];
+    my ($who, $content) = @args[ARG0,ARG2];
 
     # triggers ?
     return unless $content && $content =~ /^$SOPHIA{trigger}/;
+
+    my $perms = sophia_get_host_perms($who);
+    return if $perms & 0x0040;
+
     $content =~ s/^$SOPHIA{trigger}//;
 
     my ($module, $command, $trigger, $x);
@@ -356,31 +364,26 @@ sub exec_triggers {
     }
 }
 
-sub is_admin {
-    my $who = $_[0];
-    return 0 unless $who && $SOPHIA{admins};
-    return 1 if is_owner($who);
+sub sophia_write {
+    my ($chans, $text) = @_;
+    my @channels;
+    my @output;
 
-    my $host;
-    for (keys %{$SOPHIA{admins}}) {
-        $host = $_;
-        $host =~ s/\*/.*?/g;
-        return 1 if $who =~ /$host/;
+    if (ref($chans) eq "SCALAR") {
+        push @channels, $$chans;
+    }
+    elsif (ref($chans) eq "ARRAY") {
+        @channels = @$chans;
     }
 
-    return 0;
-}
-
-sub is_owner {
-    my $who = $_[0];
-    return 0 unless $who && $SOPHIA{owners};
-
-    my $host;
-    for (keys %{$SOPHIA{owners}}) {
-        $host = $_;
-        $host =~ s/\*/.*?/g;
-        return 1 if $who =~ /$host/;
+    if (ref($text) eq "SCALAR") {
+        push @output, $$text;
+    }
+    elsif (ref($text) eq "ARRAY") {
+        @output = @$text;
     }
 
-    return 0;
+    for my $chan (@channels) {
+        $sophia->yield(privmsg => $chan => $_) for @output;
+    }
 }

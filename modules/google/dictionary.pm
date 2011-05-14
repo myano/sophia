@@ -32,32 +32,31 @@ sub google_dictionary {
     $content =~ s/ /+/g;
     $content =~ s/&/%26/g;
 
-    my $objHTML = get_file_contents( \sprintf('http://www.google.com/dictionary/json?callback=dict_api.callbacks.id100&sl=en&tl=en&restrict=pr%2Cde&client=te&q=%s', $content) );
-    $objHTML = ${$objHTML};
-    return unless $objHTML;
+    my $response = curl_get(sprintf('http://www.google.com/dictionary/json?callback=dict_api.callbacks.id100&sl=en&tl=en&restrict=pr%2Cde&client=te&q=%s', $content));
+    return unless $response;
 
-    $idx = index $objHTML, '"query":"';
+    $idx = index $response, '"query":"';
     unless ($idx > -1) {
         sophia_write( \$where->[0], \'Term not found.' );
         return;
     }
     $idx += 9;
-    my $term = substr $objHTML, $idx, index($objHTML, '"', $idx) - $idx;
+    my $term = substr $response, $idx, index($response, '"', $idx) - $idx;
 
     my @results;
     my $result;
     $idx = 0;
     
     ENTRY: for (1 .. $max_entries) {
-        $idx = index $objHTML, '"type":"meaning"', $idx;
+        $idx = index $response, '"type":"meaning"', $idx;
         last ENTRY unless $idx > -1;
 
-        $idx = index $objHTML, '"text":"', $idx + 1;
+        $idx = index $response, '"text":"', $idx + 1;
         last ENTRY unless $idx > -1;
 
         $idx += 8;
         
-        $result = substr($objHTML, $idx, index($objHTML, '"', $idx) - $idx);
+        $result = substr($response, $idx, index($response, '"', $idx) - $idx);
         $result =~ s/\\x22/"/g;
         $result =~ s/\\x27/'/g;
         $result =~ s/\\x3c\/?em\\x3e//g;

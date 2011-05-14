@@ -27,10 +27,10 @@ sub google_calc {
     $content =~ s/\^/\%5E/g;
     $content =~ s/ /\+/g;
 
-    my $objHTML = get_file_contents(\sprintf('http://www.google.com/search?q=%s', $content));
-    $objHTML = ${$objHTML};
+    my $response = curl_get(sprintf('http://www.google.com/search?q=%s', $content));
+    return unless $response;
 
-    if ($objHTML =~ /<h(2|3) class=r( [^>]+)?><b>(.+?) = (.+?)<\/b><\/h(2|3)>/) {
+    if ($response =~ /<h(2|3) class=r( [^>]+)?><b>(.+?) = (.+?)<\/b><\/h(2|3)>/) {
         my ($eq, $ans) = ($3, $4);
         $eq =~ s/<font size=-2> <\/font>/,/g;
         $ans =~ s/<sup>([^<]+)<\/sup>/^$1/g;

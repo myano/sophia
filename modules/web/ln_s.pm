@@ -31,11 +31,18 @@ sub web_lns {
     $idx = index $content, ' ';
     $content = substr($content, 0, $idx) unless $idx == -1;
 
-    my $result = get_lns(\$content);
-    $result = ${$result};
-    return unless $result;
+    my %postdata = (
+        url => $content,
+    );
+    
+    my $response = curl_post('http://ln-s.net/home/api.jsp', \%postdata);
+    return unless $response;
+    
+    my @parts = split / /, $response;
+    
+    return unless $parts[0] eq '200';
 
-    sophia_write(\$where->[0], \$result);
+    sophia_write(\$where->[0], \$parts[1]);
 }
 
 1;

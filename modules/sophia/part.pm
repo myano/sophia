@@ -19,9 +19,12 @@ sub deinit_sophia_part {
 sub sophia_part {
     my $param = $_[0];
     my @args = @{$param};
-    my ($who, $where, $content) = @args[ARG0 .. ARG2];
-    return unless is_owner($who);
+    my ($heap, $who, $where, $content) = @args[HEAP, ARG0 .. ARG2];
 
+    my $perms = sophia_get_host_perms($who);
+    return unless $perms & SOPHIA_ACL_FOUNDER;
+
+    my $sophia = ${$heap->{sophia}};
     my @parts = split / /, $content;
     shift @parts;
 
@@ -29,14 +32,14 @@ sub sophia_part {
     for (@parts) {
         if (length) {
             sophia_log('sophia', sprintf('Parting (%s) requested by: %s.', $_, $who));
-            $sophia::sophia->yield( part => $_ );
+            $sophia->yield( part => $_ );
             $part = 1;
         }
     }
 
     unless ($part) {
         sophia_log('sophia', sprintf('Parting (%s) requested by: %s.', $where->[0], $who));
-        $sophia::sophia->yield( part => $where->[0] );
+        $sophia->yield( part => $where->[0] );
     }
 }
 

@@ -22,30 +22,19 @@ sub web_urltitle {
     my @args = @{$param};
     my ($where, $content) = ($args[ARG1], $args[ARG2]);
 
-    my $objHTTP = get_http_response(\$content);
-    return unless $objHTTP;
-    
-    $objHTTP = ${$objHTTP};
+    my $response = curl_get($content);
+    return unless $response;
 
-    REQUEST: for (1 .. $max_redirects) {
-        if ($objHTTP->code =~ /^3/) {
-            $objHTTP = get_http_response(\$objHTTP->header('Location'));
-            $objHTTP = ${$objHTTP};
-        }
-        return if $objHTTP->is_error;
-        last REQUEST if $objHTTP->is_success;
-    }
+    my $start = index $response, '<title>';
+    return unless $start > -1;
 
-    $objHTTP = $objHTTP->content;
-    return if index($objHTTP, '<title>') == -1;
-
-    my $start = index($objHTTP, '<title>') + 7;
-    my $end = index($objHTTP, '</title>') - $start;
-    my $title = substr $objHTTP, $start, $end;
+    $start = index($response, '<title>') + 7;
+    my $end = index($response, '</title>') - $start;
+    my $title = substr $response, $start, $end;
     $title =~ s/^\s+//;
     $title =~ s/\n//;
     $title =~ s/\s{2,}/ /;
-    sophia_write( \$where->[0], \$title );
+    sophia_write( \$where->[0], \decode_entities($title) );
 }
 
 1;

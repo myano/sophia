@@ -23,23 +23,22 @@ sub google_translate {
     $content = substr $content, index($content, ' ') + 1;
     $content =~ s/^\s+//;
 
+    return unless $content;
+
     my $lang = substr $content, 0, index($content, ' ');
     my $text = substr $content, index($content, ' ') + 1;
 
     $lang =~ s/ /+/g;
     $text =~ s/ /+/g;
 
-    my $objHTTP = get_file_contents(\sprintf('http://ajax.googleapis.com/ajax/services/language/translate?v=1.0&q=%s&langpair=%s', $text, $lang));
-    $objHTTP = ${$objHTTP};
+    my $response = curl_get(sprintf('http://ajax.googleapis.com/ajax/services/language/translate?v=1.0&q=%s&langpair=%s', $text, $lang));
+    return unless $response;
 
-    if ($objHTTP =~ m/{"translatedText":"([^"]+)"}/) {
+    if ($response =~ m/{"translatedText":"([^"]+)"}/) {
         my $val = $1;
         $val =~ s/\\u0026/&/g;
-        sophia_write( \$where->[0], \$val );
+        sophia_write( \$where->[0], \decode_entities($val) );
     }
-
-    ($objHTTP, $content) = undef;
-    @args = undef;
 }
 
 1;

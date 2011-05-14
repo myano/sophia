@@ -29,15 +29,18 @@ sub web_wikipedia {
     $content =~ s/ /+/g;
     $content =~ s/&/%26/g;
 
-    my $objXML = get_file_contents( \sprintf('http://en.wikipedia.org/w/api.php?action=opensearch&search=%s&limit=1&namespace=0&format=xml', $content) );
-    $objXML = ${$objXML};
-    return unless $objXML;
+    my $response = curl_get(sprintf('http://en.wikipedia.org/w/api.php?action=opensearch&search=%s&limit=1&namespace=0&format=xml', $content));
+    return unless $response;
 
-    $idx = index $objXML, '<Description ';
+    open FILE, '> text.txt';
+    print FILE $response;
+    close FILE;
+
+    $idx = index $response, '<Description ';
     return unless $idx > -1;
 
-    $idx = index $objXML, '>', $idx + 1;
-    my $result = substr $objXML, $idx + 1, index($objXML, '</Description>', $idx) - $idx - 1;
+    $idx = index $response, '>', $idx + 1;
+    my $result = substr $response, $idx + 1, index($response, '</Description>', $idx) - $idx - 1;
     unless (length($result) > 2) {
         $result = '';
     }
@@ -45,9 +48,9 @@ sub web_wikipedia {
         $result .= '   ';
     }
 
-    $idx = index $objXML, '<Url ', $idx;
-    $idx = index $objXML, '>', $idx + 1;
-    $result .= 'Read: ' . substr($objXML, $idx + 1, index($objXML, '</Url>', $idx) - $idx - 1);
+    $idx = index $response, '<Url ', $idx;
+    $idx = index $response, '>', $idx + 1;
+    $result .= 'Read: ' . substr($response, $idx + 1, index($response, '</Url>', $idx) - $idx - 1);
 
     sophia_write( \$where->[0], \$result );
 }
