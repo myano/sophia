@@ -255,7 +255,7 @@ sub irc_kick {
 }
 
 sub irc_msg {
-    exec_events($EVENTSCONF{privmsg}, \@_);
+    exec_events_trigger($EVENTSCONF{privmsg}, \@_);
 }
 
 sub irc_nick {
@@ -263,7 +263,7 @@ sub irc_nick {
 }
 
 sub irc_notice {
-    exec_events($EVENTSCONF{notice}, \@_);
+    exec_events_trigger($EVENTSCONF{notice}, \@_);
 }
 
 sub irc_part {
@@ -271,16 +271,7 @@ sub irc_part {
 }
 
 sub irc_public {
-    my ($m, $c);
-
-    for $m (keys %{$sophia::EVENTS->{$EVENTSCONF{public}}}) {
-        for $c (keys %{$_}) {
-            eval {
-                &{$sophia::EVENTS->{$EVENTSCONF{public}}{$m}{$c}{init}}(\@_);
-                1;
-            } or sophia_log('sophia', '[ERROR] ' . $!) and sophia_log('sophia', '[ERROR] '. $@);
-        }
-    }
+    exec_events($EVENTSCONF{public}, \@_);
     exec_triggers(\@_);
 }
 
@@ -314,6 +305,19 @@ sub load_timers {
 POE::Kernel->run();
 
 sub exec_events {
+    my ($namespace, $args) = @_;
+
+    for my $m (keys %{$sophia::EVENTS->{$namespace}}) {
+        for my $c (keys %{$sophia::EVENTS->{$namespace}{$m}}) {
+            eval {
+                &{$sophia::EVENTS->{$namespace}{$m}{$c}{init}}($args);
+                1;
+            } or sophia_log('sophia', '[ERROR] ' . $!) and sophia_log('sophia', '[ERROR] '. $@);
+        }
+    }
+}
+
+sub exec_events_trigger {
     my ($namespace, $args) = @_;
     my @args = @{$args};
     my $content = $args[ARG2];
