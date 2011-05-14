@@ -37,10 +37,14 @@ sub web_urltitle {
     }
 
     $objHTTP = $objHTTP->content;
-    return if index($objHTTP, '<title>') == -1;
+    $objHTTP =~ s/<(\/?)title[^>]*>/<$1title>/g;
+    $objHTTP =~ s/['"]<title>//g;  # www.thelantern.com sucks!
 
-    my $start = index($objHTTP, '<title>') + 7;
-    my $end = index($objHTTP, '</title>') - $start;
+    my $idx = index $objHTTP, '<title>';
+    return if $idx == -1;
+
+    my $start = $idx + 7;
+    my $end = index($objHTTP, '</title>', $start) - $start;
     my $title = substr $objHTTP, $start, $end;
     $title =~ s/^\s+//;
     $title =~ s/\n//;
