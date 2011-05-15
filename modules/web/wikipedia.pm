@@ -32,10 +32,6 @@ sub web_wikipedia {
     my $response = curl_get(sprintf('http://en.wikipedia.org/w/api.php?action=opensearch&search=%s&limit=1&namespace=0&format=xml', $content));
     return unless $response;
 
-    open FILE, '> text.txt';
-    print FILE $response;
-    close FILE;
-
     $idx = index $response, '<Description ';
     return unless $idx > -1;
 
