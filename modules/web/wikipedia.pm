@@ -52,7 +52,8 @@ sub web_wikipedia {
     $idx = index $response, '>', $idx + 1;
     $result .= 'Read: ' . substr($response, $idx + 1, index($response, '</Url>', $idx) - $idx - 1);
 
-    sophia_write( \$where->[0], \$result );
+    my $sophia = ${$args[HEAP]->{sophia}};
+    $sophia->yield(privmsg => $where->[0] => $result);
 }
 
 1;

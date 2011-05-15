@@ -36,6 +36,7 @@ sub games_roulette {
     my ($heap, $who, $where, $content) = @args[HEAP, ARG0 .. ARG2];
 
     my $perms = sophia_get_host_perms($who, $where->[0]);
+    my $sophia = ${$args[HEAP]->{sophia}};
 
     my $idx = index $content, ' ';
     unless ($idx == -1) {
@@ -48,10 +49,10 @@ sub games_roulette {
 
             if ($perms & SOPHIA_ACL_ADMIN || time - $roulette_settings{'LAST_ACTIVE'} >= $roulette_settings{'TIMEOUT'}) {
                 &games_roulette_stop;
-                sophia_write( \$where->[0], \'Game roulette stopped.' );
+                $sophia->yield(privmsg => $where->[0] => 'Game roulette stopped.');
             }
             else {
-                sophia_write( \$where->[0], \sprintf('Please wait %d seconds to stop roulette.', $roulette_settings{'TIMEOUT'} - ( time - $roulette_settings{'LAST_ACTIVE'} )) );
+                $sophia->yield(privmsg => $where->[0] => sprintf('Please wait %d seconds to stop roulette.', $roulette_settings{'TIMEOUT'} - ( time - $roulette_settings{'LAST_ACTIVE'} )) );
             }
             return;
         }
@@ -67,7 +68,7 @@ sub games_roulette {
     if (!$roulette_settings{'GAME_STARTED'}) {
         $roulette_settings{'GAME_STARTED'} = 1;
         $roulette_settings{'NUMBER'} = $rand;
-        sophia_write( \$where->[0], \$roulette_settings{'TICK'} );
+        $sophia->yield(privmsg => $where->[0] => $roulette_settings{'TICK'});
         return;
     }
     
@@ -77,7 +78,7 @@ sub games_roulette {
         return;
     }
 
-    sophia_write( \$where->[0], \$roulette_settings{'TICK'} );
+    $sophia->yield(privmsg => $where->[0] => $roulette_settings{'TICK'});
 }
 
 sub games_roulette_stop {

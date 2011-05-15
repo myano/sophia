@@ -31,12 +31,14 @@ sub google_dictionary {
     $content =~ s/ /+/g;
     $content =~ s/&/%26/g;
 
-    my $response = curl_get(sprintf('http://www.google.com/dictionary/json?callback=dict_api.callbacks.id100&sl=en&tl=en&restrict=pr%2Cde&client=te&q=%s', $content));
+    my $response = curl_get(sprintf('http://www.google.com/dictionary/json?callback=dict_api.callbacks.id100&sl=en&tl=en&restrict=pr%sde&client=te&q=%s', '%2C', $content));
     return unless $response;
+
+    my $sophia = ${$args[HEAP]->{sophia}};
 
     $idx = index $response, '"query":"';
     unless ($idx > -1) {
-        sophia_write( \$where->[0], \'Term not found.' );
+        $sophia->yield(privmsg => $where->[0] => 'Term not found.');
         return;
     }
     $idx += 9;
@@ -64,7 +66,7 @@ sub google_dictionary {
 
     return unless scalar(@results);
 
-    sophia_write( \$where->[0], \@results );
+    $sophia->yield(privmsg => $where->[0] => $_) for @results;
 }
 
 1;

@@ -5,7 +5,7 @@ use XML::LibXML;
 
 sub loadXML {
     my $uri = $_[0];
-    my $result = http_get($uri);
+    my $result = curl_get($uri);
     return unless $result;
 
     my $objXML = XML::LibXML->new;

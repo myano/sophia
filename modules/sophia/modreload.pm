@@ -24,6 +24,8 @@ sub sophia_modreload {
     my $perms = sophia_get_host_perms($who);
     return unless $perms & SOPHIA_ACL_FOUNDER;
 
+    my $sophia = ${$args[HEAP]->{sophia}};
+
     my @parts = split / /, $content;
     shift @parts;
 
@@ -31,18 +33,10 @@ sub sophia_modreload {
         if ($_ eq '*') {
             sophia_log('sophia', sprintf('Reloading all modules requested by: %s.', $who));
             &sophia_reload_modules;
-            sophia_write( \$where->[0],
-                \sprintf('%s: All autoload modules reloaded.',
-                    substr($who, 0, index($who, '!')),
-                    $_)
-            );
+            $sophia->yield(privmsg => $where->[0] => 'All autoloaded modules reloaded.');
         }
         elsif (sophia_reload_module($_)) {
-            sophia_write( \$where->[0],
-                \sprintf('%s: Module %s reloaded.',
-                    substr($who, 0, index($who, '!')),
-                    $_)
-            );
+            $sophia->yield(privmsg => $where->[0] => sprintf('Module %s reloaded.', $_));
             sophia_log('sophia', sprintf('Module %s reloaded requested by: %s.', $_, $who));
         }
     }
