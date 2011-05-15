@@ -1,23 +1,39 @@
+
 # indicates a comment line
 
-nick = "sophia"
-username = "sophia"
-realname = "Sophia"
-password = ""             # used with NickServ. Leave blank if it doesn't apply.
-usermode = "+i"
+nick sophia
+username sophia
+realname Sophia
 
+# comment out the next line if the server does not use NickServ
+password NickServPassword
 
-server = "irc.domain.net"
-port = "6667"
+# sophia's user mode
+usermode +i
 
-owner_name = "owner"
-owner_host = "*!*@domain.net"
+# irc server to connect to
+server irc.domain.net
+
+# for SSL, add a + before the port number
+port 6667
+
+# your name should not have a space
+owner_name owner
+
+# must be of a hostmask form: nick!user@host
+owner_host *!*@domain.net
 
 
 # this is the trigger for commands
-trigger = "!"
+trigger !
 
 
 # join the following channels
-channel = "#sophia"
-channel = "#sophia-dev"
+# to add more, just add on more channel lines
+channel #sophia
+channel #sophia-dev
+
+
+# command aliases
+# it works similar to bash aliases
+alias translate google:translate

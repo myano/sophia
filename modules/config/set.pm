@@ -28,11 +28,10 @@ sub config_set {
     return unless $perms & SOPHIA_ACL_FOUNDER;
 
     my @opts = split /\s+/, $content;
-    return unless scalar(@opts) == 3;
 
     my $sophia = ${$args[HEAP]->{sophia}};
 
-    my $message = sophia_set_config_option($opts[1], $opts[2]) ?
+    my $message = sophia_set_config_option(\@opts) ?
                     sprintf('%s = %s', $opts[1], $opts[2]) :
                     sprintf('Invalid option %1$s%2$s%1$s.', "\x02", $opts[1]);
 
