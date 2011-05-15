@@ -22,7 +22,7 @@ sub config_set {
     my ($args, $target) = @_;
     my @args = @{$args};
     my ($who, $where, $content) = @args[ARG0 .. ARG2];
-    $target = $target || $where->[0];
+    $target ||= $where->[0];
 
     my $perms = sophia_get_host_perms($who);
     return unless $perms & SOPHIA_ACL_FOUNDER;

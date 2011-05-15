@@ -499,7 +499,6 @@ sub sophia_set_config_option {
     return 0 unless $opts[1] ne 'channel'; # can't add channels
 
     given ($opts[1]) {
-        when ('alias') { return unless $opts[3]; $CMD_ALIASES{$opts[2]} = $opts[3]; }
         when ('port') {
             if (index($opts[2], '+') == 0) {
                 $SOPHIA{usessl} = 1;
@@ -515,5 +514,30 @@ sub sophia_set_config_option {
         }
     }
 
+    return 1;
+}
+
+sub sophia_get_aliases {
+    return \%CMD_ALIASES;
+}
+
+sub sophia_set_alias_option {
+    my ($opt1, $opt2) = @_;
+    return 0 unless $opt1 && $opt2;
+
+    ($opt1, $opt2) = (lc $opt1, lc $opt2);
+
+    $CMD_ALIASES{$opt1} = $opt2;
+    return 1;
+}
+
+sub sophia_del_alias_option {
+    my $opt = $_[0];
+    return 0 unless $opt;
+
+    $opt = lc $opt;
+    return 0 unless defined $SOPHIA{$opt};
+
+    delete $SOPHIA{$opt};
     return 1;
 }
