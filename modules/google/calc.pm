@@ -30,13 +30,14 @@ sub google_calc {
     my $response = curl_get(sprintf('http://www.google.com/search?q=%s', $content));
     return unless $response;
 
+    my $sophia = ${$args[HEAP]->{sophia}};
     if ($response =~ /<h(2|3) class=r( [^>]+)?><b>(.+?) = (.+?)<\/b><\/h(2|3)>/) {
         my ($eq, $ans) = ($3, $4);
         $eq =~ s/<font size=-2> <\/font>/,/g;
         $ans =~ s/<sup>([^<]+)<\/sup>/^$1/g;
         $ans =~ s/<font size=-2> <\/font>/,/g;
 
-        sophia_write( \$where->[0], \sprintf('%s = %s', $eq, $ans) );
+        $sophia->yield(privmsg => $where->[0] => sprintf('%s = %s', $eq, $ans));
     }
 }
 

@@ -46,11 +46,14 @@ sub web_acronym {
         $idx += 3;
     }
 
+    my $sophia = ${$args[HEAP]->{sophia}};
+
     if (scalar(@acronyms) == 0) {
-        sophia_write( \$where->[0], \'Acronym not found in the database.' );
+        $sophia->yield(privmsg => $where->[0] => 'Acronym not found in the database.');
         return;
     }
-    sophia_write(\$where->[0], \join(', ', @acronyms));
+
+    $sophia->yield(privmsg => $where->[0] => join ', ', @acronyms);
 }
 
 1;

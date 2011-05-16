@@ -42,7 +42,8 @@ sub web_lns {
     
     return unless $parts[0] eq '200';
 
-    sophia_write(\$where->[0], \$parts[1]);
+    my $sophia = ${$args[HEAP]->{sophia}};
+    $sophia->yield(privmsg => $where->[0] => $parts[1]);
 }
 
 1;

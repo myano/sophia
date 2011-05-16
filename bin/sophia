@@ -56,6 +56,7 @@ require ACL;
 require ACLHandler;
 
 our (%COMMANDS, %MODULES, %TIMERS, %EVENTS, %EVENTSCONF);
+my %CMD_ALIASES;
 
 %EVENTSCONF = (
     join            => 'join',
@@ -70,7 +71,7 @@ our (%COMMANDS, %MODULES, %TIMERS, %EVENTS, %EVENTSCONF);
 
 my %SOPHIA = (
     channels    => {},
-    ircname     => 'sophia',
+    realname    => 'sophia',
     nick        => 'sophia',
     owner_name  => '',
     owner_host  => '',
@@ -83,44 +84,10 @@ my %SOPHIA = (
     usessl      => 0,
 );
 
-# and to read the config ...
-my ($pred, $val);
+# and to load the config ...
+&sophia_load_config;
 
-open CONF, $CONFIGURATIONS{MAIN_CONFIG}
-    or trigger_error('sophia', "Error opening config file: $!");
-
-LINE: while (<CONF>) {
-    chomp;
-    s/^\s+//;
-    next LINE if /^#/ or /^\s*$/ or !/\=/;  # ignoring comments and lame lines
-
-    ($pred, $val) = split /\s*=\s*/;
-    $val = substr $val, index($val, '"')+1;
-    $val = substr $val, 0, index($val, '"');
-
-    given ($pred) {
-        when ('channel')  { $SOPHIA{channels}{$val} = 1; }
-        when ('nick')     { $SOPHIA{nick} = $val; }
-        when ('owner_name') { $SOPHIA{owner_name} = $val; }
-        when ('owner_host') { $SOPHIA{owner_host} = $val; }
-        when ('password') { $SOPHIA{password} = $val; }
-        when ('port')     {
-            if ( $val =~ /^\+/ ) {
-                $SOPHIA{usessl} = 1;
-                $val =~ s/^\+//;
-            }
-            $SOPHIA{port} = $val;
-        }
-        when ('realname') { $SOPHIA{ircname} = $val; }
-        when ('server')   { $SOPHIA{server} = $val; }
-        when ('trigger')  { $SOPHIA{trigger} = sprintf('\%s', $val); }
-        when ('usermode') { $SOPHIA{usermode} = $val; }
-        when ('username') { $SOPHIA{username} = $val; }
-    }
-}
-close CONF;
-
-sophia_user_add($SOPHIA{owner_name}, '+votsfAF');
+# set the master of sophia
 sophia_set_master($SOPHIA{owner_name}, $SOPHIA{owner_host});
 &sophia_acl_db_load;
 
@@ -154,7 +121,7 @@ my $sophia = POE::Component::IRC->spawn(
     Nick        => $SOPHIA{nick},
     Username    => $SOPHIA{username},
     Password    => $SOPHIA{password},
-    Ircname     => $SOPHIA{ircname},
+    Ircname     => $SOPHIA{realname},
     Server      => $SOPHIA{server},
     Port        => $SOPHIA{port},
     UseSSL      => $SOPHIA{usessl},
@@ -320,44 +287,7 @@ sub exec_events {
 sub exec_events_trigger {
     my ($namespace, $args) = @_;
     my @args = @{$args};
-    my $content = $args[ARG2];
-
-    # triggers ?
-    return unless $content && $content =~ /^$SOPHIA{trigger}/;
-    $content =~ s/^$SOPHIA{trigger}//;
-
-    my ($module, $command, $trigger, $x);
-
-    if (index($content, ' ') > -1) {
-        $trigger = substr $content, 0, index($content, ' ');
-    }
-    else {
-        $trigger = $content;
-    }
-
-    # global event trigger
-    if ($sophia::EVENTS->{$namespace}{$CONFIGURATIONS{GLOBAL_MODULE}}{$trigger}) {
-        eval {
-            $x = &{$sophia::EVENTS->{$namespace}{$CONFIGURATIONS{GLOBAL_MODULE}}{$trigger}{init}}($args);
-            1;
-        } or sophia_log('sophia', '[ERROR] ' . $!) and sophia_log('sophia', '[ERROR] ' .$@);
-    }
-    # module:command trigger
-    elsif ($trigger =~ m/^([^:]+):(.+)$/) {
-        ($module, $command) = ($1, $2);
-        if ($sophia::EVENTS->{$namespace}{$module}{$command}) {
-            eval {
-                $x = &{$sophia::EVENTS->{$namespace}{$module}{$command}{init}}($args);
-                1;
-            } or sophia_log('sophia', '[ERROR] '. $!) and sophia_log('sophia', '[ERROR] ' . $@);
-        }
-    }
-}
-
-sub exec_triggers {
-    my $param = $_[0];
-    my @args = @{$param};
-    my ($who, $content) = @args[ARG0,ARG2];
+    my ($who, $content) = @args[ARG0, ARG2];
 
     # triggers ?
     return unless $content && $content =~ /^$SOPHIA{trigger}/;
@@ -375,6 +305,56 @@ sub exec_triggers {
     else {
         $trigger = $content;
     }
+
+    my $target = '';
+    $target = substr $args[ARG0], 0, index($args[ARG0], '!') if ($namespace eq $EVENTSCONF{privmsg} || $namespace eq $EVENTSCONF{notice});
+
+    # is this an alias? 
+    $trigger = $CMD_ALIASES{$trigger} if defined $CMD_ALIASES{$trigger};
+
+    # global event trigger
+    if ($sophia::EVENTS->{$namespace}{$CONFIGURATIONS{GLOBAL_MODULE}}{$trigger}) {
+        eval {
+            $x = &{$sophia::EVENTS->{$namespace}{$CONFIGURATIONS{GLOBAL_MODULE}}{$trigger}{init}}($args, $target);
+            1;
+        } or sophia_log('sophia', '[ERROR] ' . $!) and sophia_log('sophia', '[ERROR] ' .$@);
+    }
+    # module:command trigger
+    elsif ($trigger =~ m/^([^:]+):(.+)$/) {
+        ($module, $command) = ($1, $2);
+        if ($sophia::EVENTS->{$namespace}{$module}{$command}) {
+            eval {
+                $x = &{$sophia::EVENTS->{$namespace}{$module}{$command}{init}}($args, $target);
+                1;
+            } or sophia_log('sophia', '[ERROR] '. $!) and sophia_log('sophia', '[ERROR] ' . $@);
+        }
+    }
+}
+
+sub exec_triggers {
+    my $param = $_[0];
+    my @args = @{$param};
+    my ($who, $content) = @args[ARG0,ARG2];
+
+    # triggers ?
+    return unless $content && $content =~ /^$SOPHIA{trigger}/;
+
+    my $perms = sophia_get_host_perms($who);
+    return if $perms & 0x0040;   # cheap hack ... 0x0040 = SOPHIA_ACL_BANNED
+
+    $content =~ s/^$SOPHIA{trigger}//;
+
+    my ($module, $command, $trigger, $x);
+
+    if (index($content, ' ') > -1) {
+        $trigger = substr $content, 0, index($content, ' ');
+    }
+    else {
+        $trigger = $content;
+    }
+
+    # is this an alias? 
+    $trigger = $CMD_ALIASES{$trigger} if defined $CMD_ALIASES{$trigger};
 
     # sophia command / global trigger?
     if ($sophia::COMMANDS->{$CONFIGURATIONS{GLOBAL_MODULE}}{$trigger}) {
@@ -397,26 +377,167 @@ sub exec_triggers {
     }
 }
 
-sub sophia_write {
-    my ($chans, $text) = @_;
-    my @channels;
-    my @output;
+sub sophia_load_config {
+    my @opts;
+    my $len;
 
-    if (ref($chans) eq "SCALAR") {
-        push @channels, $$chans;
+    open CONF, $CONFIGURATIONS{MAIN_CONFIG}
+        or trigger_error('sophia', "Error opening config file: $!");
+
+    LINE: while (<CONF>) {
+        chomp;
+        s/^\s+//;
+        next LINE if /^#/ || /^\s*$/;  # ignoring comments and lame lines
+
+        @opts = split /\s+/;
+        $len = scalar @opts;
+
+        $opts[0] = lc $opts[0];
+
+        given ($opts[0]) {
+            when ('alias')  { next LINE if $len != 3; $CMD_ALIASES{$opts[1]} = $opts[2]; }
+
+            default         {
+                next LINE if $len != 2;
+
+                if ($opts[0] eq 'channel')          { $SOPHIA{channels}{$opts[1]} = 1; }
+                elsif ($opts[0] eq 'port')          {
+                    if (index($opts[1], '+') == 0) {
+                        $SOPHIA{usessl} = 1;
+                        $opts[1] = substr $opts[1], 1;
+                    }
+                    $SOPHIA{port} = $opts[1];
+                }
+                elsif ($opts[0] eq 'trigger')       { $SOPHIA{trigger} = sprintf('\%s', $opts[1]); }
+                elsif (exists $SOPHIA{$opts[0]})    { $SOPHIA{$opts[0]} = $opts[1]; }
+            }
+        }
     }
-    elsif (ref($chans) eq "ARRAY") {
-        @channels = @$chans;
+    close CONF;
+}
+
+sub sophia_reload_config {
+    return 0 unless -e $CONFIGURATIONS{MAIN_CONFIG} && -r $CONFIGURATIONS{MAIN_CONFIG};
+    
+    # clear all channels
+    $SOPHIA{channels}{$_} = 0 for keys %{$SOPHIA{channels}};
+
+    my %OLD_SETTINGS = %SOPHIA;
+
+    &sophia_load_config;
+
+    # if the config changed port, server, ircname, or username, restart sophia
+    if ($SOPHIA{port} ne $OLD_SETTINGS{port} || $SOPHIA{server} ne $OLD_SETTINGS{server} || $SOPHIA{realname} ne $OLD_SETTINGS{realname} || $SOPHIA{username} ne $OLD_SETTINGS{username}) {
+        $CONFIGURATIONS{DO_RESTART} = 1;
+        $sophia->yield(quit => 'Restarting ...');
+        return 1;
     }
 
-    if (ref($text) eq "SCALAR") {
-        push @output, $$text;
-    }
-    elsif (ref($text) eq "ARRAY") {
-        @output = @$text;
+    # re-set master
+    sophia_set_master($SOPHIA{owner_name}, $SOPHIA{owner_host});
+
+    my @part_chans = grep { $SOPHIA{channels}{$_} == 0 } keys %{$SOPHIA{channels}};
+
+    # part all channels not in channel list
+    $sophia->yield( part => $_ ) for @part_chans;
+
+    # clear the parted channels from $SOPHIA{channels} list
+    delete $SOPHIA{channels}{$_} for @part_chans;
+
+    # change nick?
+    if ($SOPHIA{nick} ne $OLD_SETTINGS{nick}) {
+        $sophia->yield( nick => $SOPHIA{nick} );
+
+        # identify to NickServ?
+        $sophia->yield( privmsg => 'NickServ' => sprintf('identify %s %s', $sophia->{nick}, $SOPHIA{password}) ) if ($SOPHIA{password} && $SOPHIA{password} ne $OLD_SETTINGS{password});
     }
 
-    for my $chan (@channels) {
-        $sophia->yield(privmsg => $chan => $_) for @output;
+    # update mode?
+    $sophia->yield( mode => sprintf('%s %s', $sophia->{nick}, $SOPHIA{usermode}) );
+
+    # join channels
+    $sophia->yield( join => $_ ) for keys %{$SOPHIA{channels}};
+
+    return 1;
+}
+
+sub sophia_save_config {
+    return 0 unless -e $CONFIGURATIONS{MAIN_CONFIG} && -w $CONFIGURATIONS{MAIN_CONFIG};
+
+    open CONF, "> $CONFIGURATIONS{MAIN_CONFIG}";
+    
+    print CONF '# indicates a comment line', "\n\n";
+    print CONF 'nick ', $SOPHIA{nick}, "\n";
+    print CONF 'username ', $SOPHIA{username}, "\n";
+    print CONF 'realname ', $SOPHIA{realname}, "\n";
+    print CONF 'password ', $SOPHIA{password}, "\n";
+    print CONF 'usermode ', $SOPHIA{usermode}, "\n\n\n";
+    print CONF 'server ', $SOPHIA{server}, "\n";
+    print CONF 'port ', ($SOPHIA{usessl} ? '+' : ''), $SOPHIA{port}, "\n\n\n";
+    print CONF 'owner_name ', $SOPHIA{owner_name}, "\n";
+    print CONF 'owner_host ', $SOPHIA{owner_host}, "\n\n\n";
+    print CONF 'trigger ', substr($SOPHIA{trigger}, 1), "\n\n\n";
+    
+    print CONF '# join the following channels', "\n";
+    print CONF 'channel ', $_, "\n" for keys %{$SOPHIA{channels}};
+
+    print CONF "\n\n";
+    print CONF '# command aliases', "\n";
+    print CONF 'alias ', $_, ' ', $CMD_ALIASES{$_}, "\n" for keys %CMD_ALIASES;
+
+    close CONF;
+
+    return 1;
+}
+
+sub sophia_set_config_option {
+    my $opts = $_[0];
+    my @opts = @{$opts};
+    return 0 if scalar(@opts) < 3;
+
+    $opts[1] = lc $opts[1];
+    return 0 unless $opts[1] ne 'channel'; # can't add channels
+
+    given ($opts[1]) {
+        when ('port') {
+            if (index($opts[2], '+') == 0) {
+                $SOPHIA{usessl} = 1;
+                $opts[2] = substr $opts[2], 1;
+            }
+            $SOPHIA{port} = $opts[2];
+        }
+        when ('trigger') { $SOPHIA{trigger} = sprintf('\%s', $opts[2]); }
+
+        default { 
+            return 0 unless exists $SOPHIA{$opts[1]};
+            $SOPHIA{$opts[1]} = $opts[2];
+        }
     }
+
+    return 1;
+}
+
+sub sophia_get_aliases {
+    return \%CMD_ALIASES;
+}
+
+sub sophia_set_alias_option {
+    my ($opt1, $opt2) = @_;
+    return 0 unless $opt1 && $opt2;
+
+    ($opt1, $opt2) = (lc $opt1, lc $opt2);
+
+    $CMD_ALIASES{$opt1} = $opt2;
+    return 1;
+}
+
+sub sophia_del_alias_option {
+    my $opt = $_[0];
+    return 0 unless $opt;
+
+    $opt = lc $opt;
+    return 0 unless defined $SOPHIA{$opt};
+
+    delete $SOPHIA{$opt};
+    return 1;
 }

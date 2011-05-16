@@ -18,7 +18,6 @@ sub deinit_google_dictionary {
 }
 
 my $max_entries = 2;
-my $bold = POE::Component::IRC::Common::BOLD;
 
 sub google_dictionary {
     my $param = $_[0];
@@ -32,12 +31,14 @@ sub google_dictionary {
     $content =~ s/ /+/g;
     $content =~ s/&/%26/g;
 
-    my $response = curl_get(sprintf('http://www.google.com/dictionary/json?callback=dict_api.callbacks.id100&sl=en&tl=en&restrict=pr%2Cde&client=te&q=%s', $content));
+    my $response = curl_get(sprintf('http://www.google.com/dictionary/json?callback=dict_api.callbacks.id100&sl=en&tl=en&restrict=pr%sde&client=te&q=%s', '%2C', $content));
     return unless $response;
+
+    my $sophia = ${$args[HEAP]->{sophia}};
 
     $idx = index $response, '"query":"';
     unless ($idx > -1) {
-        sophia_write( \$where->[0], \'Term not found.' );
+        $sophia->yield(privmsg => $where->[0] => 'Term not found.');
         return;
     }
     $idx += 9;
@@ -60,12 +61,12 @@ sub google_dictionary {
         $result =~ s/\\x22/"/g;
         $result =~ s/\\x27/'/g;
         $result =~ s/\\x3c\/?em\\x3e//g;
-        push @results, sprintf($bold . '%s: ' . $bold . '%s', $term, $result);
+        push @results, sprintf('%1$s%2$s:%1$s %3$s', "\x02", $term, $result);
     }
 
     return unless scalar(@results);
 
-    sophia_write( \$where->[0], \@results );
+    $sophia->yield(privmsg => $where->[0] => $_) for @results;
 }
 
 1;
