@@ -242,8 +242,8 @@ sub sophia_user_flags {
     my $dir = undef;
 
     FLAG : for (@flaglist) {
-        $dir = 1 and next FLAG if $_ eq '+';
-        $dir = 0 and next FLAG if $_ eq '-';
+        $dir = 1 if $_ eq '+';
+        $dir = 0 if $_ eq '-';
 
         next FLAG if !defined $dir;
 
