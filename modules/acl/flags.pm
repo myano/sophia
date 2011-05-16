@@ -38,7 +38,7 @@ sub acl_flags {
 
     my $sophia = ${$args[HEAP]->{sophia}};
 
-    given ($opts[1]) {
+    given ($opt) {
         when ('GROUP')  { acl_flags_group(\$sophia, $target, \@opts); }
         when ('USER')   { acl_flags_user(\$sophia, $target, \@opts);  }
     }
