@@ -22,10 +22,9 @@ sub curl_get {
     $curl->setopt(CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows; U; Windows NT 6.0; en-US; rv:1.9.1.6) Gecko/20091201 Firefox/3.5.6 GTB5');
     $curl->setopt(CURLOPT_URL, $uri);
 
-    my $response = '';
-    open my $file, '>', \$response;
+    my $response;
 
-    $curl->setopt(CURLOPT_WRITEDATA, \$file);
+    $curl->setopt(CURLOPT_WRITEDATA, \$response);
     
     my $retcode = $curl->perform;
     if ($retcode == 0) {
