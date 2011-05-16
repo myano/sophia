@@ -22,18 +22,16 @@ sub curl_get {
     $curl->setopt(CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows; U; Windows NT 6.0; en-US; rv:1.9.1.6) Gecko/20091201 Firefox/3.5.6 GTB5');
     $curl->setopt(CURLOPT_URL, $uri);
 
-    my $response = '';
-    open my $file, '>', \$response;
+    my $response;
 
-    $curl->setopt(CURLOPT_WRITEDATA, \$file);
+    $curl->setopt(CURLOPT_WRITEDATA, \$response);
     
     my $retcode = $curl->perform;
     if ($retcode == 0) {
         return $response;
     }
-    else {
-        sophia_log('sophia', sprintf('[LIBRARY: libcurl::http_get] An error occured. retcode: %s. Error: %s %s', $retcode, $curl->strerror($retcode), $curl->errbuf));
-    }
+
+    sophia_log('sophia', sprintf('[LIBRARY: libcurl::curl_get] An error occured. retcode: %s. Error: %s %s', $retcode, $curl->strerror($retcode), $curl->errbuf));
     return;
 }
 
@@ -63,9 +61,8 @@ sub curl_post {
     if ($retcode == 0) {
         return $response;
     }
-    else {
-        sophia_log('sophia', sprintf('[LIBRARY: libcurl::http_post] An error occured. retcode: %s. Error: %s %s', $retcode, $curl->strerror($retcode), $curl->errbuf));
-    }
+
+    sophia_log('sophia', sprintf('[LIBRARY: libcurl::curl_post] An error occured. retcode: %s. Error: %s %s', $retcode, $curl->strerror($retcode), $curl->errbuf));
     return;
 }
 
