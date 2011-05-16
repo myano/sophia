@@ -31,9 +31,8 @@ sub curl_get {
     if ($retcode == 0) {
         return $response;
     }
-    else {
-        sophia_log('sophia', sprintf('[LIBRARY: libcurl::http_get] An error occured. retcode: %s. Error: %s %s', $retcode, $curl->strerror($retcode), $curl->errbuf));
-    }
+
+    sophia_log('sophia', sprintf('[LIBRARY: libcurl::curl_get] An error occured. retcode: %s. Error: %s %s', $retcode, $curl->strerror($retcode), $curl->errbuf));
     return;
 }
 
@@ -63,9 +62,8 @@ sub curl_post {
     if ($retcode == 0) {
         return $response;
     }
-    else {
-        sophia_log('sophia', sprintf('[LIBRARY: libcurl::http_post] An error occured. retcode: %s. Error: %s %s', $retcode, $curl->strerror($retcode), $curl->errbuf));
-    }
+
+    sophia_log('sophia', sprintf('[LIBRARY: libcurl::curl_post] An error occured. retcode: %s. Error: %s %s', $retcode, $curl->strerror($retcode), $curl->errbuf));
     return;
 }
 
