@@ -38,7 +38,7 @@ sub config_alias {
         when ('del')  {
             $message = sophia_del_alias_option($opts[2]) ?
                         sprintf('alias %s deleted.', lc $opts[2]) :
-                        'Invalid config:alias usage';
+                        sprintf('alias %s does not exist', lc $opts[2]);
         }
         when ('list') { 
             my $aliases = &sophia_get_aliases;
