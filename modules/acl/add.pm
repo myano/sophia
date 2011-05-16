@@ -72,6 +72,11 @@ sub acl_add_host {
         return;
     }
 
+    if ($opts[3] !~ /^[^!]+![^@]+@.+$/) {
+        $sophia->yield(privmsg => $target => 'Invalid hostmask.');
+        return;
+    }
+
     sophia_userhost_add($opts[2], $opts[3]);
     $sophia->yield(privmsg => $target => sprintf('Host %1$s%2$s%1$s added to user %1$s%3$s%1$s.', "\x02", $opts[3], $opts[2]));
 }
