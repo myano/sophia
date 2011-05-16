@@ -5,6 +5,7 @@ sophia_module_add('sophia.restart', '1.0', \&init_sophia_restart, \&deinit_sophi
 
 sub init_sophia_restart {
     sophia_global_command_add('restart', \&sophia_restart, 'Restarts sophia.', '');
+    sophia_event_privmsg_hook('sophia.restart', \&sophia_restart, 'Restarts sophia.', '');
     
     return 1;
 }
@@ -13,6 +14,7 @@ sub deinit_sophia_restart {
     delete_sub 'init_sophia_restart';
     delete_sub 'sophia_restart';
     sophia_global_command_del 'restart';
+    sophia_event_privmsg_dehook 'sophia.restart';
     delete_sub 'deinit_sophia_restart';
 }
 

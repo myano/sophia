@@ -5,6 +5,7 @@ sophia_module_add('sophia.shutdown', '1.0', \&init_sophia_shutdown, \&deinit_sop
 
 sub init_sophia_shutdown {
     sophia_global_command_add('shutdown', \&sophia_shutdown, 'Shutdown sophia.', '');
+    sophia_event_privmsg_hook('sophia.shutdown', \&sophia_shutdown, 'Shutdown sophia.', '');
 
     return 1;
 }
@@ -13,6 +14,7 @@ sub deinit_sophia_shutdown {
     delete_sub 'init_sophia_shutdown';
     delete_sub 'sophia_shutdown';
     sophia_global_command_del 'shutdown';
+    sophia_event_privmsg_dehook 'sophia.shutdown';
     delete_sub 'deinit_sophia_shutdown';
 }
 
