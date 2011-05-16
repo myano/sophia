@@ -1,24 +1,25 @@
 use strict;
 use warnings;
 
-use constant SOPHIA_ACL_NONE            => 0x0;
+use constant {
+    SOPHIA_ACL_NONE                     => 0x0,
+    SOPHIA_ACL_VOICE                    => 0x0001,
+    SOPHIA_ACL_AUTOVOICE                => 0x0002,
+    SOPHIA_ACL_OP                       => 0x0004,
+    SOPHIA_ACL_AUTOOP                   => 0x0008,
 
-use constant SOPHIA_ACL_VOICE           => 0x0001;
-use constant SOPHIA_ACL_AUTOVOICE       => 0x0002;
-use constant SOPHIA_ACL_OP              => 0x0004;
-use constant SOPHIA_ACL_AUTOOP          => 0x0008;
+    SOPHIA_ACL_CHANGETOPIC              => 0x0010,
+    SOPHIA_ACL_USEGRANT                 => 0x0020,
+    SOPHIA_ACL_BANNED                   => 0x0040,
 
-use constant SOPHIA_ACL_CHANGETOPIC     => 0x0010;
-use constant SOPHIA_ACL_USEGRANT        => 0x0020;
-use constant SOPHIA_ACL_BANNED          => 0x0040;
+    SOPHIA_ACL_FRIEND                   => 0x0100,
+    SOPHIA_ACL_ADMIN                    => 0x0200,
+    SOPHIA_ACL_FOUNDER                  => 0x0400,
 
-use constant SOPHIA_ACL_FRIEND          => 0x0100;
-use constant SOPHIA_ACL_ADMIN           => 0x0200;
-use constant SOPHIA_ACL_FOUNDER         => 0x0400;
-
-use constant SOPHIA_FRIEND              => (SOPHIA_ACL_VOICE | SOPHIA_ACL_OP | SOPHIA_ACL_CHANGETOPIC | SOPHIA_ACL_USEGRANT | SOPHIA_ACL_FRIEND);
-use constant SOPHIA_ADMIN               => (SOPHIA_ACL_VOICE | SOPHIA_ACL_OP | SOPHIA_ACL_CHANGETOPIC | SOPHIA_ACL_USEGRANT | SOPHIA_ACL_FRIEND | SOPHIA_ACL_ADMIN);
-use constant SOPHIA_FOUNDER             => (SOPHIA_ACL_VOICE | SOPHIA_ACL_OP | SOPHIA_ACL_CHANGETOPIC | SOPHIA_ACL_USEGRANT | SOPHIA_ACL_FRIEND | SOPHIA_ACL_ADMIN | SOPHIA_ACL_FOUNDER);
+    SOPHIA_FRIEND                       => (SOPHIA_ACL_VOICE | SOPHIA_ACL_OP | SOPHIA_ACL_CHANGETOPIC | SOPHIA_ACL_USEGRANT | SOPHIA_ACL_FRIEND),
+    SOPHIA_ADMIN                        => (SOPHIA_FRIEND | SOPHIA_ACL_ADMIN),
+    SOPHIA_FOUNDER                      => (SOPHIA_ADMIN  | SOPHIA_ACL_FOUNDER),
+}; 
 
 my %SOPHIA_ACL_FLAGS = (
     b   => SOPHIA_ACL_BANNED,
