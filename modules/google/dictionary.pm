@@ -17,7 +17,7 @@ sub deinit_google_dictionary {
     delete_sub 'deinit_google_dictionary';
 }
 
-my $max_entries = 2;
+my $max_entries = 3;
 
 sub google_dictionary {
     my $param = $_[0];
