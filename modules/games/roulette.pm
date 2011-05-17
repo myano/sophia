@@ -33,7 +33,7 @@ sub deinit_games_roulette {
 sub games_roulette {
     my $param = $_[0];
     my @args = @{$param};
-    my ($heap, $who, $where, $content) = @args[HEAP, ARG0 .. ARG2];
+    my ($who, $where, $content) = @args[ARG0 .. ARG2];
 
     my $perms = sophia_get_host_perms($who, $where->[0]);
     my $sophia = ${$args[HEAP]->{sophia}};
@@ -60,7 +60,6 @@ sub games_roulette {
 
     return if $who eq $roulette_settings{'LAST_PLAYER'};
 
-    my $sophia = ${$heap->{sophia}};
     $roulette_settings{'LAST_PLAYER'} = $who;
     $roulette_settings{'LAST_ACTIVE'} = time;
     my $rand = int(rand $roulette_settings{'COMPLEXITY'});

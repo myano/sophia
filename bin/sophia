@@ -541,3 +541,9 @@ sub sophia_del_alias_option {
     delete $SOPHIA{$opt};
     return 1;
 }
+
+sub sophia_get_config {
+    my %config = %SOPHIA;
+    $config{password} = '';
+    return \%config;
+}

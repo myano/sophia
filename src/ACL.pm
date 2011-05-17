@@ -15,11 +15,11 @@ use constant {
     SOPHIA_ACL_FRIEND                   => 0x0100,
     SOPHIA_ACL_ADMIN                    => 0x0200,
     SOPHIA_ACL_FOUNDER                  => 0x0400,
+};
 
-    SOPHIA_FRIEND                       => (SOPHIA_ACL_VOICE | SOPHIA_ACL_OP | SOPHIA_ACL_CHANGETOPIC | SOPHIA_ACL_USEGRANT | SOPHIA_ACL_FRIEND),
-    SOPHIA_ADMIN                        => (SOPHIA_FRIEND | SOPHIA_ACL_ADMIN),
-    SOPHIA_FOUNDER                      => (SOPHIA_ADMIN  | SOPHIA_ACL_FOUNDER),
-}; 
+use constant SOPHIA_FRIEND              => (SOPHIA_ACL_VOICE | SOPHIA_ACL_OP | SOPHIA_ACL_CHANGETOPIC | SOPHIA_ACL_USEGRANT | SOPHIA_ACL_FRIEND);
+use constant SOPHIA_ADMIN               => (SOPHIA_FRIEND | SOPHIA_ACL_ADMIN);
+use constant SOPHIA_FOUNDER             => (SOPHIA_ADMIN  | SOPHIA_ACL_FOUNDER);
 
 my %SOPHIA_ACL_FLAGS = (
     b   => SOPHIA_ACL_BANNED,
