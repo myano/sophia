@@ -1,6 +1,12 @@
 # indicates a comment line
 
 # These modules are recommended!
+loadmodule "config.main";
+loadmodule "config.alias";
+loadmodule "config.reload";
+loadmodule "config.save";
+loadmodule "config.set";
+
 loadmodule "acl.main";
 loadmodule "acl.add";
 loadmodule "acl.chanflags";
