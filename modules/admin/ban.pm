@@ -4,8 +4,8 @@ use warnings;
 sophia_module_add('admin.ban', '1.0', \&init_admin_ban, \&deinit_admin_ban);
 
 sub init_admin_ban {
-    sophia_command_add('admin.ban', \&admin_ban, 'Bans the user/hostmask.', '');
-    sophia_global_command_add('ban', \&admin_ban, 'Bans the user/hostmask.', '');
+    sophia_command_add('admin.ban', \&admin_ban, 'Bans the user/hostmask.', '', SOPHIA_ACL_OP | SOPHIA_ACL_AUTOOP);
+    sophia_global_command_add('ban', \&admin_ban, 'Bans the user/hostmask.', '', SOPHIA_ACL_OP | SOPHIA_ACL_AUTOOP);
 
     return 1;
 }
@@ -21,10 +21,7 @@ sub deinit_admin_ban {
 sub admin_ban {
     my $param = $_[0];
     my @args = @{$param};
-    my ($heap, $who, $where, $content) = @args[HEAP, ARG0 .. ARG2];
-
-    my $perms = sophia_get_host_perms($who, $where->[0]);
-    return unless $perms & SOPHIA_ACL_ADMIN;
+    my ($where, $content) = @args[ARG1,ARG2];
 
     my $idx = index $content, ' ';
     return unless $idx > -1;
@@ -32,7 +29,7 @@ sub admin_ban {
     $content = substr $content, $idx + 1;
     return unless $content;
 
-    my $sophia = ${$heap->{sophia}};
+    my $sophia = ${$args[HEAP]->{sophia}};
     my @parts = split / /, $content;
 
     $sophia->yield( mode => $where->[0] => sprintf('+%s', 'b' x scalar(@parts)) => $content );
