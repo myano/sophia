@@ -297,7 +297,7 @@ sub exec_events_trigger {
 
     $content =~ s/^$SOPHIA{trigger}//;
 
-    my ($module, $command, $trigger, $x);
+    my ($module, $command, $trigger, $ac, $x);
 
     if (index($content, ' ') > -1) {
         $trigger = substr $content, 0, index($content, ' ');
@@ -314,8 +314,9 @@ sub exec_events_trigger {
 
     # global event trigger
     if ($sophia::EVENTS->{$namespace}{$CONFIGURATIONS{GLOBAL_MODULE}}{$trigger}) {
-        if ($sophia::EVENTS->{$namespace}{$CONFIGURATIONS{GLOBAL_MODULE}}{$trigger}{access}) {
-            return unless $perms & $sophia::EVENTS->{$namespace}{$CONFIGURATIONS{GLOBAL_MODULE}}{$trigger}{access};
+        $ac = $sophia::EVENTS->{$namespace}{$CONFIGURATIONS{GLOBAL_MODULE}}{$trigger}{access};
+        if ($ac) {
+            return unless $perms & $ac;
         }
         eval {
             $x = &{$sophia::EVENTS->{$namespace}{$CONFIGURATIONS{GLOBAL_MODULE}}{$trigger}{init}}($args, $target);
@@ -326,8 +327,9 @@ sub exec_events_trigger {
     elsif ($trigger =~ m/^([^:]+):(.+)$/) {
         ($module, $command) = ($1, $2);
         if ($sophia::EVENTS->{$namespace}{$module}{$command}) {
-            if ($sophia::EVENTS->{$namespace}{$module}{$command}{access}) {
-                return unless $perms & $sophia::EVENTS->{$namespace}{$module}{$command}{access};
+            $ac = $sophia::EVENTS->{$namespace}{$module}{$command}{access};
+            if ($ac) {
+                return unless $perms & $ac;
             }
             eval {
                 $x = &{$sophia::EVENTS->{$namespace}{$module}{$command}{init}}($args, $target);
@@ -350,7 +352,7 @@ sub exec_triggers {
 
     $content =~ s/^$SOPHIA{trigger}//;
 
-    my ($module, $command, $trigger, $x);
+    my ($module, $command, $trigger, $ac, $x);
 
     if (index($content, ' ') > -1) {
         $trigger = substr $content, 0, index($content, ' ');
@@ -364,8 +366,9 @@ sub exec_triggers {
 
     # sophia command / global trigger?
     if ($sophia::COMMANDS->{$CONFIGURATIONS{GLOBAL_MODULE}}{$trigger}) {
-        if ($sophia::COMMANDS->{$CONFIGURATIONS{GLOBAL_MODULE}}{$trigger}{access}) {
-            return unless $perms & $sophia::COMMANDS->{$CONFIGURATIONS{GLOBAL_MODULE}}{$trigger}{access};
+        $ac = $sophia::COMMANDS->{$CONFIGURATIONS{GLOBAL_MODULE}}{$trigger}{access};
+        if ($ac) {
+            return unless $perms & $ac;
         }
         eval {
             $x = &{$sophia::COMMANDS->{$CONFIGURATIONS{GLOBAL_MODULE}}{$trigger}{init}}($param);
@@ -378,8 +381,9 @@ sub exec_triggers {
         $command = $2;
 
         if ($sophia::COMMANDS->{$module}{$command}) {
-            if ($sophia::COMMANDS->{$module}{$command}{access}) {
-                return unless $perms & $sophia::COMMANDS->{$module}{$command}{access};
+            $ac = $sophia::COMMANDS->{$module}{$command}{access};
+            if ($ac) {
+                return unless $perms & $ac;
             }
             eval {
                 $x = &{$sophia::COMMANDS->{$module}{$command}{init}}($param);
