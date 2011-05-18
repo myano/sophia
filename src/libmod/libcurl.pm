@@ -51,10 +51,9 @@ sub curl_post {
     $curl->setopt(CURLOPT_POST, scalar(keys %postdata));
     $curl->setopt(CURLOPT_POSTFIELDS, $data);
 
-    my $response = '';
-    open my $file, '>', \$response;
+    my $response;
 
-    $curl->setopt(CURLOPT_WRITEDATA, \$file);
+    $curl->setopt(CURLOPT_WRITEDATA, \$response);
 
     my $retcode = $curl->perform;
 

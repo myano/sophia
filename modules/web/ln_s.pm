@@ -26,10 +26,6 @@ sub web_lns {
 
     $content = substr $content, $idx + 1;
     $content =~ s/^\s*//;
-    return unless $content =~ /^http:\/\//;
-
-    $idx = index $content, ' ';
-    $content = substr($content, 0, $idx) unless $idx == -1;
 
     my %postdata = (
         url => $content,
