@@ -15,8 +15,6 @@ use constant {
     SOPHIA_ACL_FRIEND                   => 0x0100,
     SOPHIA_ACL_ADMIN                    => 0x0200,
     SOPHIA_ACL_FOUNDER                  => 0x0400,
-
-    SOPHIA_ACL_ALL                      => 0xffff,
 };
 
 use constant SOPHIA_FRIEND              => (SOPHIA_ACL_VOICE | SOPHIA_ACL_OP | SOPHIA_ACL_CHANGETOPIC | SOPHIA_ACL_USEGRANT | SOPHIA_ACL_FRIEND);
