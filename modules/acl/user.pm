@@ -5,8 +5,8 @@ use feature 'switch';
 sophia_module_add('acl.user', '1.0', \&init_acl_user, \&deinit_acl_user);
 
 sub init_acl_user {
-    sophia_command_add('acl.user', \&acl_user, 'Gets the INFO of a USER.', '');
-    sophia_event_privmsg_hook('acl.user', \&acl_user, 'Gets the INFO of a USER.', '');
+    sophia_command_add('acl.user', \&acl_user, 'Gets the INFO of a USER.', '', SOPHIA_ACL_FOUNDER);
+    sophia_event_privmsg_hook('acl.user', \&acl_user, 'Gets the INFO of a USER.', '', SOPHIA_ACL_FOUNDER);
 
     return 1;
 }
@@ -22,11 +22,8 @@ sub deinit_acl_user {
 sub acl_user {
     my ($args, $target) = @_;
     my @args = @{$args};
-    my ($who, $where, $content) = @args[ARG0 .. ARG2];
+    my ($where, $content) = @args[ARG1,ARG2];
     $target ||= $where->[0];
-
-    my $perms = sophia_get_host_perms($who);
-    return unless $perms & SOPHIA_ACL_FOUNDER;
 
     my @opts = split /\s+/, $content;
     return unless scalar(@opts) == 3 && uc $opts[1] eq 'INFO';

@@ -5,8 +5,8 @@ use feature 'switch';
 sophia_module_add('acl.group', '1.0', \&init_acl_group, \&deinit_acl_group);
 
 sub init_acl_group {
-    sophia_command_add('acl.group', \&acl_group, 'Gets the info of a group or a list of its members.', '');
-    sophia_event_privmsg_hook('acl.group', \&acl_group, 'Gets the info of a group or a list of its members.', '');
+    sophia_command_add('acl.group', \&acl_group, 'Gets the info of a group or a list of its members.', '', SOPHIA_ACL_FOUNDER);
+    sophia_event_privmsg_hook('acl.group', \&acl_group, 'Gets the info of a group or a list of its members.', '', SOPHIA_ACL_FOUNDER);
     
     return 1;
 }
@@ -25,11 +25,8 @@ sub deinit_acl_group {
 sub acl_group {
     my ($args, $target) = @_;
     my @args = @{$args};
-    my ($who, $where, $content) = @args[ARG0 .. ARG2];
+    my ($where, $content) = @args[ARG1,ARG2];
     $target ||= $where->[0];
-
-    my $perms = sophia_get_host_perms($who);
-    return unless $perms & SOPHIA_ACL_FOUNDER;
 
     my @opts = split /\s+/, $content;
     return unless scalar(@opts) == 3;

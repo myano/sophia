@@ -69,22 +69,26 @@ sub sophia_module_exists {
 }
 
 sub sophia_command_add {
-    my ($module_command, $cmd_hook, $cmd_desc, $cmd_help) = @_;
+    my ($module_command, $cmd_hook, $cmd_desc, $cmd_help, $cmd_access) = @_;
     my ($module, $command);
     $module = substr $module_command, 0, index($module_command, '.');
     $command = substr $module_command, index($module_command, '.') + 1;
     return if $module eq $global_module;
 
+    $cmd_access ||= SOPHIA_ACL_NONE;
     $sophia::COMMANDS->{$module}{$command}{init} = $cmd_hook;
     $sophia::COMMANDS->{$module}{$command}{desc} = $cmd_desc;
     $sophia::COMMANDS->{$module}{$command}{help} = $cmd_help;
+    $sophia::COMMANDS->{$module}{$command}{access} = $cmd_access;
 }
 
 sub sophia_global_command_add {
-    my ($command, $cmd_hook, $cmd_desc, $cmd_help) = @_;
+    my ($command, $cmd_hook, $cmd_desc, $cmd_help, $cmd_access) = @_;
+    $cmd_access ||= SOPHIA_ACL_NONE;
     $sophia::COMMANDS->{$global_module}{$command}{init} = $cmd_hook;
     $sophia::COMMANDS->{$global_module}{$command}{desc} = $cmd_desc;
     $sophia::COMMANDS->{$global_module}{$command}{help} = $cmd_help;
+    $sophia::COMMANDS->{$global_module}{$command}{access} = $cmd_access;
 }
 
 sub sophia_event_join_hook {
@@ -121,14 +125,16 @@ sub sophia_event_quit_hook {
 
 sub sophia_event_hook {
     my ($event, $vals) = @_;
-    my ($mod_cmd, $cmd_hook, $cmd_desc, $cmd_help) = @{$vals};
+    my ($mod_cmd, $cmd_hook, $cmd_desc, $cmd_help, $cmd_access) = @{$vals};
     return unless $event && $mod_cmd;
 
     my ($module, $command) = split /\./, $mod_cmd;
+    $cmd_access ||= SOPHIA_ACL_NONE;
 
     $sophia::EVENTS->{$event}{$module}{$command}{init} = $cmd_hook;
     $sophia::EVENTS->{$event}{$module}{$command}{desc} = $cmd_desc;
     $sophia::EVENTS->{$event}{$module}{$command}{help} = $cmd_help;
+    $sophia::EVENTS->{$event}{$module}{$command}{access} = $cmd_access;
 }
 
 sub sophia_command_del {

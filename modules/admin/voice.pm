@@ -4,8 +4,8 @@ use warnings;
 sophia_module_add('admin.voice', '1.0', \&init_admin_voice, \&deinit_admin_voice);
 
 sub init_admin_voice {
-    sophia_command_add('admin.voice', \&admin_voice, 'Voices the user/hostmask.', '');
-    sophia_global_command_add('voice', \&admin_voice, 'Voices the user/hostmask.', '');
+    sophia_command_add('admin.voice', \&admin_voice, 'Voices the user/hostmask.', '', SOPHIA_ACL_VOICE | SOPHIA_ACL_AUTOVOICE);
+    sophia_global_command_add('voice', \&admin_voice, 'Voices the user/hostmask.', '', SOPHIA_ACL_VOICE | SOPHIA_ACL_AUTOVOICE);
 
     return 1;
 }
@@ -21,10 +21,7 @@ sub deinit_admin_voice {
 sub admin_voice {
     my $param = $_[0];
     my @args = @{$param};
-    my ($heap, $who, $where, $content) = @args[HEAP, ARG0 .. ARG2];
-
-    my $perms = sophia_get_host_perms($who, $where->[0]);
-    return unless $perms & SOPHIA_ACL_VOICE || $perms & SOPHIA_ACL_AUTOVOICE;
+    my ($who, $where, $content) = @args[ARG0 .. ARG2];
 
     my $idx = index $content, ' ';
     unless ($idx == -1) {
@@ -32,7 +29,7 @@ sub admin_voice {
         $content =~ s/^\s+//;
     }
 
-    my $sophia = ${$heap->{sophia}};
+    my $sophia = ${$args[HEAP]->{sophia}};
     unless ($idx > -1 && $content) {
         $content = substr $who, 0, index($who, '!');
         $sophia->yield( mode => $where->[0] => '+v' => $content );

@@ -4,8 +4,8 @@ use warnings;
 sophia_module_add('admin.devoice', '1.0', \&init_admin_devoice, \&deinit_admin_devoice);
 
 sub init_admin_devoice {
-    sophia_command_add('admin.devoice', \&admin_devoice, 'Devoices the user/hostmask.', '');
-    sophia_global_command_add('devoice', \&admin_devoice, 'Devoices the user/hostmask.', '');
+    sophia_command_add('admin.devoice', \&admin_devoice, 'Devoices the user/hostmask.', '', SOPHIA_ACL_VOICE | SOPHIA_ACL_AUTOVOICE);
+    sophia_global_command_add('devoice', \&admin_devoice, 'Devoices the user/hostmask.', '', SOPHIA_ACL_VOICE | SOPHIA_ACL_AUTOVOICE);
 
     return 1;
 }
@@ -21,12 +21,9 @@ sub deinit_admin_devoice {
 sub admin_devoice {
     my $param = $_[0];
     my @args = @{$param};
-    my ($heap, $who, $where, $content) = @args[HEAP, ARG0 .. ARG2];
-    
-    my $perms = sophia_get_host_perms($who, $where->[0]);
-    return unless $perms & SOPHIA_ACL_VOICE || $perms & SOPHIA_ACL_AUTOVOICE;
+    my ($who, $where, $content) = @args[ARG0 .. ARG2];
 
-    my $sophia = ${$heap->{sophia}};
+    my $sophia = ${$args[HEAP]->{sophia}};
     my $idx = index $content, ' ';
     unless ($idx == -1) {
         $content = substr $content, $idx + 1;

@@ -4,8 +4,8 @@ use warnings;
 sophia_module_add('admin.deop', '1.0', \&init_admin_deop, \&deinit_admin_deop);
 
 sub init_admin_deop {
-    sophia_command_add('admin.deop', \&admin_deop, 'Deops the user/hostmask.', '');
-    sophia_global_command_add('deop', \&admin_deop, 'Deops the user/hostmask.', '');
+    sophia_command_add('admin.deop', \&admin_deop, 'Deops the user/hostmask.', '', SOPHIA_ACL_OP | SOPHIA_ACL_AUTOOP);
+    sophia_global_command_add('deop', \&admin_deop, 'Deops the user/hostmask.', '', SOPHIA_ACL_OP | SOPHIA_ACL_AUTOOP);
 
     return 1;
 }
@@ -21,10 +21,7 @@ sub deinit_admin_deop {
 sub admin_deop {
     my $param = $_[0];
     my @args = @{$param};
-    my ($heap, $who, $where, $content) = @args[HEAP, ARG0 .. ARG2];
-
-    my $perms = sophia_get_host_perms($who, $where->[0]);
-    return unless $perms & SOPHIA_ACL_OP || $perms & SOPHIA_ACL_AUTOOP;
+    my ($who, $where, $content) = @args[ARG0 .. ARG2];
 
     my $idx = index $content, ' ';
     unless ($idx == -1) {
@@ -32,7 +29,7 @@ sub admin_deop {
         $content =~ s/^\s+//;
     }
 
-    my $sophia = ${$heap->{sophia}};
+    my $sophia = ${$args[HEAP]->{sophia}};
     unless ($idx > -1 && $content) {
         $content = substr $who, 0, index($who, '!');
         $sophia->yield( mode => $where->[0] => "-o" => $content );
