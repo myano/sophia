@@ -4,8 +4,8 @@ use warnings;
 sophia_module_add('config.set', '1.0', \&init_config_set, \&deinit_config_set);
 
 sub init_config_set {
-    sophia_command_add('config.set', \&config_set, 'Sets a sophia conf option.', '');
-    sophia_event_privmsg_hook('config.set', \&config_set, 'Sets a sophia conf option.', '');
+    sophia_command_add('config.set', \&config_set, 'Sets a sophia conf option.', '', SOPHIA_ACL_FOUNDER);
+    sophia_event_privmsg_hook('config.set', \&config_set, 'Sets a sophia conf option.', '', SOPHIA_ACL_FOUNDER);
 
     return 1;
 }
@@ -21,14 +21,10 @@ sub deinit_config_set {
 sub config_set {
     my ($args, $target) = @_;
     my @args = @{$args};
-    my ($who, $where, $content) = @args[ARG0 .. ARG2];
+    my ($where, $content) = @args[ARG1,ARG2];
     $target ||= $where->[0];
 
-    my $perms = sophia_get_host_perms($who);
-    return unless $perms & SOPHIA_ACL_FOUNDER;
-
     my @opts = split /\s+/, $content;
-
     my $sophia = ${$args[HEAP]->{sophia}};
 
     my $message = sophia_set_config_option(\@opts) ?

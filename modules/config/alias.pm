@@ -5,8 +5,8 @@ use feature 'switch';
 sophia_module_add('config.alias', '1.0', \&init_config_alias, \&deinit_config_alias);
 
 sub init_config_alias {
-    sophia_command_add('config.alias', \&config_alias, 'Enables mapping aliases to commands.', '');
-    sophia_event_privmsg_hook('config.alias', \&config_alias, 'Enables mapping aliases to commands.', '');
+    sophia_command_add('config.alias', \&config_alias, 'Enables mapping aliases to commands.', '', SOPHIA_ACL_ADMIN);
+    sophia_event_privmsg_hook('config.alias', \&config_alias, 'Enables mapping aliases to commands.', '', SOPHIA_ACL_ADMIN);
 
     return 1;
 }
@@ -21,11 +21,8 @@ sub deinit_config_alias {
 sub config_alias {
     my ($args, $target) = @_;
     my @args = @{$args};
-    my ($who, $where, $content) = @args[ARG0 .. ARG2];
+    my ($where, $content) = @args[ARG1,ARG2];
     $target ||= $where->[0];
-
-    my $perms = sophia_get_host_perms($who);
-    return unless $perms & SOPHIA_ACL_FOUNDER;
 
     my @opts = split /\s+/, $content;
     my $len = scalar @opts;
