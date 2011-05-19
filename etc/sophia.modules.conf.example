@@ -19,13 +19,16 @@ loadmodule "acl.user";
 loadmodule "acl.usergroup";
 
 loadmodule "sophia.main";
-loadmodule "sophia.restart";
-loadmodule "sophia.shutdown";
+loadmodule "sophia.action";
 loadmodule "sophia.join";
+loadmodule "sophia.msg";
+loadmodule "sophia.notice";
 loadmodule "sophia.part";
 loadmodule "sophia.modload";
 loadmodule "sophia.modunload";
 loadmodule "sophia.modreload";
+loadmodule "sophia.restart";
+loadmodule "sophia.shutdown";
 
 loadmodule "admin.main";
 loadmodule "admin.ban";

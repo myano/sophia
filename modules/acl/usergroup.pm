@@ -4,8 +4,8 @@ use warnings;
 sophia_module_add('acl.usergroup', '1.0', \&init_acl_usergroup, \&deinit_acl_usergroup);
 
 sub init_acl_usergroup {
-    sophia_command_add('acl.usergroup', \&acl_usergroup, 'Adds a user to a group.', '');
-    sophia_event_privmsg_hook('acl.usergroup', \&acl_usergroup, 'Adds a user to a group.', '');
+    sophia_command_add('acl.usergroup', \&acl_usergroup, 'Adds a user to a group.', '', SOPHIA_ACL_FOUNDER);
+    sophia_event_privmsg_hook('acl.usergroup', \&acl_usergroup, 'Adds a user to a group.', '', SOPHIA_ACL_FOUNDER);
 
     return 1;
 }
@@ -21,11 +21,8 @@ sub deinit_acl_usergroup {
 sub acl_usergroup {
     my ($args, $target) = @_;
     my @args = @{$args};
-    my ($who, $where, $content) = @args[ARG0 .. ARG2];
+    my ($where, $content) = @args[ARG1,ARG2];
     $target ||= $where->[0];
-
-    my $perms = sophia_get_host_perms($who);
-    return unless $perms & SOPHIA_ACL_FOUNDER;
 
     my @opts = split /\s+/, $content;
     return unless scalar(@opts) == 3;

@@ -5,8 +5,8 @@ use feature 'switch';
 sophia_module_add('acl.del', '1.0', \&init_acl_del, \&deinit_acl_del);
 
 sub init_acl_del {
-   sophia_command_add('acl.del', \&acl_del, 'Deletes an entry to sophia\'s ACL.', '');
-   sophia_event_privmsg_hook('acl.del', \&acl_del, 'Deletes an entry to sophia\'s ACL.', '');
+   sophia_command_add('acl.del', \&acl_del, 'Deletes an entry to sophia\'s ACL.', '', SOPHIA_ACL_FOUNDER);
+   sophia_event_privmsg_hook('acl.del', \&acl_del, 'Deletes an entry to sophia\'s ACL.', '', SOPHIA_ACL_FOUNDER);
 
    return 1;
 }
@@ -25,11 +25,8 @@ sub deinit_acl_del {
 sub acl_del {
     my ($args, $target) = @_;
     my @args = @{$args};
-    my ($who, $where, $content) = @args[ARG0 .. ARG2];
+    my ($where, $content) = @args[ARG1,ARG2];
     $target ||= $where->[0];
-
-    my $perms = sophia_get_host_perms($who);
-    return unless $perms & SOPHIA_ACL_FOUNDER;
 
     my @opts = split /\s+/, $content;
     my $len = scalar @opts;
