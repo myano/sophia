@@ -114,7 +114,7 @@ else {
 unless ($CONFIGURATIONS{IN_DEBUG_MODE}) {
     open STDIN, '/dev/null' or trigger_error('sophia', "sophia cannot read /dev/null: $!\n");
     open STDOUT, '>> /dev/null' or trigger_error('sophia', "sophia cannot write to /dev/null: $!\n");
-    open STDERR, '>> /dev/null' or trigger_error('sophia', "sophia cannot write to /dev/null: $!\n");
+    open STDERR, "$Bin/../var/sophia.err" or trigger_error('sophia', "sophia cannot write to var/sophia.err: $!\n");
 }
 
 my $sophia = POE::Component::IRC->spawn(
