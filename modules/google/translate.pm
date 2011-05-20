@@ -17,9 +17,8 @@ sub deinit_google_translate {
 }
 
 sub google_translate {
-    my $param = $_[0];
-    my @args = @{$param};
-    my ($where, $content) = @args[ARG1 .. ARG2];
+    my $args = $_[0];
+    my ($where, $content) = ($args->[ARG1], $args->[ARG2]);
     $content = substr $content, index($content, ' ') + 1;
     $content =~ s/^\s+//;
 
@@ -34,7 +33,7 @@ sub google_translate {
     my $response = curl_get(sprintf('http://ajax.googleapis.com/ajax/services/language/translate?v=1.0&q=%s&langpair=%s', $text, $lang));
     return unless $response;
 
-    my $sophia = ${$args[HEAP]->{sophia}};
+    my $sophia = ${$args->[HEAP]->{sophia}};
     if ($response =~ m/{"translatedText":"([^"]+)"}/) {
         my $val = $1;
         $val =~ s/\\u0026/&/g;

@@ -19,11 +19,10 @@ sub deinit_admin_topic {
 }
 
 sub admin_topic {
-    my $param = $_[0];
-    my @args = @{$param};
-    my ($where, $content) = @args[ARG1,ARG2];
+    my $args = $_[0];
+    my ($where, $content) = ($args->[ARG1], $args->[ARG2]);
 
-    my $sophia = ${$args[HEAP]->{sophia}};
+    my $sophia = ${$args->[HEAP]->{sophia}};
     $content = substr $content, index($content, ' ') + 1;
     $sophia->yield( topic => $where->[0] => $content );
 }

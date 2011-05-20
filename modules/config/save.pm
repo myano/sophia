@@ -20,11 +20,10 @@ sub deinit_config_save {
 
 sub config_save {
     my ($args, $target) = @_;
-    my @args = @{$args};
-    my $where = $args[ARG1];
+    my $where = $args->[ARG1];
     $target ||= $where->[0];
 
-    my $sophia = ${$args[HEAP]->{sophia}};
+    my $sophia = ${$args->[HEAP]->{sophia}};
     my $message = &sophia_save_config ? 'Config saved.' : 'Config failed to save.';
 
     $sophia->yield(privmsg => $target => $message);

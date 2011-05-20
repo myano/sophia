@@ -235,16 +235,15 @@ sub deinit_common_time {
 }
 
 sub common_time {
-    my $param = $_[0];
-    my @args = @{$param};
-    my ($where, $content) = ($args[ARG1], $args[ARG2]);
+    my $args = $_[0];
+    my ($where, $content) = ($args->[ARG1], $args->[ARG2]);
 
 
     my $idx = index $content, ' ';
     $content = $idx > -1 ? substr($content, $idx + 1) : '';
     $content =~ s/\s+//g;
 
-    my $sophia = ${$args[HEAP]->{sophia}};
+    my $sophia = ${$args->[HEAP]->{sophia}};
     if ( $content =~ /[+-]?\d+/ ) {
         my $offset = $content;
         return if abs($offset) > 100000;

@@ -18,9 +18,8 @@ sub deinit_web_urltitle {
 
 my $max_redirects = 10;
 sub web_urltitle {
-    my $param = $_[0];
-    my @args = @{$param};
-    my ($where, $content) = ($args[ARG1], $args[ARG2]);
+    my $args = $_[0];
+    my ($where, $content) = ($args->[ARG1], $args->[ARG2]);
 
     my $response = curl_get($content);
     return unless $response;
@@ -38,7 +37,7 @@ sub web_urltitle {
     $title =~ s/\n//;
     $title =~ s/\s{2,}/ /;
 
-    my $sophia = ${$args[HEAP]->{sophia}};
+    my $sophia = ${$args->[HEAP]->{sophia}};
     $sophia->yield(privmsg => $where->[0] => decode_entities($title));
 }
 

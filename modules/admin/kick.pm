@@ -19,9 +19,8 @@ sub deinit_admin_kick {
 }
 
 sub admin_kick {
-    my $param = $_[0];
-    my @args = @{$param};
-    my ($where, $content) = @args[ARG1,ARG2];
+    my $args = $_[0];
+    my ($where, $content) = ($args->[ARG1], $args->[ARG2]);
     
     my $idx = index $content, ' ';
     return unless $idx > -1;
@@ -35,7 +34,7 @@ sub admin_kick {
     my $target = substr $content, 0, $idx;
     my $kick_msg = substr $content, $idx + 1;
 
-    my $sophia = ${$args[HEAP]->{sophia}};
+    my $sophia = ${$args->[HEAP]->{sophia}};
     $sophia->yield( kick => $where->[0] => $target => $kick_msg );
 }
 

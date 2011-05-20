@@ -20,12 +20,11 @@ sub deinit_config_set {
 
 sub config_set {
     my ($args, $target) = @_;
-    my @args = @{$args};
-    my ($where, $content) = @args[ARG1,ARG2];
+    my ($where, $content) = ($args->[ARG1], $args->[ARG2]);
     $target ||= $where->[0];
 
     my @opts = split /\s+/, $content;
-    my $sophia = ${$args[HEAP]->{sophia}};
+    my $sophia = ${$args->[HEAP]->{sophia}};
 
     my $message = sophia_set_config_option(\@opts) ?
                     sprintf('%s = %s', $opts[1], $opts[2]) :

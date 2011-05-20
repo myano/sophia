@@ -4,8 +4,7 @@ use warnings;
 sophia_module_add('google.calc', '1.0', \&init_google_calc, \&deinit_google_calc);
 
 sub init_google_calc {
-    sophia_command_add('google.calc', \&google_calc, 'Uses Google for calculating stuff.', '');
-    sophia_global_command_add('calc', \&google_calc, 'Uses Google for calculating stuff.', '');
+    sophia_global_command_add('gcalc', \&google_calc, 'Uses Google for calculating stuff.', '');
 
     return 1;
 }
@@ -18,9 +17,8 @@ sub deinit_google_calc {
 }
 
 sub google_calc {
-    my $param = $_[0];
-    my @args = @{$param};
-    my ($where, $content) = ($args[ARG1], $args[ARG2]);
+    my $args = $_[0];
+    my ($where, $content) = ($args->[ARG1], $args->[ARG2]);
     $content = substr $content, index($content, ' ') + 1;
 
     $content =~ s/\+/\%2B/g;
@@ -30,7 +28,7 @@ sub google_calc {
     my $response = curl_get(sprintf('http://www.google.com/search?q=%s', $content));
     return unless $response;
 
-    my $sophia = ${$args[HEAP]->{sophia}};
+    my $sophia = ${$args->[HEAP]->{sophia}};
     if ($response =~ /<h(2|3) class=r( [^>]+)?><b>(.+?) = (.+?)<\/b><\/h(2|3)>/) {
         my ($eq, $ans) = ($3, $4);
         $eq =~ s/<font size=-2> <\/font>/,/g;
