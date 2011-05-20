@@ -20,15 +20,14 @@ sub deinit_config_alias {
 
 sub config_alias {
     my ($args, $target) = @_;
-    my @args = @{$args};
-    my ($where, $content) = @args[ARG1,ARG2];
+    my ($where, $content) = ($args->[ARG1], $args->[ARG2]);
     $target ||= $where->[0];
 
     my @opts = split /\s+/, $content;
     my $len = scalar @opts;
     return unless $len > 1;
 
-    my $sophia = ${$args[HEAP]->{sophia}};
+    my $sophia = ${$args->[HEAP]->{sophia}};
     my $message;
     
     given (lc $opts[1]) {

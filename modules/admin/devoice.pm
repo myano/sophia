@@ -19,11 +19,10 @@ sub deinit_admin_devoice {
 }
 
 sub admin_devoice {
-    my $param = $_[0];
-    my @args = @{$param};
-    my ($who, $where, $content) = @args[ARG0 .. ARG2];
+    my $args = $_[0];
+    my ($who, $where, $content) = ($args->[ARG0], $args->[ARG1], $args->[ARG2]);
 
-    my $sophia = ${$args[HEAP]->{sophia}};
+    my $sophia = ${$args->[HEAP]->{sophia}};
     my $idx = index $content, ' ';
     unless ($idx == -1) {
         $content = substr $content, $idx + 1;

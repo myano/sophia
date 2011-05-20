@@ -20,9 +20,9 @@ sub deinit_web_acronym {
 
 my $max = 10;
 sub web_acronym {
-    my $param = $_[0];
-    my @args = @{$param};
-    my ($where, $content) = @args[ARG1 .. ARG2];
+    my $args = $_[0];
+    my ($where, $content) = ($args->[ARG1], $args->[ARG2]);
+
     $content = substr $content, index($content, ' ') + 1;
     $content =~ s/ /+/g;
 
@@ -46,7 +46,7 @@ sub web_acronym {
         $idx += 3;
     }
 
-    my $sophia = ${$args[HEAP]->{sophia}};
+    my $sophia = ${$args->[HEAP]->{sophia}};
 
     if (scalar(@acronyms) == 0) {
         $sophia->yield(privmsg => $where->[0] => 'Acronym not found in the database.');

@@ -4,8 +4,8 @@ use warnings;
 sophia_module_add('sophia.restart', '1.0', \&init_sophia_restart, \&deinit_sophia_restart);
 
 sub init_sophia_restart {
-    sophia_global_command_add('restart', \&sophia_restart, 'Restarts sophia.', '');
-    sophia_event_privmsg_hook('sophia.restart', \&sophia_restart, 'Restarts sophia.', '');
+    sophia_global_command_add('restart', \&sophia_restart, 'Restarts sophia.', '', SOPHIA_ACL_FOUNDER);
+    sophia_event_privmsg_hook('sophia.restart', \&sophia_restart, 'Restarts sophia.', '', SOPHIA_ACL_FOUNDER);
     
     return 1;
 }
@@ -19,14 +19,10 @@ sub deinit_sophia_restart {
 }
 
 sub sophia_restart {
-    my $param = $_[0];
-    my @args = @{$param};
-    my ($heap, $who) = @args[HEAP, ARG0];
+    my $args = $_[0];
+    my $who = $args->[ARG0];
+    my $sophia = ${$args->[HEAP]->{sophia}};
 
-    my $perms = sophia_get_host_perms($who);
-    return unless $perms & SOPHIA_ACL_FOUNDER;
-
-    my $sophia = ${$heap->{sophia}};
     sophia_log('sophia', sprintf('Restarting sophia requested by: %s', $who));
     $sophia::CONFIGURATIONS{DO_RESTART} = 1;
     $sophia->yield(quit => 'Restarting ... ');

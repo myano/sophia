@@ -24,35 +24,35 @@ sub deinit_acl_group {
 
 sub acl_group {
     my ($args, $target) = @_;
-    my @args = @{$args};
-    my ($where, $content) = @args[ARG1,ARG2];
+    my ($where, $content) = ($args->[ARG1], $args->[ARG2]);
     $target ||= $where->[0];
 
     my @opts = split /\s+/, $content;
     return unless scalar(@opts) == 3;
 
+    my $sophia = $args->[HEAP]->{sophia};
+
     given ($opts[1]) {
-        when ('INFO')   { acl_group_info($args[HEAP]->{sophia}, $target, \@opts); }
-        when ('LIST')   { acl_group_list($args[HEAP]->{sophia}, $target, \@opts); }
+        when ('INFO')   { acl_group_info($sophia, $target, \@opts); }
+        when ('LIST')   { acl_group_list($sophia, $target, \@opts); }
     }
 }
 
 sub acl_group_info {
     my ($sophia, $target, $opts) = @_;
-    my @opts = @{$opts};
     $sophia = ${$sophia};
 
-    $opts[2] = lc $opts[2];
+    $opts->[2] = lc $opts->[2];
 
-    unless (sophia_group_exists($opts[2])) {
-        $sophia->yield(privmsg => $target => sprintf('Group %1$s%2$s%1$s does not exist.', "\x02", $opts[2]));
+    unless (sophia_group_exists($opts->[2])) {
+        $sophia->yield(privmsg => $target => sprintf('Group %1$s%2$s%1$s does not exist.', "\x02", $opts->[2]));
         return;
     }
 
     my $groups = &sophia_acl_groups;
-    my $group = $groups->{$opts[2]};
+    my $group = $groups->{$opts->[2]};
 
-    $sophia->yield(privmsg => $target => sprintf('Group %1$s%2$s%1$s has flags (%1$s%3$s%1$s) with %1$s%4$d%1$s members, and the following channel flags:', "\x02", $opts[2], $group->{FLAGS}, scalar(keys %{$group->{USERS}})));
+    $sophia->yield(privmsg => $target => sprintf('Group %1$s%2$s%1$s has flags (%1$s%3$s%1$s) with %1$s%4$d%1$s members, and the following channel flags:', "\x02", $opts->[2], $group->{FLAGS}, scalar(keys %{$group->{USERS}})));
 
     my $output = '';
     my $count = 0;
@@ -71,29 +71,28 @@ sub acl_group_info {
 
 sub acl_group_list {
     my ($sophia, $target, $opts) = @_;
-    my @opts = @{$opts};
 
-    if ($opts[2] eq '*') {
-        acl_group_list_all($sophia, $target, $opts);
+    if ($opts->[2] eq '*') {
+        acl_group_list_all($sophia, $target);
         return;
     }
 
     $sophia = ${$sophia};
 
-    $opts[2] = lc $opts[2];
+    $opts->[2] = lc $opts->[2];
 
-    unless (sophia_group_exists($opts[2])) {
-        $sophia->yield(privmsg => $target => sprintf('Group %1$s%2$s%1$s does not exist.', "\x02", $opts[2]));
+    unless (sophia_group_exists($opts->[2])) {
+        $sophia->yield(privmsg => $target => sprintf('Group %1$s%2$s%1$s does not exist.', "\x02", $opts->[2]));
         return;
     }
 
     my $groups = &sophia_acl_groups;
-    my $group = $groups->{$opts[2]};
+    my $group = $groups->{$opts->[2]};
 
     my $output = '';
     my $count = 0;
 
-    $sophia->yield(privmsg => $target => sprintf('Group %1$s%2$s%1$s has %1$s%3$d%1$s members:', "\x02", $opts[2], scalar(keys %{$group->{USERS}})));
+    $sophia->yield(privmsg => $target => sprintf('Group %1$s%2$s%1$s has %1$s%3$d%1$s members:', "\x02", $opts->[2], scalar(keys %{$group->{USERS}})));
 
     USER: for (keys %{$group->{USERS}}) {
         if ($count + length > 350) {
@@ -109,8 +108,7 @@ sub acl_group_list {
 }
 
 sub acl_group_list_all {
-    my ($sophia, $target, $opts) = @_;
-    my @opts = @{$opts};
+    my ($sophia, $target) = @_;
     $sophia = ${$sophia};
 
     my $groups = &sophia_acl_groups;

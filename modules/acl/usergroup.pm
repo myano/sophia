@@ -20,16 +20,15 @@ sub deinit_acl_usergroup {
 
 sub acl_usergroup {
     my ($args, $target) = @_;
-    my @args = @{$args};
-    my ($where, $content) = @args[ARG1,ARG2];
+    my ($where, $content) = ($args->[ARG1], $args->[ARG2]);
     $target ||= $where->[0];
 
     my @opts = split /\s+/, $content;
     return unless scalar(@opts) == 3;
 
-    my $sophia = ${$args[HEAP]->{sophia}};
+    my $sophia = ${$args->[HEAP]->{sophia}};
 
-    map { $_ = lc; } @opts;
+    ($opts[1], $opts[2]) = (lc $opts[1], lc $opts[2]);
 
     if (!sophia_user_exists($opts[1])) {
         $sophia->yield(privmsg => $target => sprintf('User %1$s%2$s%1$s does not exist.', "\x02", $opts[1]));

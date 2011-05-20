@@ -18,9 +18,8 @@ sub deinit_web_wikipedia {
 }
 
 sub web_wikipedia {
-    my $param = $_[0];
-    my @args = @{$param};
-    my ($where, $content) = @args[ARG1, ARG2];
+    my $args = $_[0];
+    my ($where, $content) = ($args->[ARG1], $args->[ARG2]);
     
     my $idx = index $content, ' ';
     return unless $idx > -1;
@@ -48,7 +47,7 @@ sub web_wikipedia {
     $idx = index $response, '>', $idx + 1;
     $result .= 'Read: ' . substr($response, $idx + 1, index($response, '</Url>', $idx) - $idx - 1);
 
-    my $sophia = ${$args[HEAP]->{sophia}};
+    my $sophia = ${$args->[HEAP]->{sophia}};
     $sophia->yield(privmsg => $where->[0] => $result);
 }
 

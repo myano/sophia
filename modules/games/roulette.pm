@@ -15,8 +15,9 @@ my %roulette_settings = (
 sophia_module_add('games.roulette', '1.0', \&init_games_roulette, \&deinit_games_roulette);
 
 sub init_games_roulette {
-    sophia_command_add('games.roulette', \&games_roulette, 'Roulette game.' ,'');
     sophia_global_command_add('roulette', \&games_roulette, 'Roulette game.', '');
+    sophia_global_command_add('roulette:stop', \&games_roulette_stop, 'Roulette game.', '');
+    sophia_global_command_add('roulette:fstop', \&games_roulette_stop, 'Roulette game.', '', SOPHIA_ACL_OP | SOPHIA_ACL_AUTOOP);
 
     return 1;
 }
@@ -31,56 +32,60 @@ sub deinit_games_roulette {
 }
 
 sub games_roulette {
-    my $param = $_[0];
-    my @args = @{$param};
-    my ($who, $where, $content) = @args[ARG0 .. ARG2];
+    my $args = $_[0];
+    my ($who, $where, $content) = ($args->[ARG0], $args->[ARG1], $args->[ARG2]);
 
-    my $perms = sophia_get_host_perms($who, $where->[0]);
-    my $sophia = ${$args[HEAP]->{sophia}};
+    my $sophia = ${$args->[HEAP]->{sophia}};
 
-    my $idx = index $content, ' ';
-    unless ($idx == -1) {
-        $content = substr $content, $idx + 1;
-        $content =~ s/^\s+//;
-        $content = lc $content;
+    return if $who eq $roulette_settings{LAST_PLAYER};
 
-        if (index($content, 'stop') == 0) {
-            return unless $roulette_settings{'GAME_STARTED'};
+    $roulette_settings{LAST_PLAYER} = $who;
+    $roulette_settings{LAST_ACTIVE} = time;
+    my $rand = int(rand $roulette_settings{COMPLEXITY});
 
-            if ($perms & SOPHIA_ACL_ADMIN || time - $roulette_settings{'LAST_ACTIVE'} >= $roulette_settings{'TIMEOUT'}) {
-                &games_roulette_stop;
-                $sophia->yield(privmsg => $where->[0] => 'Game roulette stopped.');
-            }
-            else {
-                $sophia->yield(privmsg => $where->[0] => sprintf('Please wait %d seconds to stop roulette.', $roulette_settings{'TIMEOUT'} - ( time - $roulette_settings{'LAST_ACTIVE'} )) );
-            }
-            return;
-        }
-    }
-
-    return if $who eq $roulette_settings{'LAST_PLAYER'};
-
-    $roulette_settings{'LAST_PLAYER'} = $who;
-    $roulette_settings{'LAST_ACTIVE'} = time;
-    my $rand = int(rand $roulette_settings{'COMPLEXITY'});
-
-    if (!$roulette_settings{'GAME_STARTED'}) {
-        $roulette_settings{'GAME_STARTED'} = 1;
-        $roulette_settings{'NUMBER'} = $rand;
-        $sophia->yield(privmsg => $where->[0] => $roulette_settings{'TICK'});
+    if (!$roulette_settings{GAME_STARTED}) {
+        $roulette_settings{GAME_STARTED} = 1;
+        $roulette_settings{NUMBER} = $rand;
+        $sophia->yield(privmsg => $where->[0] => $roulette_settings{TICK});
         return;
     }
     
-    if ($rand == $roulette_settings{'NUMBER'}) {
-        $sophia->yield( kick => $where->[0] => substr($who, 0, index($who, '!')) => $roulette_settings{'KICK_REASON'} );
-        &games_roulette_stop;
+    if ($rand == $roulette_settings{NUMBER}) {
+        $sophia->yield( kick => $where->[0] => substr($who, 0, index($who, '!')) => $roulette_settings{KICK_REASON} );
+        &games_roulette_end;
         return;
     }
 
-    $sophia->yield(privmsg => $where->[0] => $roulette_settings{'TICK'});
+    $sophia->yield(privmsg => $where->[0] => $roulette_settings{TICK});
 }
 
 sub games_roulette_stop {
+    my $args = $_[0];
+    my ($where, $content) = ($args->[ARG1], $args->[ARG2]);
+    my $sophia = ${$args->[HEAP]->{sophia}};
+
+    return unless $roulette_settings{GAME_STARTED};
+
+    if (time - $roulette_settings{LAST_ACTIVE} >= $roulette_settings{TIMEOUT}) {
+        &games_roulette_end;
+        $sophia->yield(privmsg => $where->[0] => 'Game roulette stopped.');
+    }
+    else {
+        $sophia->yield(privmsg => $where->[0] => sprintf('Please wait %d seconds to stop roulette.', $roulette_settings{TIMEOUT} - (time - $roulette_settings{LAST_ACTIVE})));
+    }
+}
+
+sub games_roulette_fstop {
+    my $args = $_[0];
+    my $where = $args->[ARG1];
+    my $sophia = ${$args->[HEAP]->{sophia}};
+    
+    return unless $roulette_settings{GAME_STARTED};
+    &games_roulette_end;
+    $sophia->yield(privmsg => $where->[0] => 'Game roulette stopped.');
+}
+
+sub games_roulette_end {
     $roulette_settings{'GAME_STARTED'} = 0;
     $roulette_settings{'LAST_PLAYER'} = '';
     $roulette_settings{'LAST_ACTIVE'} = 0;

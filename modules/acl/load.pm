@@ -20,14 +20,13 @@ sub deinit_acl_load {
 
 sub acl_load {
     my ($args, $target) = @_;
-    my @args = @{$args};
-    my ($where) = @args[ARG1,ARG1];
+    my $where = $args->[ARG1];
     $target ||= $where->[0];
 
     my $master = &sophia_get_master;
 
     &sophia_acl_db_load;
 
-    my $sophia = ${$args[HEAP]->{sophia}};
+    my $sophia = ${$args->[HEAP]->{sophia}};
     $sophia->yield(privmsg => $target => 'ACL reloaded from DB file.');
 }

@@ -19,9 +19,8 @@ sub deinit_admin_op {
 }
 
 sub admin_op {
-    my $param = $_[0];
-    my @args = @{$param};
-    my ($who, $where, $content) = @args[ARG0 .. ARG2];
+    my $args = $_[0];
+    my ($who, $where, $content) = ($args->[ARG0], $args->[ARG1], $args->[ARG2]);
 
     my $idx = index $content, ' ';
     unless ($idx == -1) {
@@ -29,7 +28,7 @@ sub admin_op {
         $content =~ s/^\s+//;
     }
 
-    my $sophia = ${$args[HEAP]->{sophia}};
+    my $sophia = ${$args->[HEAP]->{sophia}};
     unless ($idx > -1 && $content) {
         $content = substr $who, 0, index($who, '!');
         $sophia->yield( mode => $where->[0] => "+o" => $content );

@@ -19,9 +19,8 @@ sub deinit_admin_quiet {
 }
 
 sub admin_quiet {
-    my $param = $_[0];
-    my @args = @{$param};
-    my ($where, $content) = @args[ARG1,ARG2];
+    my $args = $_[0];
+    my ($where, $content) = ($args->[ARG1], $args->[ARG2]);
 
     my $idx = index $content, ' ';
     return unless $idx > -1;
@@ -30,7 +29,7 @@ sub admin_quiet {
     $content =~ s/^\s+//;
     return unless $content;
 
-    my $sophia = ${$args[HEAP]->{sophia}};
+    my $sophia = ${$args->[HEAP]->{sophia}};
     my @parts = split / /, $content;
 
     $sophia->yield( mode => $where->[0] => sprintf('+%s', 'q' x scalar(@parts)) => $content );

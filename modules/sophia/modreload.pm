@@ -4,8 +4,8 @@ use warnings;
 sophia_module_add('sophia.modreload', '1.0', \&init_sophia_modreload, \&deinit_sophia_modreload);
 
 sub init_sophia_modreload {
-    sophia_global_command_add('mod:reload', \&sophia_modreload, 'Reloads all or a specified module.', '');
-    sophia_event_privmsg_hook('sophia.mod:reload', \&sophia_modreload, 'Reloads all or a specified module.', '');
+    sophia_global_command_add('mod:reload', \&sophia_modreload, 'Reloads all or a specified module.', '', SOPHIA_ACL_FOUNDER);
+    sophia_event_privmsg_hook('sophia.mod:reload', \&sophia_modreload, 'Reloads all or a specified module.', '', SOPHIA_ACL_FOUNDER);
 
     return 1;
 }
@@ -20,16 +20,12 @@ sub deinit_sophia_modreload {
 
 sub sophia_modreload {
     my ($args, $target) = @_;
-    my @args = @{$args};
-    my ($who, $where, $content) = @args[ARG0 .. ARG2];
+    my ($who, $where, $content) = ($args->[ARG0], $args->[ARG1], $args->[ARG2]);
     $target ||= $where->[0];
 
-    my $perms = sophia_get_host_perms($who);
-    return unless $perms & SOPHIA_ACL_FOUNDER;
+    my $sophia = ${$args->[HEAP]->{sophia}};
 
-    my $sophia = ${$args[HEAP]->{sophia}};
-
-    my @parts = split / /, $content;
+    my @parts = split /\s+/, $content;
     shift @parts;
 
     for (@parts) {

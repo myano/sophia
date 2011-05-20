@@ -4,8 +4,8 @@ use warnings;
 sophia_module_add('sophia.part', '1.0', \&init_sophia_part, \&deinit_sophia_part);
 
 sub init_sophia_part {
-    sophia_global_command_add('part', \&sophia_part, 'Parts one or more channels.', '');
-    sophia_event_privmsg_hook('sophia.part', \&sophia_part, 'Parts one or more channels.', '');
+    sophia_global_command_add('part', \&sophia_part, 'Parts one or more channels.', '', SOPHIA_ACL_FOUNDER);
+    sophia_event_privmsg_hook('sophia.part', \&sophia_part, 'Parts one or more channels.', '', SOPHIA_ACL_FOUNDER);
 
     return 1;
 }
@@ -20,13 +20,9 @@ sub deinit_sophia_part {
 
 sub sophia_part {
     my ($args, $target) = @_;
-    my @args = @{$args};
-    my ($heap, $who, $where, $content) = @args[HEAP, ARG0 .. ARG2];
+    my ($who, $where, $content) = ($args->[ARG0], $args->[ARG1], $args->[ARG2]);
 
-    my $perms = sophia_get_host_perms($who);
-    return unless $perms & SOPHIA_ACL_FOUNDER;
-
-    my $sophia = ${$heap->{sophia}};
+    my $sophia = ${$args->[HEAP]->{sophia}};
     my @parts = split / /, $content;
     shift @parts;
 

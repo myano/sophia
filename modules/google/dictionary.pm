@@ -20,9 +20,8 @@ sub deinit_google_dictionary {
 my $max_entries = 3;
 
 sub google_dictionary {
-    my $param = $_[0];
-    my @args = @{$param};
-    my ($where, $content) = @args[ARG1, ARG2];
+    my $args = $_[0];
+    my ($where, $content) = ($args->[ARG1], $args->[ARG2]);
     
     my $idx = index $content, ' ';
     return unless $idx > -1;
@@ -34,7 +33,7 @@ sub google_dictionary {
     my $response = curl_get(sprintf('http://www.google.com/dictionary/json?callback=dict_api.callbacks.id100&sl=en&tl=en&restrict=pr%sde&client=te&q=%s', '%2C', $content));
     return unless $response;
 
-    my $sophia = ${$args[HEAP]->{sophia}};
+    my $sophia = ${$args->[HEAP]->{sophia}};
 
     $idx = index $response, '"query":"';
     unless ($idx > -1) {

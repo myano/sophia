@@ -19,9 +19,8 @@ sub deinit_admin_ban {
 }
 
 sub admin_ban {
-    my $param = $_[0];
-    my @args = @{$param};
-    my ($where, $content) = @args[ARG1,ARG2];
+    my $args = $_[0];
+    my ($where, $content) = ($args->[ARG1], $args->[ARG2]);
 
     my $idx = index $content, ' ';
     return unless $idx > -1;
@@ -29,7 +28,7 @@ sub admin_ban {
     $content = substr $content, $idx + 1;
     return unless $content;
 
-    my $sophia = ${$args[HEAP]->{sophia}};
+    my $sophia = ${$args->[HEAP]->{sophia}};
     my @parts = split / /, $content;
 
     $sophia->yield( mode => $where->[0] => sprintf('+%s', 'b' x scalar(@parts)) => $content );

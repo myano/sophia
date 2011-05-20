@@ -20,13 +20,12 @@ sub deinit_acl_save {
 
 sub acl_save {
     my ($args, $target) = @_;
-    my @args = @{$args};
-    my $where = $args[ARG1];
+    my $where = $args->[ARG1];
     $target ||= $where->[0];
 
     &sophia_acl_db_save;
 
-    my $sophia = ${$args[HEAP]->{sophia}};
+    my $sophia = ${$args->[HEAP]->{sophia}};
 
     $sophia->yield(privmsg => $target => 'ACL saved to DB.');
 }
