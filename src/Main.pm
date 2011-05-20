@@ -28,7 +28,7 @@ sub sophia_log {
         close LOG;
     }
     open LOG, ">> $Bin/../var/$log.log" or return;
-    print LOG '(' . scalar(localtime(time())).') ' . $err_msg . "\n";
+    print LOG '(', scalar(localtime(time())), ') ', $err_msg, "\n";
     close LOG;
 }
 
