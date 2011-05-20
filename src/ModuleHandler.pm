@@ -205,10 +205,10 @@ sub sophia_timer_add {
 sub sophia_load_modules {
     return unless -e $sophia::CONFIGURATIONS{MODULES_CONFIG};
 
-    open MODULES, $sophia::CONFIGURATIONS{MODULES_CONFIG}
+    open my $fh, '<', $sophia::CONFIGURATIONS{MODULES_CONFIG}
         or sophia_log('sophia', "Error opening modules config: $!");
 
-    LINE: while (<MODULES>) {
+    LINE: while (<$fh>) {
         chomp;
         s/^\s+//;
         next LINE if !/^loadmodule / or !/\;/;  # ignoring comments and lame lines
@@ -218,7 +218,7 @@ sub sophia_load_modules {
 
         sophia_module_load($_);
     }
-    close MODULES;
+    close $fh;
 }
 
 sub sophia_reload_module {

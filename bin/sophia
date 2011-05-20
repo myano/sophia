@@ -99,9 +99,9 @@ unless ($CONFIGURATIONS{IN_DEBUG_MODE}) {
         print "sophia forked into the background with pid: $pid\n";
         sophia_log('sophia',"sophia forked into the background with pid: $pid");
 
-        open PIDFILE, "> $Bin/../etc/sophia.pid" or trigger_error('sophia', 'Missing etc directory.');
-        print PIDFILE "$pid";
-        close PIDFILE;
+        open my $fh, '>', "$Bin/../etc/sophia.pid" or trigger_error('sophia', 'Missing etc directory.');
+        print $fh "$pid";
+        close $fh;
 
         exit;
     }
@@ -112,9 +112,9 @@ else {
 }
 
 unless ($CONFIGURATIONS{IN_DEBUG_MODE}) {
-    open STDIN, '/dev/null' or trigger_error('sophia', "sophia cannot read /dev/null: $!\n");
-    open STDOUT, '>> /dev/null' or trigger_error('sophia', "sophia cannot write to /dev/null: $!\n");
-    open STDERR, "$Bin/../var/sophia.err" or trigger_error('sophia', "sophia cannot write to var/sophia.err: $!\n");
+    open STDIN, '<', '/dev/null' or trigger_error('sophia', "sophia cannot read /dev/null: $!\n");
+    open STDOUT, '>>', '/dev/null' or trigger_error('sophia', "sophia cannot write to /dev/null: $!\n");
+    open STDERR, '>>', "$Bin/../var/sophia.err" or trigger_error('sophia', "sophia cannot write to var/sophia.err: $!\n");
 }
 
 my $sophia = POE::Component::IRC->spawn(
@@ -397,10 +397,10 @@ sub sophia_load_config {
     my @opts;
     my $len;
 
-    open CONF, $CONFIGURATIONS{MAIN_CONFIG}
+    open my $fh, '<', $CONFIGURATIONS{MAIN_CONFIG}
         or trigger_error('sophia', "Error opening config file: $!");
 
-    LINE: while (<CONF>) {
+    LINE: while (<$fh>) {
         chomp;
         s/^\s+//;
         next LINE if /^#/ || /^\s*$/;  # ignoring comments and lame lines
@@ -429,7 +429,7 @@ sub sophia_load_config {
             }
         }
     }
-    close CONF;
+    close $fh;
 }
 
 sub sophia_reload_config {
@@ -480,28 +480,28 @@ sub sophia_reload_config {
 sub sophia_save_config {
     return 0 unless -e $CONFIGURATIONS{MAIN_CONFIG} && -w $CONFIGURATIONS{MAIN_CONFIG};
 
-    open CONF, "> $CONFIGURATIONS{MAIN_CONFIG}";
+    open my $fh, '>', $CONFIGURATIONS{MAIN_CONFIG};
     
-    print CONF '# indicates a comment line', "\n\n";
-    print CONF 'nick ', $SOPHIA{nick}, "\n";
-    print CONF 'username ', $SOPHIA{username}, "\n";
-    print CONF 'realname ', $SOPHIA{realname}, "\n";
-    print CONF 'password ', $SOPHIA{password}, "\n";
-    print CONF 'usermode ', $SOPHIA{usermode}, "\n\n\n";
-    print CONF 'server ', $SOPHIA{server}, "\n";
-    print CONF 'port ', ($SOPHIA{usessl} ? '+' : ''), $SOPHIA{port}, "\n\n\n";
-    print CONF 'owner_name ', $SOPHIA{owner_name}, "\n";
-    print CONF 'owner_host ', $SOPHIA{owner_host}, "\n\n\n";
-    print CONF 'trigger ', substr($SOPHIA{trigger}, 1), "\n\n\n";
+    print $fh '# indicates a comment line', "\n\n";
+    print $fh 'nick ', $SOPHIA{nick}, "\n";
+    print $fh 'username ', $SOPHIA{username}, "\n";
+    print $fh 'realname ', $SOPHIA{realname}, "\n";
+    print $fh 'password ', $SOPHIA{password}, "\n";
+    print $fh 'usermode ', $SOPHIA{usermode}, "\n\n\n";
+    print $fh 'server ', $SOPHIA{server}, "\n";
+    print $fh 'port ', ($SOPHIA{usessl} ? '+' : ''), $SOPHIA{port}, "\n\n\n";
+    print $fh 'owner_name ', $SOPHIA{owner_name}, "\n";
+    print $fh 'owner_host ', $SOPHIA{owner_host}, "\n\n\n";
+    print $fh 'trigger ', substr($SOPHIA{trigger}, 1), "\n\n\n";
     
-    print CONF '# join the following channels', "\n";
-    print CONF 'channel ', $_, "\n" for keys %{$SOPHIA{channels}};
+    print $fh '# join the following channels', "\n";
+    print $fh 'channel ', $_, "\n" for keys %{$SOPHIA{channels}};
 
-    print CONF "\n\n";
-    print CONF '# command aliases', "\n";
-    print CONF 'alias ', $_, ' ', $CMD_ALIASES{$_}, "\n" for keys %CMD_ALIASES;
+    print $fh "\n\n";
+    print $fh '# command aliases', "\n";
+    print $fh 'alias ', $_, ' ', $CMD_ALIASES{$_}, "\n" for keys %CMD_ALIASES;
 
-    close CONF;
+    close $fh;
 
     return 1;
 }
