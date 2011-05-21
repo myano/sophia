@@ -1,9 +1,9 @@
 use strict;
 use warnings;
 
-sophia_module_add('usercmd.save', '1.0', \&init_usercmd_save, \&deinit_usercmd_save);
-
 my $usercmd_db = 'etc/usercmd.db';
+
+sophia_module_add('usercmd.save', '1.0', \&init_usercmd_save, \&deinit_usercmd_save);
 
 sub init_usercmd_save {
     sophia_command_add('cmd.save', \&usercmd_save, 'Saves the user-defined commands.', '', SOPHIA_ACL_FRIEND);

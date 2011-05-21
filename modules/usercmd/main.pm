@@ -1,9 +1,9 @@
 use strict;
 use warnings;
 
-sophia_module_add('usercmd.main', '1.0', \&init_usercmd_main, \&deinit_usercmd_main);
-
 my $usercmd_db = 'etc/usercmd.db';
+
+sophia_module_add('usercmd.main', '1.0', \&init_usercmd_main, \&deinit_usercmd_main);
 
 sub init_usercmd_main {
     &sophia_usercmd_load;
@@ -11,7 +11,6 @@ sub init_usercmd_main {
 
 sub deinit_usercmd_main {
     delete_sub 'init_usercmd_main';
-    delete_sub 'sophia_usercmd_get';
     delete_sub 'sophia_usercmd_load';
     delete_sub 'deinit_usercmd_main';
 }
