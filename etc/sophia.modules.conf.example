@@ -54,6 +54,10 @@ loadmodule "admin.voice";
 # loadmodule "games.main";
 # loadmodule "games.roulette";
 
+# loadmodule "usercmd.main";
+# loadmodule "usercmd.cmd";
+# loadmodule "usercmd.set";
+
 # loadmodule "web.main";
 # loadmodule "web.acronym";
 # loadmodule "web.ln_s";
