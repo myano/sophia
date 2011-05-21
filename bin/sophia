@@ -53,8 +53,10 @@ $CONFIGURATIONS{IN_DEBUG_MODE} = 1 if $opts{debug};
 
 require ACL;
 require ACLHandler;
-require ModuleHandler;
+require Cache;
 require EventHandler;
+require ModuleHandler;
+require Util;
 
 our (%COMMANDS, %MODULES, %TIMERS, %EVENTS, %EVENTSCONF);
 my %CMD_ALIASES;
