@@ -3,7 +3,7 @@ use warnings;
 
 sophia_module_add('usercmd.main', '1.0', \&init_usercmd_main, \&deinit_usercmd_main);
 
-my $usercmd_db = './usercmd.db';
+my $usercmd_db = 'etc/usercmd.db';
 
 sub init_usercmd_main {
     &sophia_usercmd_load;
@@ -34,18 +34,6 @@ sub sophia_usercmd_load {
 
         sophia_cache_store("usercmd/$cmd", $content);
     }
-
-    close $fh;
-
-    return 1;
-}
-
-sub sophia_usercmd_save {
-    my $usercmds = &sophia_cache_load('usercmd');
-
-    open my $fh, '>', $usercmd_db or sophia_log('sophia', "Unable to open usercmd.db file for saving: $!") and return 0;
-
-    print $fh $_, ' ', $usercmds->{$_} for keys %{$usercmds};
 
     close $fh;
 
