@@ -16,6 +16,7 @@ use Carp qw(carp croak);
 use FindBin qw($Bin);
 use Getopt::Long;
 use lib "$Bin/../src";
+use Pod::Usage;
 use POE qw(Component::IRC);
 use POSIX qw(setsid);
 use Sub::Delete;
@@ -46,9 +47,18 @@ trigger_error('sophia', 'Missing config file.') unless -e $CONFIGURATIONS{MAIN_C
 
 my %opts;
 GetOptions(
-    'debug!' => \$opts{debug},
+    'config=s'  => \$opts{config},
+    'debug|?'   => \$opts{debug},
+    'help|?'    => \$opts{help},
+    'man'       => \$opts{man},
+    'modconf=s' => \$opts{modconf},
 );
 
+pod2usage(1) if $opts{help};
+pod2usage(-exitstatus => 0, -verbose => 2) if $opts{man};
+
+$CONFIGURATIONS{MAIN_CONFIG} = $opts{config} if $opts{config} && -e $opts{config};
+$CONFIGURATIONS{MODULES_CONFIG} = $opts{modconf} if $opts{modconf} && -e $opts{modconf};
 $CONFIGURATIONS{IN_DEBUG_MODE} = 1 if $opts{debug};
 
 require ACL;
@@ -566,3 +576,44 @@ sub sophia_get_config {
     $config{password} = '';
     return \%config;
 }
+
+__END__
+=head1 NAME
+
+sophia - An IRC bot written in Perl.
+
+=head1 SYNOPSIS
+
+sophia [options]
+
+=head1 OPTIONS
+
+=over 8
+
+=item B<--config=<PATH>>
+
+Specify a custom config file.
+
+=item B<--modconf=<PATH>>
+
+Specify a modules config file. 
+
+=item B<--help>
+
+Prints a help message.
+
+=item B<--man>
+
+Prints a full menual page documentation.
+
+=back
+
+=head1 DESCRIPTION
+
+sophia is an IRC bot written in Perl. Source code is on github: https://www.github.com/myano/sophia
+
+For more questions or suggestions: ##sophia-dev@chat.freenode.net
+
+sophia is licensed under the Eiffel Forum License, version 2.
+
+=cut
