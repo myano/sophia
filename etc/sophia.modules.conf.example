@@ -42,7 +42,8 @@ loadmodule "admin.unban";
 loadmodule "admin.unquiet";
 loadmodule "admin.voice";
 
-# These modules are optional
+# These modules are optional, but common.main is required
+# for most modules. So uncomment common.main.
 # loadmodule "common.main";
 # loadmodule "common.time";
 
@@ -50,6 +51,7 @@ loadmodule "admin.voice";
 # loadmodule "google.calc";
 # loadmodule "google.dictionary";
 # loadmodule "google.translate";
+# loadmodule "google.weather";
 
 # loadmodule "games.main";
 # loadmodule "games.roulette";
