@@ -16,7 +16,6 @@ sub deinit_web_urltitle {
     delete_sub 'deinit_web_urltitle';
 }
 
-my $max_redirects = 10;
 sub web_urltitle {
     my $args = $_[0];
     my ($where, $content) = ($args->[ARG1], $args->[ARG2]);
