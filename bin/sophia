@@ -299,8 +299,7 @@ sub exec_events {
 
 sub exec_events_trigger {
     my ($namespace, $args) = @_;
-    my @args = @{$args};
-    my ($who, $content) = @args[ARG0, ARG2];
+    my ($who, $content) = ($args->[ARG0], $args->[ARG2]);
 
     # triggers ?
     return unless $content && $content =~ /^$SOPHIA{trigger}/;
@@ -309,18 +308,14 @@ sub exec_events_trigger {
     return if $perms & 0x0040;
 
     $content =~ s/^$SOPHIA{trigger}//;
+    my ($module, $command, $trigger, $idx, $ac, $x);
 
-    my ($module, $command, $trigger, $ac, $x);
-
-    if (index($content, ' ') > -1) {
-        $trigger = substr $content, 0, index($content, ' ');
-    }
-    else {
-        $trigger = $content;
-    }
+    my $idx = index $content, ' ';
+    $trigger = substr $content, 0, $idx if $idx > -1;
+    $trigger = $content if $idx == -1;
 
     my $target = '';
-    $target = substr $args[ARG0], 0, index($args[ARG0], '!') if ($namespace eq $EVENTSCONF{privmsg} || $namespace eq $EVENTSCONF{notice});
+    $target = substr $who, 0, index($who, '!') if ($namespace eq $EVENTSCONF{privmsg} || $namespace eq $EVENTSCONF{notice});
 
     # is this an alias? 
     $trigger = $CMD_ALIASES{$trigger} if defined $CMD_ALIASES{$trigger};
@@ -353,26 +348,31 @@ sub exec_events_trigger {
 }
 
 sub exec_triggers {
-    my $param = $_[0];
-    my @args = @{$param};
-    my ($who, $where, $content) = @args[ARG0 .. ARG2];
+    my $args = $_[0];
+    my ($who, $where, $content) = ($args->[ARG0], $args->[ARG1], $args->[ARG2]);
 
     # triggers ?
-    return unless $content && $content =~ /^$SOPHIA{trigger}/;
+    return unless $content;
+    
+    if ($content =~ /^$SOPHIA{nick}(,|:)\s/) {
+        $content =~ s/^$SOPHIA{nick}(,|:)\s//;
+        $args->[ARG2] = $content;
+    }
+    elsif ($content =~ /^$SOPHIA{trigger}/) {
+        $content =~ s/^$SOPHIA{trigger}//;
+    }
+    else {
+        return;
+    }
 
     my $perms = sophia_get_host_perms($who, $where->[0]);
     return if $perms & 0x0040;   # cheap hack ... 0x0040 = SOPHIA_ACL_BANNED
 
-    $content =~ s/^$SOPHIA{trigger}//;
+    my ($module, $command, $trigger, $idx, $ac, $x);
 
-    my ($module, $command, $trigger, $ac, $x);
-
-    if (index($content, ' ') > -1) {
-        $trigger = substr $content, 0, index($content, ' ');
-    }
-    else {
-        $trigger = $content;
-    }
+    my $idx = index $content, ' ';
+    $trigger = substr $content, 0, $idx if $idx > -1;
+    $trigger = $content if $idx == -1;
 
     # is this an alias? 
     $trigger = $CMD_ALIASES{$trigger} if defined $CMD_ALIASES{$trigger};
@@ -384,14 +384,13 @@ sub exec_triggers {
             return unless $perms & $ac;
         }
         eval {
-            $x = &{$sophia::COMMANDS->{$CONFIGURATIONS{GLOBAL_MODULE}}{$trigger}{init}}($param);
+            $x = &{$sophia::COMMANDS->{$CONFIGURATIONS{GLOBAL_MODULE}}{$trigger}{init}}($args);
             1;
         } or sophia_log('sophia', '[ERROR] ' . $!) and sophia_log('sophia', '[ERROR] '. $@);
     }
     # module:command trigger
     elsif ($trigger =~ m/^([^:]+):(.+)$/) {
-        $module = $1;
-        $command = $2;
+        ($module, $command) = ($1, $2);
 
         if ($sophia::COMMANDS->{$module}{$command}) {
             $ac = $sophia::COMMANDS->{$module}{$command}{access};
@@ -399,7 +398,7 @@ sub exec_triggers {
                 return unless $perms & $ac;
             }
             eval {
-                $x = &{$sophia::COMMANDS->{$module}{$command}{init}}($param);
+                $x = &{$sophia::COMMANDS->{$module}{$command}{init}}($args);
                 1;
             } or sophia_log('sophia', '[ERROR] ' . $!) and sophia_log('sophia', '[ERROR] '. $@);
         }
