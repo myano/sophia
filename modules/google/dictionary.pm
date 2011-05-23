@@ -58,6 +58,7 @@ sub google_dictionary {
         
         $result = substr($response, $idx, index($response, '"', $idx) - $idx);
         $result =~ s/\\x22/"/g;
+        $result =~ s/\\x26quot;/"/g;
         $result =~ s/\\x27/'/g;
         $result =~ s/\\x3c\/?em\\x3e//g;
         push @results, sprintf('%1$s%2$s:%1$s %3$s', "\x02", $term, $result);
