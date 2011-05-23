@@ -20,6 +20,7 @@ use constant {
 use constant SOPHIA_FRIEND              => (SOPHIA_ACL_VOICE | SOPHIA_ACL_OP | SOPHIA_ACL_CHANGETOPIC | SOPHIA_ACL_USEGRANT | SOPHIA_ACL_FRIEND);
 use constant SOPHIA_ADMIN               => (SOPHIA_FRIEND | SOPHIA_ACL_ADMIN);
 use constant SOPHIA_FOUNDER             => (SOPHIA_ADMIN  | SOPHIA_ACL_FOUNDER);
+use constant SOPHIA_ACL_ALL             => (SOPHIA_FOUNDER | SOPHIA_ACL_AUTOVOICE | SOPHIA_ACL_AUTOOP);
 
 my %SOPHIA_ACL_FLAGS = (
     b   => SOPHIA_ACL_BANNED,
@@ -40,8 +41,8 @@ my (%SOPHIA_ACL_GROUPS, %SOPHIA_ACL_USERS, %SOPHIA_ACL_HOST2UID);
 my %SOPHIA_ACL_MASTER = (
     UID         => '',
     HOSTMASK    => '',
-    FLAGS       => sophia_acl_bits2flags(SOPHIA_FOUNDER),
-    FLAGBITS    => SOPHIA_FOUNDER,
+    FLAGS       => sophia_acl_bits2flags(SOPHIA_ACL_ALL),
+    FLAGBITS    => SOPHIA_ACL_ALL,
 );
 
 sub sophia_acl_groups {
