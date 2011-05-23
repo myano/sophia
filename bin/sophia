@@ -310,7 +310,7 @@ sub exec_events_trigger {
     $content =~ s/^$SOPHIA{trigger}//;
     my ($module, $command, $trigger, $idx, $ac, $x);
 
-    my $idx = index $content, ' ';
+    $idx = index $content, ' ';
     $trigger = substr $content, 0, $idx if $idx > -1;
     $trigger = $content if $idx == -1;
 
@@ -370,7 +370,7 @@ sub exec_triggers {
 
     my ($module, $command, $trigger, $idx, $ac, $x);
 
-    my $idx = index $content, ' ';
+    $idx = index $content, ' ';
     $trigger = substr $content, 0, $idx if $idx > -1;
     $trigger = $content if $idx == -1;
 

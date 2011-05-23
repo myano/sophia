@@ -30,7 +30,7 @@ sub usercmd_cmd {
 
     $content = lc $content;
 
-    return unless sophia_cache_load('usercmd', $content);
+    $content = sophia_cache_load('usercmd', $content);
 
     my $sophia = ${$args->[HEAP]->{sophia}};
     $sophia->yield(privmsg => $where->[0] => $content);
