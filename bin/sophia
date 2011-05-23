@@ -287,10 +287,10 @@ POE::Kernel->run();
 sub exec_events {
     my ($namespace, $args) = @_;
 
-    for my $m (keys %{$sophia::EVENTS->{$namespace}}) {
-        for my $c (keys %{$sophia::EVENTS->{$namespace}{$m}}) {
+    for my $module (keys %{$sophia::EVENTS->{$namespace}}) {
+        for my $command (keys %{$sophia::EVENTS->{$namespace}{$module}}) {
             eval {
-                &{$sophia::EVENTS->{$namespace}{$m}{$c}{init}}($args);
+                &{$sophia::EVENTS->{$namespace}{$module}{$command}{init}}($args);
                 1;
             } or sophia_log('sophia', '[ERROR] ' . $!) and sophia_log('sophia', '[ERROR] '. $@);
         }
