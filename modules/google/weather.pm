@@ -29,7 +29,7 @@ sub google_weather {
     my $output = '';
     
     $output .= $objXML->findnodes('//city')->shift()->getAttribute('data');
-    $output .= sprintf(' %s  --- ', $objXML->findnodes('//postal_code')->shift()->getAttribute('data'));
+    $output .= '  --- ';
 
     my $condition = $objXML->findnodes('//current_conditions/condition')->shift()->getAttribute('data');
     my $tempf = $objXML->findnodes('//current_conditions/temp_f')->shift()->getAttribute('data');
