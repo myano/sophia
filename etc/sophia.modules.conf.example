@@ -9,6 +9,8 @@ loadmodule "config.set";
 
 loadmodule "acl.main";
 loadmodule "acl.add";
+loadmodule "acl.autoop";
+loadmodule "acl.autovoice";
 loadmodule "acl.chanflags";
 loadmodule "acl.del";
 loadmodule "acl.flags";
