@@ -20,7 +20,7 @@ sub deinit_google_dictionary {
 
 my $max_entries = 3;
 
-sub google_unescape {
+sub google_dictionary_unescape {
     my $str = $_[0];
     $str =~ s/\\x(\d{2})/chr(hex($1))/eg;
     return $str;
@@ -64,7 +64,7 @@ sub google_dictionary {
         $idx += 8;
         
         $result = substr($response, $idx, index($response, '"', $idx) - $idx);
-        $result = google_unescape($result);
+        $result = google_dictionary_unescape($result);
         $result =~ s/\[\d+\]//g;
         push @results, sprintf('%1$s%2$s:%1$s %3$s', "\x02", $term, decode_entities($result));
     }
