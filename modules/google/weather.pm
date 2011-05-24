@@ -28,11 +28,11 @@ sub google_weather {
 
     my $output = '';
     
-    $output .= $objXML->findnodes('//city')->shift()->getAttribute('data');
+    $output .= $objXML->findnodes('//city')->[0]->getAttribute('data');
     $output .= '  --- ';
 
-    my $condition = $objXML->findnodes('//current_conditions/condition')->shift()->getAttribute('data');
-    my $tempf = $objXML->findnodes('//current_conditions/temp_f')->shift()->getAttribute('data');
+    my $condition = $objXML->findnodes('//current_conditions/condition')->[0]->getAttribute('data');
+    my $tempf = $objXML->findnodes('//current_conditions/temp_f')->[0]->getAttribute('data');
     $output .= sprintf('Now: %s (%s).   ', $condition, $tempf);
 
     my @forecasts = $objXML->findnodes('//forecast_conditions');
@@ -40,10 +40,10 @@ sub google_weather {
     my $today = 1;
 
     for (@forecasts) {
-        $day = $_->findnodes('./day_of_week')->shift();
-        $day_low = $_->findnodes('./low')->shift();
-        $day_high = $_->findnodes('./high')->shift();
-        $day_cond = $_->findnodes('./condition')->shift();
+        $day = $_->findnodes('./day_of_week')->[0];
+        $day_low = $_->findnodes('./low')->[0];
+        $day_high = $_->findnodes('./high')->[0];
+        $day_cond = $_->findnodes('./condition')->[0];
         $day = $day->getAttribute('data');
         $day = 'Today' if $today; $today = 0;
         $output .= sprintf('%s: %s (%s | %s).   ', $day, $day_cond->getAttribute('data'), $day_high->getAttribute('data'), $day_low->getAttribute('data'));
