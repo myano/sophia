@@ -22,8 +22,6 @@ sub google_calc {
     my ($where, $content) = ($args->[ARG1], $args->[ARG2]);
     $content = substr $content, index($content, ' ') + 1;
 
-    #my $response = curl_get(sprintf('http://www.google.com/search?q=%s', $content));
-    #http://www.google.com/ig/calculator?q=30+usd+in+euro
     my $response = curl_get(sprintf('http://www.google.com/ig/calculator?q=%s', uri_escape($content)));
     return unless $response;
 
