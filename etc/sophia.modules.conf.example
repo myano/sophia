@@ -52,6 +52,7 @@ loadmodule "admin.voice";
 # loadmodule "google.main";
 # loadmodule "google.calc";
 # loadmodule "google.dictionary";
+# loadmodule "google.search";
 # loadmodule "google.translate";
 # loadmodule "google.weather";
 
