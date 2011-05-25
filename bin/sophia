@@ -15,7 +15,7 @@ use warnings;
 use Carp qw(carp croak);
 use FindBin qw($Bin);
 use Getopt::Long;
-use lib "$Bin/../src";
+use lib "$Bin/../lib";
 use Pod::Usage;
 use POE qw(Component::IRC);
 use POSIX qw(setsid);
