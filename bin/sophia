@@ -15,7 +15,8 @@ use warnings;
 use Carp qw(carp croak);
 use FindBin qw($Bin);
 use Getopt::Long;
-use lib "$Bin/../src";
+use lib "$Bin/../lib";
+use Pod::Usage;
 use POE qw(Component::IRC);
 use POSIX qw(setsid);
 use Sub::Delete;
@@ -46,14 +47,26 @@ trigger_error('sophia', 'Missing config file.') unless -e $CONFIGURATIONS{MAIN_C
 
 my %opts;
 GetOptions(
-    'debug!' => \$opts{debug},
+    'config=s'  => \$opts{config},
+    'debug|?'   => \$opts{debug},
+    'help|?'    => \$opts{help},
+    'man'       => \$opts{man},
+    'modconf=s' => \$opts{modconf},
 );
 
+pod2usage(1) if $opts{help};
+pod2usage(-exitstatus => 0, -verbose => 2) if $opts{man};
+
+$CONFIGURATIONS{MAIN_CONFIG} = $opts{config} if $opts{config} && -e $opts{config};
+$CONFIGURATIONS{MODULES_CONFIG} = $opts{modconf} if $opts{modconf} && -e $opts{modconf};
 $CONFIGURATIONS{IN_DEBUG_MODE} = 1 if $opts{debug};
 
 require ACL;
 require ACLHandler;
+require Cache;
+require EventHandler;
 require ModuleHandler;
+require Util;
 
 our (%COMMANDS, %MODULES, %TIMERS, %EVENTS, %EVENTSCONF);
 my %CMD_ALIASES;
@@ -99,9 +112,9 @@ unless ($CONFIGURATIONS{IN_DEBUG_MODE}) {
         print "sophia forked into the background with pid: $pid\n";
         sophia_log('sophia',"sophia forked into the background with pid: $pid");
 
-        open PIDFILE, "> $Bin/../etc/sophia.pid" or trigger_error('sophia', 'Missing etc directory.');
-        print PIDFILE "$pid";
-        close PIDFILE;
+        open my $fh, '>', "$Bin/../etc/sophia.pid" or trigger_error('sophia', 'Missing etc directory.');
+        print $fh "$pid";
+        close $fh;
 
         exit;
     }
@@ -112,9 +125,9 @@ else {
 }
 
 unless ($CONFIGURATIONS{IN_DEBUG_MODE}) {
-    open STDIN, '/dev/null' or trigger_error('sophia', "sophia cannot read /dev/null: $!\n");
-    open STDOUT, '>> /dev/null' or trigger_error('sophia', "sophia cannot write to /dev/null: $!\n");
-    open STDERR, '>> /dev/null' or trigger_error('sophia', "sophia cannot write to /dev/null: $!\n");
+    open STDIN, '<', '/dev/null' or trigger_error('sophia', "sophia cannot read /dev/null: $!\n");
+    open STDOUT, '>>', '/dev/null' or trigger_error('sophia', "sophia cannot write to /dev/null: $!\n");
+    open STDERR, '>>', "$Bin/../var/sophia.err" or trigger_error('sophia', "sophia cannot write to var/sophia.err: $!\n");
 }
 
 my $sophia = POE::Component::IRC->spawn(
@@ -274,10 +287,10 @@ POE::Kernel->run();
 sub exec_events {
     my ($namespace, $args) = @_;
 
-    for my $m (keys %{$sophia::EVENTS->{$namespace}}) {
-        for my $c (keys %{$sophia::EVENTS->{$namespace}{$m}}) {
+    for my $module (keys %{$sophia::EVENTS->{$namespace}}) {
+        for my $command (keys %{$sophia::EVENTS->{$namespace}{$module}}) {
             eval {
-                &{$sophia::EVENTS->{$namespace}{$m}{$c}{init}}($args);
+                &{$sophia::EVENTS->{$namespace}{$module}{$command}{init}}($args);
                 1;
             } or sophia_log('sophia', '[ERROR] ' . $!) and sophia_log('sophia', '[ERROR] '. $@);
         }
@@ -286,8 +299,7 @@ sub exec_events {
 
 sub exec_events_trigger {
     my ($namespace, $args) = @_;
-    my @args = @{$args};
-    my ($who, $content) = @args[ARG0, ARG2];
+    my ($who, $content) = ($args->[ARG0], $args->[ARG2]);
 
     # triggers ?
     return unless $content && $content =~ /^$SOPHIA{trigger}/;
@@ -296,18 +308,14 @@ sub exec_events_trigger {
     return if $perms & 0x0040;
 
     $content =~ s/^$SOPHIA{trigger}//;
+    my ($module, $command, $trigger, $idx, $ac, $x);
 
-    my ($module, $command, $trigger, $ac, $x);
-
-    if (index($content, ' ') > -1) {
-        $trigger = substr $content, 0, index($content, ' ');
-    }
-    else {
-        $trigger = $content;
-    }
+    $idx = index $content, ' ';
+    $trigger = substr $content, 0, $idx if $idx > -1;
+    $trigger = $content if $idx == -1;
 
     my $target = '';
-    $target = substr $args[ARG0], 0, index($args[ARG0], '!') if ($namespace eq $EVENTSCONF{privmsg} || $namespace eq $EVENTSCONF{notice});
+    $target = substr $who, 0, index($who, '!') if ($namespace eq $EVENTSCONF{privmsg} || $namespace eq $EVENTSCONF{notice});
 
     # is this an alias? 
     $trigger = $CMD_ALIASES{$trigger} if defined $CMD_ALIASES{$trigger};
@@ -340,26 +348,31 @@ sub exec_events_trigger {
 }
 
 sub exec_triggers {
-    my $param = $_[0];
-    my @args = @{$param};
-    my ($who, $where, $content) = @args[ARG0 .. ARG2];
+    my $args = $_[0];
+    my ($who, $where, $content) = ($args->[ARG0], $args->[ARG1], $args->[ARG2]);
 
     # triggers ?
-    return unless $content && $content =~ /^$SOPHIA{trigger}/;
+    return unless $content;
+    
+    if ($content =~ /^$SOPHIA{nick}(,|:)\s/) {
+        $content =~ s/^$SOPHIA{nick}(,|:)\s//;
+        $args->[ARG2] = $content;
+    }
+    elsif ($content =~ /^$SOPHIA{trigger}/) {
+        $content =~ s/^$SOPHIA{trigger}//;
+    }
+    else {
+        return;
+    }
 
     my $perms = sophia_get_host_perms($who, $where->[0]);
     return if $perms & 0x0040;   # cheap hack ... 0x0040 = SOPHIA_ACL_BANNED
 
-    $content =~ s/^$SOPHIA{trigger}//;
+    my ($module, $command, $trigger, $idx, $ac, $x);
 
-    my ($module, $command, $trigger, $ac, $x);
-
-    if (index($content, ' ') > -1) {
-        $trigger = substr $content, 0, index($content, ' ');
-    }
-    else {
-        $trigger = $content;
-    }
+    $idx = index $content, ' ';
+    $trigger = substr $content, 0, $idx if $idx > -1;
+    $trigger = $content if $idx == -1;
 
     # is this an alias? 
     $trigger = $CMD_ALIASES{$trigger} if defined $CMD_ALIASES{$trigger};
@@ -371,14 +384,13 @@ sub exec_triggers {
             return unless $perms & $ac;
         }
         eval {
-            $x = &{$sophia::COMMANDS->{$CONFIGURATIONS{GLOBAL_MODULE}}{$trigger}{init}}($param);
+            $x = &{$sophia::COMMANDS->{$CONFIGURATIONS{GLOBAL_MODULE}}{$trigger}{init}}($args);
             1;
         } or sophia_log('sophia', '[ERROR] ' . $!) and sophia_log('sophia', '[ERROR] '. $@);
     }
     # module:command trigger
     elsif ($trigger =~ m/^([^:]+):(.+)$/) {
-        $module = $1;
-        $command = $2;
+        ($module, $command) = ($1, $2);
 
         if ($sophia::COMMANDS->{$module}{$command}) {
             $ac = $sophia::COMMANDS->{$module}{$command}{access};
@@ -386,7 +398,7 @@ sub exec_triggers {
                 return unless $perms & $ac;
             }
             eval {
-                $x = &{$sophia::COMMANDS->{$module}{$command}{init}}($param);
+                $x = &{$sophia::COMMANDS->{$module}{$command}{init}}($args);
                 1;
             } or sophia_log('sophia', '[ERROR] ' . $!) and sophia_log('sophia', '[ERROR] '. $@);
         }
@@ -397,10 +409,10 @@ sub sophia_load_config {
     my @opts;
     my $len;
 
-    open CONF, $CONFIGURATIONS{MAIN_CONFIG}
+    open my $fh, '<', $CONFIGURATIONS{MAIN_CONFIG}
         or trigger_error('sophia', "Error opening config file: $!");
 
-    LINE: while (<CONF>) {
+    LINE: while (<$fh>) {
         chomp;
         s/^\s+//;
         next LINE if /^#/ || /^\s*$/;  # ignoring comments and lame lines
@@ -429,7 +441,7 @@ sub sophia_load_config {
             }
         }
     }
-    close CONF;
+    close $fh;
 }
 
 sub sophia_reload_config {
@@ -480,28 +492,28 @@ sub sophia_reload_config {
 sub sophia_save_config {
     return 0 unless -e $CONFIGURATIONS{MAIN_CONFIG} && -w $CONFIGURATIONS{MAIN_CONFIG};
 
-    open CONF, "> $CONFIGURATIONS{MAIN_CONFIG}";
+    open my $fh, '>', $CONFIGURATIONS{MAIN_CONFIG};
     
-    print CONF '# indicates a comment line', "\n\n";
-    print CONF 'nick ', $SOPHIA{nick}, "\n";
-    print CONF 'username ', $SOPHIA{username}, "\n";
-    print CONF 'realname ', $SOPHIA{realname}, "\n";
-    print CONF 'password ', $SOPHIA{password}, "\n";
-    print CONF 'usermode ', $SOPHIA{usermode}, "\n\n\n";
-    print CONF 'server ', $SOPHIA{server}, "\n";
-    print CONF 'port ', ($SOPHIA{usessl} ? '+' : ''), $SOPHIA{port}, "\n\n\n";
-    print CONF 'owner_name ', $SOPHIA{owner_name}, "\n";
-    print CONF 'owner_host ', $SOPHIA{owner_host}, "\n\n\n";
-    print CONF 'trigger ', substr($SOPHIA{trigger}, 1), "\n\n\n";
+    print $fh '# indicates a comment line', "\n\n";
+    print $fh 'nick ', $SOPHIA{nick}, "\n";
+    print $fh 'username ', $SOPHIA{username}, "\n";
+    print $fh 'realname ', $SOPHIA{realname}, "\n";
+    print $fh 'password ', $SOPHIA{password}, "\n";
+    print $fh 'usermode ', $SOPHIA{usermode}, "\n\n\n";
+    print $fh 'server ', $SOPHIA{server}, "\n";
+    print $fh 'port ', ($SOPHIA{usessl} ? '+' : ''), $SOPHIA{port}, "\n\n\n";
+    print $fh 'owner_name ', $SOPHIA{owner_name}, "\n";
+    print $fh 'owner_host ', $SOPHIA{owner_host}, "\n\n\n";
+    print $fh 'trigger ', substr($SOPHIA{trigger}, 1), "\n\n\n";
     
-    print CONF '# join the following channels', "\n";
-    print CONF 'channel ', $_, "\n" for keys %{$SOPHIA{channels}};
+    print $fh '# join the following channels', "\n";
+    print $fh 'channel ', $_, "\n" for keys %{$SOPHIA{channels}};
 
-    print CONF "\n\n";
-    print CONF '# command aliases', "\n";
-    print CONF 'alias ', $_, ' ', $CMD_ALIASES{$_}, "\n" for keys %CMD_ALIASES;
+    print $fh "\n\n";
+    print $fh '# command aliases', "\n";
+    print $fh 'alias ', $_, ' ', $CMD_ALIASES{$_}, "\n" for keys %CMD_ALIASES;
 
-    close CONF;
+    close $fh;
 
     return 1;
 }
@@ -563,3 +575,44 @@ sub sophia_get_config {
     $config{password} = '';
     return \%config;
 }
+
+__END__
+=head1 NAME
+
+sophia - An IRC bot written in Perl.
+
+=head1 SYNOPSIS
+
+sophia [options]
+
+=head1 OPTIONS
+
+=over 8
+
+=item B<--config=<PATH>>
+
+Specify a custom config file.
+
+=item B<--modconf=<PATH>>
+
+Specify a modules config file. 
+
+=item B<--help>
+
+Prints a help message.
+
+=item B<--man>
+
+Prints a full menual page documentation.
+
+=back
+
+=head1 DESCRIPTION
+
+sophia is an IRC bot written in Perl. Source code is on github: https://www.github.com/myano/sophia
+
+For more questions or suggestions: ##sophia-dev@chat.freenode.net
+
+sophia is licensed under the Eiffel Forum License, version 2.
+
+=cut

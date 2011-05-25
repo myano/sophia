@@ -23,13 +23,14 @@ sub sophia_log {
     unless ( -d "$Bin/../var" ) {
         mkdir "$Bin/../var", 0760 or return;
     }
+
     unless ( -e "$Bin/../var/$log.log" ) {
-        open LOG, "> $Bin/../var/$log.log" or return;
-        close LOG;
+        open my $fh, '>', "$Bin/../var/$log.log" or return;
+        close $fh;
     }
-    open LOG, ">> $Bin/../var/$log.log" or return;
-    print LOG '(' . scalar(localtime(time())).') ' . $err_msg . "\n";
-    close LOG;
+    open my $fh, '>>', "$Bin/../var/$log.log" or return;
+    print $fh '(', scalar(localtime(time())), ') ', $err_msg, "\n";
+    close $fh;
 }
 
 1;

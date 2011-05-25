@@ -9,6 +9,8 @@ loadmodule "config.set";
 
 loadmodule "acl.main";
 loadmodule "acl.add";
+loadmodule "acl.autoop";
+loadmodule "acl.autovoice";
 loadmodule "acl.chanflags";
 loadmodule "acl.del";
 loadmodule "acl.flags";
@@ -42,17 +44,25 @@ loadmodule "admin.unban";
 loadmodule "admin.unquiet";
 loadmodule "admin.voice";
 
-# These modules are optional
+# These modules are optional, but common.main is required
+# for most modules. So uncomment common.main.
 # loadmodule "common.main";
 # loadmodule "common.time";
 
 # loadmodule "google.main";
 # loadmodule "google.calc";
 # loadmodule "google.dictionary";
+# loadmodule "google.search";
 # loadmodule "google.translate";
+# loadmodule "google.weather";
 
 # loadmodule "games.main";
 # loadmodule "games.roulette";
+
+# loadmodule "usercmd.main";
+# loadmodule "usercmd.cmd";
+# loadmodule "usercmd.save";
+# loadmodule "usercmd.set";
 
 # loadmodule "web.main";
 # loadmodule "web.acronym";

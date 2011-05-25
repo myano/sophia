@@ -7,13 +7,13 @@ my $sophia_acl_db = $sophia::CONFIGURATIONS{ACL_DB};
 sub sophia_acl_db_load {
     return unless -e $sophia_acl_db;
     
-    open DB, $sophia_acl_db or sophia_log('sophia', "Error opening db file: $!") and return;
+    open my $fh, '<', $sophia_acl_db or sophia_log('sophia', "Error opening db file: $!") and return;
     &sophia_acl_clear;
     &sophia_reload_master;
 
     my @parts;
 
-    LINE: while (<DB>) {
+    LINE: while (<$fh>) {
         chomp;
         @parts = split / /;
         
@@ -36,11 +36,11 @@ sub sophia_acl_db_load {
         }
     }
 
-    close DB;
+    close $fh;
 }
 
 sub sophia_acl_db_save {
-    open DB, "> $sophia_acl_db" or sophia_log('sophia', 'Unable to open ACL DB file for writing.');
+    open my $fh, '>', $sophia_acl_db or sophia_log('sophia', 'Unable to open ACL DB file for writing.');
 
     my ($SOPHIA_ACL_GROUPS, $SOPHIA_ACL_USERS, $SOPHIA_ACL_HOST2UID);
 
@@ -49,30 +49,30 @@ sub sophia_acl_db_save {
     $SOPHIA_ACL_HOST2UID = &sophia_acl_host2uid;
 
     for (keys %{$SOPHIA_ACL_GROUPS}) {
-        print DB sprintf('SG S %s %s%s', $_, sophia_acl_bits2flags($SOPHIA_ACL_GROUPS->{$_}{FLAGS}), "\n");
+        print $fh sprintf('SG S %s %s%s', $_, sophia_acl_bits2flags($SOPHIA_ACL_GROUPS->{$_}{FLAGS}), "\n");
 
         for my $chan (keys %{$SOPHIA_ACL_GROUPS->{$_}{CHANNELS}}) {
-            print DB sprintf('SG C %s %s %s%s', $chan, $_, sophia_acl_bits2flags($SOPHIA_ACL_GROUPS->{$_}{CHANNELS}{$chan}), "\n");
+            print $fh sprintf('SG C %s %s %s%s', $chan, $_, sophia_acl_bits2flags($SOPHIA_ACL_GROUPS->{$_}{CHANNELS}{$chan}), "\n");
         }
     }
 
     for (keys %{$SOPHIA_ACL_USERS}) {
-        print DB sprintf('SU S %s %s%s', $_, sophia_acl_bits2flags($SOPHIA_ACL_USERS->{$_}{FLAGS}), "\n");
+        print $fh sprintf('SU S %s %s%s', $_, sophia_acl_bits2flags($SOPHIA_ACL_USERS->{$_}{FLAGS}), "\n");
 
         for my $group (keys %{$SOPHIA_ACL_USERS->{$_}{GROUPS}}) {
-            print DB sprintf('SU G %s %s%s', $_, $group, "\n");
+            print $fh sprintf('SU G %s %s%s', $_, $group, "\n");
         }
 
         for my $chan (keys %{$SOPHIA_ACL_USERS->{$_}{CHANNELS}}) {
-            print DB sprintf('SU C %s %s %s%s', $chan, $_, sophia_acl_bits2flags($SOPHIA_ACL_USERS->{$_}{CHANNELS}{$chan}), "\n");
+            print $fh sprintf('SU C %s %s %s%s', $chan, $_, sophia_acl_bits2flags($SOPHIA_ACL_USERS->{$_}{CHANNELS}{$chan}), "\n");
         }
     }
 
     for (keys %{$SOPHIA_ACL_HOST2UID}) {
-        print DB sprintf('SU I %s %s%s', $SOPHIA_ACL_HOST2UID->{$_}, $_, "\n");
+        print $fh sprintf('SU I %s %s%s', $SOPHIA_ACL_HOST2UID->{$_}, $_, "\n");
     }
 
-    close DB;
+    close $fh;
 }
 
 1;

@@ -1,5 +1,6 @@
 use strict;
 use warnings;
+use URI::Escape;
 
 sophia_module_add('google.calc', '1.0', \&init_google_calc, \&deinit_google_calc);
 
@@ -21,22 +22,21 @@ sub google_calc {
     my ($where, $content) = ($args->[ARG1], $args->[ARG2]);
     $content = substr $content, index($content, ' ') + 1;
 
-    $content =~ s/\+/\%2B/g;
-    $content =~ s/\^/\%5E/g;
-    $content =~ s/ /\+/g;
-
-    my $response = curl_get(sprintf('http://www.google.com/search?q=%s', $content));
+    my $response = curl_get(sprintf('http://www.google.com/ig/calculator?q=%s', uri_escape($content)));
     return unless $response;
 
-    my $sophia = ${$args->[HEAP]->{sophia}};
-    if ($response =~ /<h(2|3) class=r( [^>]+)?><b>(.+?) = (.+?)<\/b><\/h(2|3)>/) {
-        my ($eq, $ans) = ($3, $4);
-        $eq =~ s/<font size=-2> <\/font>/,/g;
-        $ans =~ s/<sup>([^<]+)<\/sup>/^$1/g;
-        $ans =~ s/<font size=-2> <\/font>/,/g;
+    return unless $response =~ /error:\s*"0?"/;
 
-        $sophia->yield(privmsg => $where->[0] => sprintf('%s = %s', $eq, $ans));
-    }
+    my $sophia = ${$args->[HEAP]->{sophia}};
+    my $reply = '';
+
+    my $idx = index($response, 'lhs: "') + 6;
+    $reply .= substr $response, $idx, index($response, '",', $idx) - $idx;
+    
+    $idx = index($response, 'rhs: "') + 6;
+    $reply .= sprintf(' = %s', substr($response, $idx, index($response, '",', $idx) - $idx));
+
+    $sophia->yield(privmsg => $where->[0] => $reply);
 }
 
 1;
