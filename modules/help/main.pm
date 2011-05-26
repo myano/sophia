@@ -5,6 +5,7 @@ sophia_module_add('help.main', '1.0', \&init_help_main, \&deinit_help_main);
 
 sub init_help_main {
     sophia_global_command_add('help', \&help_main, 'Prints the help message for commands.', '');
+    sophia_event_privmsg_hook('sophia.help', \&help_main, 'Prints the help message for commands.', '');
 
     return 1;
 }
@@ -13,17 +14,18 @@ sub deinit_help_main {
     delete_sub 'init_help_main';
     delete_sub 'help_main';
     sophia_global_command_del 'help';
+    sophia_event_privmsg_dehook 'sophia.help';
     delete_sub 'deinit_help_main';
 }
 
 sub help_main {
-    my $args = $_[0];
+    my ($args, $target) = @_;
     my ($who, $content) = ($args->[ARG0], $args->[ARG2]);
 
     return unless $content =~ /^.help\s*$/;
     
     my $perms = sophia_get_host_perms($who);
-    $who = substr $who, 0, index($who, '!');
+    $target ||= substr $who, 0, index($who, '!');
 
     my %commands = %{ $sophia::COMMANDS };
     
@@ -47,7 +49,7 @@ sub help_main {
                 keys %{$commands{$module}};
     }
     push @results, $tmp if $tmp;
-    $sophia->yield(notice => $who => $_) for @results;
+    $sophia->yield(notice => $target => $_) for @results;
 }
 
 1;
