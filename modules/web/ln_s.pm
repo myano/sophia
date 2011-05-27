@@ -27,7 +27,7 @@ sub web_lns {
     $content =~ s/^\s*//;
 
     my %postdata = (
-        url => $content,
+        url => uri_escape($content),
     );
     
     my $response = curl_post('http://ln-s.net/home/api.jsp', \%postdata);

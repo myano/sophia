@@ -1,6 +1,5 @@
 use strict;
 use warnings;
-use URI::Escape;
 
 sophia_module_add('google.calc', '1.0', \&init_google_calc, \&deinit_google_calc);
 
