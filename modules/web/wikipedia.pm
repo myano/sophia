@@ -48,7 +48,7 @@ sub web_wikipedia {
     $result .= 'Read: ' . substr($response, $idx + 1, index($response, '</Url>', $idx) - $idx - 1);
 
     my $sophia = ${$args->[HEAP]->{sophia}};
-    $sophia->yield(privmsg => $where->[0] => $result);
+    $sophia->yield(privmsg => $where->[0] => decode_entities($result));
 }
 
 1;
