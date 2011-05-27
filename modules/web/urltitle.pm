@@ -29,7 +29,7 @@ sub web_urltitle {
     return unless $start > -1;
 
     $start += 13;
-    my $end = index($response, '</TITLESOPHIA>', $start) - $start;
+    my $end = index($response, '</TITLESOPHIA>', $start) - $start + 1;
     my $title = substr $response, $start, $end;
     $title =~ s/\s{2,}/ /;
 
