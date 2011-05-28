@@ -20,7 +20,7 @@ sub deinit_admin_voice {
 
 sub admin_voice {
     my $args = $_[0];
-    my ($who, $where, $content) = ($args->[ARG1], $args->[ARG2], $args->[ARG3]);
+    my ($who, $where, $content) = ($args->[ARG0], $args->[ARG1], $args->[ARG2]);
 
     my $idx = index $content, ' ';
     unless ($idx == -1) {
