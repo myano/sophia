@@ -60,6 +60,7 @@ sub google_dictionary {
         $result = substr($objHTML, $idx, index($objHTML, '"', $idx) - $idx);
         $result =~ s/\\x22/"/g;
         $result =~ s/\\x27/'/g;
+        $result =~ s/\\x26quot;/"/g;
         $result =~ s/\\x3c\/?em\\x3e//g;
         push @results, sprintf($bold . '%s: ' . $bold . '%s', $term, $result);
     }
