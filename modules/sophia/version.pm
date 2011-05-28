@@ -23,7 +23,8 @@ sub sophia_version {
 
     my $commit_hash = `git log -n 1`;
     my @info = split('\n', $commit_hash); 
-    @info = @info[0,1,2];
+    @info = @info[0..2];
+    
     my $sophia = ${$args->[HEAP]->{sophia}};
     foreach my $val (@info) {
        $sophia->yield(privmsg => $where->[0] => $val);
