@@ -63,6 +63,7 @@ loadmodule "admin.voice";
 
 # loadmodule "usercmd.main";
 # loadmodule "usercmd.cmd";
+# loadmodule "usercmd.del";
 # loadmodule "usercmd.save";
 # loadmodule "usercmd.set";
 

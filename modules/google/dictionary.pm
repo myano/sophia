@@ -22,6 +22,9 @@ my $max_entries = 3;
 
 sub google_dictionary_unescape {
     my $str = $_[0];
+    $str =~ s/\\x3c/</g;
+    $str =~ s/\\x3e/>/g;
+    $str =~ s/<[^>]+>//g;
     $str =~ s/\\x(\d{2})/chr(hex($1))/eg;
     return $str;
 }
