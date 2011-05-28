@@ -22,7 +22,7 @@ sub sophia_version {
     my ($where, $content) = ($args->[ARG1], $args->[ARG2]);
 
     my $commit_hash = `git log -n 1`;
-    my @info = split('\n', $commit_hash); 
+    my @info = split('\n', $commit_hash);
     @info = @info[0..2];
     
     my $sophia = ${$args->[HEAP]->{sophia}};
