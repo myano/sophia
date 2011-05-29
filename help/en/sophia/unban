@@ -1,0 +1,2 @@
+Syntax: unban <nick|hostmask> [... <nick|hostmask>]
+This command must be used in a channel. It unbans the all specified nicks or hostmasks.

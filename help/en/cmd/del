@@ -1,0 +1,2 @@
+Syntax: cmd:del <command>
+Deletes the <command> if it exists.

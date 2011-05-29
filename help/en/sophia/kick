@@ -1,0 +1,3 @@
+Syntax: kick <nick> [<message>]
+This command must be used in a channel.
+It kicks the specified nick with the specified message, if provided.

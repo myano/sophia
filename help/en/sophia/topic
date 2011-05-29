@@ -1,0 +1,3 @@
+Syntax: topic <new_topic>
+This command must be used in a channel.
+It changes the topic to the specified new topic.

@@ -49,6 +49,12 @@ loadmodule "admin.voice";
 # loadmodule "common.main";
 # loadmodule "common.time";
 
+# loadmodule "cmd.main";
+# loadmodule "cmd.cmd";
+# loadmodule "cmd.del";
+# loadmodule "cmd.save";
+# loadmodule "cmd.set";
+
 # loadmodule "google.main";
 # loadmodule "google.calc";
 # loadmodule "google.dictionary";
@@ -60,12 +66,6 @@ loadmodule "admin.voice";
 # loadmodule "games.roulette";
 
 # loadmodule "help.main";
-
-# loadmodule "usercmd.main";
-# loadmodule "usercmd.cmd";
-# loadmodule "usercmd.del";
-# loadmodule "usercmd.save";
-# loadmodule "usercmd.set";
 
 # loadmodule "web.main";
 # loadmodule "web.acronym";

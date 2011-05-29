@@ -1,0 +1,3 @@
+Syntax: admin:op [<user1> [... <userN>]]
+This command must be used in a channel.
++o the caller if no users are specified. Otherwise, this command +o all users specified.

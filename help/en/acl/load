@@ -1,0 +1,2 @@
+Syntax: acl:load
+Removes all current ACL entries and loads all ACL entries from the database.

@@ -1,0 +1,6 @@
+Syntax: roulette
+        roulette:stop
+        roulette:fstop
+roulette starts a roulette game.
+roulette:stop allows anyone to stop a roulette game if it is idled for long enough.
+roulette:fstop allows SOPHIA_OP or SOPHIA_AUTOOP to stop the game regardless of time restrictions.

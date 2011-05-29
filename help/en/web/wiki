@@ -1,0 +1,2 @@
+Syntax: web:wiki <expr>
+Performs a wikipedia request on the specified expression.

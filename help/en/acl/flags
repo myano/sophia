@@ -1,0 +1,3 @@
+Syntax: acl:flags GROUP <name> <flags>
+        acl:flags USER  <name> <flags>
+Assigns the specified GROUP or USER with the flags assignment.

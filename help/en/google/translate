@@ -1,0 +1,6 @@
+Syntax: google:translate <from_language>|<to_language> <expr>
+This command must be used in a channel.
+The list of languages can be found at the bottom of this page:
+http://code.google.com/apis/language/translate/v1/getting_started.html
+
+This command performs a Google Translate on the expression from <from_language> to <to_language>.
