@@ -23,7 +23,7 @@ sub web_urltitle {
     my $response = curl_get($content);
     return unless $response;
 
-    $response =~ s/<(\/?)title[^>]*>/<\1TITLESOPHIA>/xsmig;
+    $response =~ s/<(\/?)title[^>]*>/<$1TITLESOPHIA>/xsmig;
 
     my $start = index $response, '<TITLESOPHIA>';
     return unless $start > -1;
