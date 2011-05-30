@@ -24,7 +24,7 @@ sub sophia_cache_load {
     my ($namespace, $key) = @_;
     return unless $namespace;
 
-    $key ||= '';
+    $key //= '';
 
     ($namespace, $key) = trim($namespace, $key);
     ($namespace, $key) = (lc $namespace, lc $key);
@@ -38,7 +38,7 @@ sub sophia_cache_del {
     my ($namespace, $key) = @_;
     return unless $namespace;
 
-    $key ||= '';
+    $key //= '';
 
     ($namespace, $key) = trim($namespace, $key);
     ($namespace, $key) = (lc $namespace, lc $key);
@@ -51,7 +51,7 @@ sub sophia_cache_key_exists {
     my ($namespace, $key) = @_;
     return 0 unless $namespace;
 
-    $key ||= '';
+    $key //= '';
 
     ($namespace, $key) = trim($namespace, $key);
     ($namespace, $key) = (lc $namespace, lc $key);

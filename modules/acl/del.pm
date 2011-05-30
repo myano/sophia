@@ -25,7 +25,7 @@ sub deinit_acl_del {
 sub acl_del {
     my ($args, $target) = @_;
     my ($where, $content) = ($args->[ARG1], $args->[ARG2]);
-    $target ||= $where->[0];
+    $target //= $where->[0];
 
     my @opts = split /\s+/, $content;
     my $len = scalar @opts;

@@ -39,7 +39,7 @@ sub sophia_event_hook {
     return unless $event && $mod_cmd;
 
     my ($module, $command) = split /\./, $mod_cmd;
-    $cmd_access ||= 0x0;
+    $cmd_access //= 0x0;
 
     $sophia::EVENTS->{$event}{$module}{$command}{init} = $cmd_hook;
     $sophia::EVENTS->{$event}{$module}{$command}{desc} = $cmd_desc;

@@ -22,7 +22,7 @@ sub sophia_notice {
     my ($args, $target) = @_;
     my ($where, $content) = ($args->[ARG1], $args->[ARG2]);
 
-    $target ||= $where->[0];
+    $target //= $where->[0];
     my $self = &sophia_get_config;
     my $isSelf = lc $target eq lc $self->{nick};
 

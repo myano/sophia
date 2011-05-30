@@ -21,7 +21,7 @@ sub deinit_sophia_modload {
 sub sophia_modload {
     my ($args, $target) = @_;
     my ($who, $where, $content) = ($args->[ARG0], $args->[ARG1], $args->[ARG2]);
-    $target ||= $where->[0];
+    $target //= $where->[0];
 
     my $sophia = ${$args->[HEAP]->{sophia}};
 

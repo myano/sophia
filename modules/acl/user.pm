@@ -22,7 +22,7 @@ sub deinit_acl_user {
 sub acl_user {
     my ($args, $target) = @_;
     my ($where, $content) = ($args->[ARG1], $args->[ARG2]);
-    $target ||= $where->[0];
+    $target //= $where->[0];
 
     my @opts = split /\s+/, $content;
     return unless scalar(@opts) == 3 && uc $opts[1] eq 'INFO';
