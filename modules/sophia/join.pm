@@ -26,9 +26,12 @@ sub sophia_join {
     my @parts = split /\s+/, $content;
     shift @parts;
 
+    my $chans = sophia_cache_load('sophia_main', 'channels');
     for (@parts) {
         if (length) {
             sophia_log('sophia', sprintf('Joining (%s) requested by %s.', $_, $who));
+            # store the channel for listchans
+            $chans->{$_} = 1;
             $sophia->yield(join => $_);
         }
     }

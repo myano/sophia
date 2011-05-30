@@ -23,6 +23,7 @@ loadmodule "acl.usergroup";
 loadmodule "sophia.main";
 loadmodule "sophia.action";
 loadmodule "sophia.join";
+loadmodule "sophia.listchans";
 loadmodule "sophia.msg";
 loadmodule "sophia.notice";
 loadmodule "sophia.part";
