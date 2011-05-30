@@ -7,8 +7,7 @@ sub sophia_cache_store {
     my ($key, $val) = @_;
     return 0 unless $key && $val;
 
-    ($key, $val) = trim($key, $val);
-    ($key, $val) = (lc $key, lc $val);
+    $key = lc $key;
 
     my $idx = index $key, '/';
     return 0 unless $idx > 0;
