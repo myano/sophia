@@ -1,6 +1,6 @@
-# indicates a comment line
+## indicates a comment line
 
-# These modules are recommended!
+## These modules are recommended!
 loadmodule "config.main";
 loadmodule "config.alias";
 loadmodule "config.reload";
@@ -31,6 +31,7 @@ loadmodule "sophia.modunload";
 loadmodule "sophia.modreload";
 loadmodule "sophia.restart";
 loadmodule "sophia.shutdown";
+loadmodule "sophia.version";
 
 loadmodule "admin.main";
 loadmodule "admin.ban";
@@ -44,8 +45,8 @@ loadmodule "admin.unban";
 loadmodule "admin.unquiet";
 loadmodule "admin.voice";
 
-# These modules are optional, but common.main is required
-# for most modules. So uncomment common.main.
+## These modules are optional, but common.main is required
+## for most modules. So uncomment common.main.
 # loadmodule "common.main";
 # loadmodule "common.time";
 
