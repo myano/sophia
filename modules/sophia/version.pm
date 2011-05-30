@@ -4,10 +4,7 @@ use warnings;
 sophia_module_add('sophia.version', '1.0', \&init_sophia_version, \&deinit_sophia_version);
 
 sub init_sophia_version {
-    sophia_command_add('sophia.version', \&sophia_version, 'Print the current git version.', '');
     sophia_global_command_add('version', \&sophia_version, 'Print the current git version.', '');
-    sophia_command_add('web.wiki', \&web_wikipedia, 'Provides wikipedia searching.', '');
-    sophia_global_command_add('wiki', \&web_wikipedia, 'Provides wikipedia searching.', '');
 
     return 1;
 }
