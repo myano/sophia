@@ -31,16 +31,10 @@ sub help_main {
     my %commands = %{ $sophia::COMMANDS };
     
     my $sophia = ${$args->[HEAP]->{sophia}};
-    my @results;
+    my $cmds = '';
 
-    my $tmp = '';
     for my $module (keys %commands) {
-        if (length $tmp >= 300) {
-            push @results, $tmp;
-            $tmp = '';
-        }
-
-        $tmp .= ' ' .
+        $cmds .= 
             join ' ',
                 # define the output. If the module is sophia, it's a global command. Otherwise, list it as 'module:command'.
                 map  { sprintf('%s%s', ($module eq 'sophia' ? '' : $module . ':'), $_); }
@@ -49,7 +43,7 @@ sub help_main {
                 # get the commands
                 keys %{$commands{$module}};
     }
-    push @results, $tmp if $tmp;
+    my @results = ($cmds =~ m/.{0,300}[^ ]* ?/g);
     $sophia->yield(notice => $who => $_) for @results;
 }
 
