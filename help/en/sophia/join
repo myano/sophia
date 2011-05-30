@@ -1,0 +1,2 @@
+Syntax: join <chan1> [... <chanN>]
+sophia will join all specified channels.

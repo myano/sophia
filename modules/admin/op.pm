@@ -35,7 +35,7 @@ sub admin_op {
         return;
     }
 
-    my @parts = split / /, $content;
+    my @parts = split /\s+/, $content;
     $sophia->yield( mode => $where->[0] => sprintf('+%s', 'o' x scalar(@parts)) => $content );
 }
 

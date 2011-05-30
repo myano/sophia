@@ -1,0 +1,3 @@
+Syntax: acl:chanflags GROUP <name> <channel> <flags>
+        acl:chanflags USER  <name> <channel> <flags>
+Assigns the specified GROUP or USER with the flags assignment to the specified channel.

@@ -1,0 +1,2 @@
+Syntax: config:reload
+Reloads the sophia.conf file. All changes (if any) will take effect.

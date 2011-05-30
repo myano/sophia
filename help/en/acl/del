@@ -1,0 +1,5 @@
+Syntax: acl:del GROUP <name>
+        acl:del USER  <name>
+        acl:del HOST  <name> <hostmask>
+Removes the GROUP or USER with the specified name if it exists. Otherwise, it does nothing.
+If deleting a HOST, the specified hostmask is removed from the USER with the specified name.

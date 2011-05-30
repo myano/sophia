@@ -1,0 +1,3 @@
+Syntax: config:set <option> <value>
+Sets the sophia.conf option to specified value.
+A list of option is available in sophia.conf. set will not set channels or aliases.

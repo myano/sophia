@@ -1,0 +1,2 @@
+Syntax: admin:quiet <nick1> [... <nickN>]
+This command must be used in a channel. It quiets all specified nicks.

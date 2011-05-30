@@ -1,0 +1,3 @@
+Syntax: acl:user INFO <user>
+Information about the specified user. It will list the user's global flags and
+channel flags for each channel. It will also list the groups that the user is in.

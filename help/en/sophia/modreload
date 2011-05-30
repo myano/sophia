@@ -1,0 +1,3 @@
+Syntax: mod:reload <module1> [... <moduleN>]
+sophia will reload the specified modules. If * is passed in as the parameter, sophia
+will reload all autoload modules specified in sophia.modules.conf.

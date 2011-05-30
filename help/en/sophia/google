@@ -1,0 +1,3 @@
+Syntax: google <expr>
+This command must be used in a channel.
+It performs a Google search of the specified expression and outputs the top 3 results.

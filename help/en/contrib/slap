@@ -1,0 +1,4 @@
+Syntax: contrib:slap <value>
+This command must be used in a channel.
+sophia will perform an action that is similar to:
+/me slaps <value>

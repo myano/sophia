@@ -1,0 +1,2 @@
+Syntax: unquiet <nick1> [... <nickN>]
+This command must be used in a channel. It unquiets all specified nicks.

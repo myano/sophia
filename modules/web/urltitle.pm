@@ -23,13 +23,13 @@ sub web_urltitle {
     my $response = curl_get($content);
     return unless $response;
 
-    $response =~ s/[^'"]<(\/?)title[^>]*>/<$1TITLESOPHIA>/xsmg;  # www.thelantern.com sucks!
+    $response =~ s/<(\/?)title[^>]*>/<$1TITLESOPHIA>/xsmig;
 
     my $start = index $response, '<TITLESOPHIA>';
     return unless $start > -1;
 
     $start += 13;
-    my $end = index($response, '</TITLESOPHIA>', $start) - $start + 1;
+    my $end = index($response, '</TITLESOPHIA>', $start) - $start;
     my $title = substr $response, $start, $end;
     $title =~ s/\s{2,}/ /;
 

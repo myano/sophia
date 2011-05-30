@@ -1,0 +1,5 @@
+Syntax: mod:unload <moduleq> [... <moduleN>]
+sophia will unload all specified modules. If * is passed in as the module,
+sophia will unload all loaded modules. It's adviced to not use * because it will
+prevent sophia from using mod:load to load modules. You'll have to restart sophia
+manually via kill as well as the restart and shutdown commands are no longer available.
