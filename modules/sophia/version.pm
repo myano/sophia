@@ -13,7 +13,7 @@ sub init_sophia_version {
 sub deinit_sophia_version {
     delete_sub 'init_sophia_version';
     delete_sub 'sophia_version';
-    sophia_event_public_dehook 'sophia.version';
+    sophia_command_del 'sophia.version';
     delete_sub 'deinit_sophia_version';
 }
 
