@@ -24,14 +24,10 @@ sub sophia_version {
     my $args = $_[0];
     my ($where, $content) = ($args->[ARG1], $args->[ARG2]);
 
-    my $commit_hash = `git log -n 1`;
-    my @info = split('\n', $commit_hash);
-    @info = @info[0..2];
+    my $commit = `git log -1 --pretty=format:'$sophia::CONFIGURATIONS{VERSION} [%H] %cd'`;
     
     my $sophia = ${$args->[HEAP]->{sophia}};
-    foreach my $val (@info) {
-       $sophia->yield(privmsg => $where->[0] => $val);
-    }
+    $sophia->yield(privmsg => $where->[0] => $commit);
 }
 
 1;
