@@ -71,11 +71,11 @@ sub help_main_cmd {
         $module = $sophia::CONFIGURATIONS{GLOBAL_MODULE};
     }
 
-    my %obj = $sophia::COMMANDS->{$module}{$cmd};
-    return unless %obj;
+    my $obj = $sophia::COMMANDS->{$module}{$cmd};
+    return unless $obj;
 
-    if ($obj{access}) {
-        return unless $perms & $obj{access};
+    if ($obj->{access}) {
+        return unless $perms & $obj->{access};
     }
 
     my $help = "$sophia::CONFIGURATIONS{BASE_DIR}/help/en/$module/$cmd";
