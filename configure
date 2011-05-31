@@ -3,7 +3,7 @@
 # This configure file checks to see if required packages are installed on the system
 
 main_packages();
-print "\n\n", 'The following packages are - NOT - required to run sophia.', "\n", 'They are required for the default modules that sophia comes with.', "\n";
+print "\n", 'The following packages are - NOT - required to run sophia.', "\n", 'They are required for the default modules that sophia comes with.', "\n\n";
 modules_packages();
 
 sub main_packages {
@@ -16,7 +16,7 @@ sub main_packages {
 
     print "Checking for Carp ... ";
     eval {
-        use Carp;
+        require Carp;
         print "OK!\n";
         1;
     } or print "not found (install Carp).\n";
@@ -30,49 +30,49 @@ sub main_packages {
 
     print "Checking for Getopt::Long ... ";
     eval {
-        use Getopt::Long;
+        require Getopt::Long;
         print "OK!\n";
         1;
     } or print "not found (install Getopt:Long).\n";
 
     print "Checking for POD::Usage ... ";
     eval {
-        use POD::Usage;
+        require POD::Usage;
         print "OK!\n";
         1;
     } or print "not found (install POD::Usage).\n";
 
     print "Checking for POE ... ";
     eval {
-        use POE;
+        require POE;
         print "OK!\n";
         1;
     } or print "not found (install POE).\n";
 
     print "Checking for POE::Component::IRC ... ";
     eval {
-        use POE::Component::IRC;
+        require POE::Component::IRC;
         print "OK!\n";
         1;
     } or print "not found (install POE::Component::IRC).\n";
 
     print "Checking for POSIX ... ";
     eval {
-        use POSIX;
+        require POSIX;
         print "OK!\n";
         1;
     } or print "not found (install POSIX).\n";
 
     print "Checking for Sub::Delete ,,, ";
     eval {
-        use Sub::Delete;
+        require Sub::Delete;
         print "OK!\n";
         1;
     } or print "not found (install Sub::Delete).\n";
 
     print "Checking for Switch ... ";
     eval {
-        use Switch;
+        require Switch;
         print "OK!\n";
         1;
     } or print "not found (install Switch).\n";
@@ -83,28 +83,28 @@ sub main_packages {
 sub modules_packages {
     print "Checking for HTML::Entities ... ";
     eval {
-        use HTML::Entities;
+        require HTML::Entities;
         print "OK!\n";
         1;
     } or print "not found (install HTML::Entities).\n";
 
     print "Checking for URI::Escape ... ";
     eval {
-        use URI::Escape;
+        require URI::Escape;
         print "OK!\n";
         1;
     } or print "not found (install URI::Escape).\n";
 
     print "Checking for WWW::Curl::Easy ... ";
     eval {
-        use WWW::Curl::Easy;
+        require WWW::Curl::Easy;
         print "OK!\n";
         1;
     } or print "not found (install WWW::Curl::Easy).\n";
 
     print "Checking for XML::LibXML ... ";
     eval {
-        use XML::LibXML;
+        require XML::LibXML;
         print "OK!\n";
         1;
     } or print "not found (install XML::LibXML).\n";
