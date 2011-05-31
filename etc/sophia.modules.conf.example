@@ -39,6 +39,7 @@ loadmodule "admin.ban";
 loadmodule "admin.deop";
 loadmodule "admin.devoice";
 loadmodule "admin.kick";
+loadmodule "admin.kickban";
 loadmodule "admin.op";
 loadmodule "admin.quiet";
 loadmodule "admin.topic";
