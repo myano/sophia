@@ -1,6 +1,5 @@
 use strict;
 use warnings;
-use Data::Dumper;
 
 sophia_module_add('sophia.listchans', '1.0', \&init_sophia_listchans, \&deinit_sophia_listchans);
 
