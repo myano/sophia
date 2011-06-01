@@ -55,6 +55,8 @@ loadmodule "admin.voice";
 # loadmodule "cmd.main";
 # loadmodule "cmd.cmd";
 # loadmodule "cmd.del";
+# loadmodule "cmd.list";
+# loadmodule "cmd.reload";
 # loadmodule "cmd.save";
 # loadmodule "cmd.set";
 
