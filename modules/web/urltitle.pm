@@ -31,7 +31,7 @@ sub web_urltitle {
     $start += 13;
     my $end = index($response, '</TITLESOPHIA>', $start) - $start;
     my $title = substr $response, $start, $end;
-    $title =~ s/\s{2,}/ /;
+    $title =~ s/\s{2,}/ /g;
 
     my $sophia = ${$args->[HEAP]->{sophia}};
     $sophia->yield(privmsg => $where->[0] => decode_entities($title));
