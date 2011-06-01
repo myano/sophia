@@ -23,18 +23,12 @@ sub web_urltitle {
     my $response = curl_get($content);
     return unless $response;
 
-    $response =~ s/<(\/?)title[^>]*>/<$1TITLESOPHIA>/xsmig;
-
-    my $start = index $response, '<TITLESOPHIA>';
-    return unless $start > -1;
-
-    $start += 13;
-    my $end = index($response, '</TITLESOPHIA>', $start) - $start;
-    my $title = substr $response, $start, $end;
-    $title =~ s/\s{2,}/ /g;
-
-    my $sophia = ${$args->[HEAP]->{sophia}};
-    $sophia->yield(privmsg => $where->[0] => decode_entities($title));
+    if ($response =~ m#<title[^>]*>(.+?)</title>#xsmi) {
+        my $title = $1;
+        my $sophia = ${$args->[HEAP]->{sophia}};
+        $title =~ s/\s{2,}/ /g;
+        $sophia->yield(privmsg => $where->[0] => decode_entities($title));
+    }
 }
 
 1;
