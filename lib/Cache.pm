@@ -4,17 +4,10 @@ use warnings;
 my %CACHE;
 
 sub sophia_cache_store {
-    my ($key, $val) = @_;
-    return 0 unless $key && $val;
+    my ($namespace, $key, $val) = @_;
+    return 0 unless $namespace && $key && $val;
 
     $key = lc $key;
-
-    my $idx = index $key, '/';
-    return 0 unless $idx > 0;
-
-    my $namespace = substr $key, 0, $idx;
-    $key = substr $key, $idx + 1;
-
     $CACHE{$namespace}{$key} = $val;
 
     return 1;

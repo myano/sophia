@@ -102,7 +102,7 @@ my %SOPHIA = (
 &sophia_load_config;
 
 # store the channels in sophia's cache for listchan command
-sophia_cache_store("sophia_main/channels", $SOPHIA{channels});
+sophia_cache_store('sophia_main','channels', $SOPHIA{channels});
 
 # set the master of sophia
 sophia_set_master($SOPHIA{owner_name}, $SOPHIA{owner_host});
