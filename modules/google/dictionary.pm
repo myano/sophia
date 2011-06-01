@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-sophia_module_add('google.dictionary', '1.0', \&init_google_dictionary, \&deinit_google_dictionary);
+sophia_module_add('google.dictionary', '2.0', \&init_google_dictionary, \&deinit_google_dictionary);
 
 sub init_google_dictionary {
     sophia_command_add('google.dict', \&google_dictionary, 'Defines a word.', '');

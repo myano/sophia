@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-sophia_module_add('web.urltitle', '1.0', \&init_web_urltitle, \&deinit_web_urltitle);
+sophia_module_add('web.urltitle', '2.0', \&init_web_urltitle, \&deinit_web_urltitle);
 
 sub init_web_urltitle {
     sophia_event_public_hook('web.urltitle', \&web_urltitle, 'Displays the title for the posted URL.', '');

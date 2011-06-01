@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-sophia_module_add('admin.op', '1.0', \&init_admin_op, \&deinit_admin_op);
+sophia_module_add('admin.op', '2.0', \&init_admin_op, \&deinit_admin_op);
 
 sub init_admin_op {
     sophia_global_command_add('op', \&admin_op, 'Ops the user/hostmask.', '', SOPHIA_ACL_OP | SOPHIA_ACL_AUTOOP);

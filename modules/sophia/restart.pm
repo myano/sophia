@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-sophia_module_add('sophia.restart', '1.0', \&init_sophia_restart, \&deinit_sophia_restart);
+sophia_module_add('sophia.restart', '2.0', \&init_sophia_restart, \&deinit_sophia_restart);
 
 sub init_sophia_restart {
     sophia_global_command_add('restart', \&sophia_restart, 'Restarts sophia.', '', SOPHIA_ACL_FOUNDER);

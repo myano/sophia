@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-sophia_module_add('web.ln_s', '1.0', \&init_web_lns, \&deinit_web_lns);
+sophia_module_add('web.ln_s', '2.0', \&init_web_lns, \&deinit_web_lns);
 
 sub init_web_lns {
     sophia_command_add('web.lns', \&web_lns, 'Creates a ln-s.net redirector link.', '');

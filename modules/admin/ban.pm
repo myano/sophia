@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-sophia_module_add('admin.ban', '1.0', \&init_admin_ban, \&deinit_admin_ban);
+sophia_module_add('admin.ban', '2.0', \&init_admin_ban, \&deinit_admin_ban);
 
 sub init_admin_ban {
     sophia_global_command_add('ban', \&admin_ban, 'Bans the user/hostmask.', '', SOPHIA_ACL_OP | SOPHIA_ACL_AUTOOP);

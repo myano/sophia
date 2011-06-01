@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-sophia_module_add('admin.kick', '1.0', \&init_admin_kick, \&deinit_admin_kick);
+sophia_module_add('admin.kick', '2.0', \&init_admin_kick, \&deinit_admin_kick);
 
 sub init_admin_kick {
     sophia_global_command_add('kick', \&admin_kick, 'Kicks user if bot is a chan op.', '', SOPHIA_ACL_OP | SOPHIA_ACL_AUTOOP);

@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-sophia_module_add('admin.deop', '1.0', \&init_admin_deop, \&deinit_admin_deop);
+sophia_module_add('admin.deop', '2.0', \&init_admin_deop, \&deinit_admin_deop);
 
 sub init_admin_deop {
     sophia_global_command_add('deop', \&admin_deop, 'Deops the user/hostmask.', '', SOPHIA_ACL_OP | SOPHIA_ACL_AUTOOP);

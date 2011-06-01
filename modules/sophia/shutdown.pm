@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-sophia_module_add('sophia.shutdown', '1.0', \&init_sophia_shutdown, \&deinit_sophia_shutdown);
+sophia_module_add('sophia.shutdown', '2.0', \&init_sophia_shutdown, \&deinit_sophia_shutdown);
 
 sub init_sophia_shutdown {
     sophia_global_command_add('shutdown', \&sophia_shutdown, 'Shutdown sophia.', '', SOPHIA_ACL_FOUNDER);

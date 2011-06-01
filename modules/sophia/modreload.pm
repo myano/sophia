@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-sophia_module_add('sophia.modreload', '1.0', \&init_sophia_modreload, \&deinit_sophia_modreload);
+sophia_module_add('sophia.modreload', '2.0', \&init_sophia_modreload, \&deinit_sophia_modreload);
 
 sub init_sophia_modreload {
     sophia_global_command_add('mod:reload', \&sophia_modreload, 'Reloads all or a specified module.', '', SOPHIA_ACL_FOUNDER);

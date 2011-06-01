@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-sophia_module_add('sophia.modunload', '1.0', \&init_sophia_modunload, \&deinit_sophia_modunload);
+sophia_module_add('sophia.modunload', '2.0', \&init_sophia_modunload, \&deinit_sophia_modunload);
 
 sub init_sophia_modunload {
     sophia_global_command_add('mod:unload', \&sophia_modunload, 'Unloads all or a specified module.', '', SOPHIA_ACL_FOUNDER);

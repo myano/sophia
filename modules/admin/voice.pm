@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-sophia_module_add('admin.voice', '1.0', \&init_admin_voice, \&deinit_admin_voice);
+sophia_module_add('admin.voice', '2.0', \&init_admin_voice, \&deinit_admin_voice);
 
 sub init_admin_voice {
     sophia_global_command_add('voice', \&admin_voice, 'Voices the user/hostmask.', '', SOPHIA_ACL_VOICE | SOPHIA_ACL_AUTOVOICE);

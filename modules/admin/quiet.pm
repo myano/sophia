@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-sophia_module_add('admin.quiet', '1.0', \&init_admin_quiet, \&deinit_admin_quiet);
+sophia_module_add('admin.quiet', '2.0', \&init_admin_quiet, \&deinit_admin_quiet);
 
 sub init_admin_quiet {
     sophia_global_command_add('quiet', \&admin_quiet, 'Quiets the user/hostmask.', '', SOPHIA_ACL_OP | SOPHIA_ACL_AUTOOP);

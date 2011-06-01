@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-sophia_module_add('sophia.modload', '1.0', \&init_sophia_modload, \&deinit_sophia_modload);
+sophia_module_add('sophia.modload', '2.0', \&init_sophia_modload, \&deinit_sophia_modload);
 
 sub init_sophia_modload {
     sophia_global_command_add('mod:load', \&sophia_modload, 'Loads a specified module.', '', SOPHIA_ACL_FOUNDER);

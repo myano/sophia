@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-sophia_module_add('web.acronym', '1.0', \&init_web_acronym, \&deinit_web_acronym);
+sophia_module_add('web.acronym', '2.0', \&init_web_acronym, \&deinit_web_acronym);
 
 sub init_web_acronym {
     sophia_command_add('web.acronym', \&web_acronym, 'Tries to find the meaning of the acronym.', '');
