@@ -37,8 +37,10 @@ sub admin_devoice {
     my $sophia = ${$args->[HEAP]->{sophia}};
 
     # if there are no params, devoice the caller
-    $sophia->yield( mode => $target_chan => '-v' => substr $who, 0, index($who, '!') ) and return
-        if !$parts[0];
+    if (!$parts[0]) {
+        $sophia->yield( mode => $target_chan => '-v' => substr $who, 0, index($who, '!') );
+        return;
+    }
 
     # devoice the list of users
     $sophia->yield( mode => $target_chan => sprintf('-%s', 'v' x ($#parts + 1)) => join ' ', @parts );

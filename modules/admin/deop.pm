@@ -37,8 +37,10 @@ sub admin_deop {
     my $sophia = ${$args->[HEAP]->{sophia}};
 
     # if there are no params, deop the caller
-    $sophia->yield( mode => $target_chan => '-o' => substr $who, 0, index($who, '!') ) and return
-        if !$parts[0];
+    if (!$parts[0]) {
+        $sophia->yield( mode => $target_chan => '-o' => substr $who, 0, index($who, '!') );
+        return;
+    }
 
     # deop the list of users
     $sophia->yield( mode => $target_chan => sprintf('-%s', 'o' x ($#parts + 1)) => join ' ', @parts );

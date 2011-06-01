@@ -37,8 +37,10 @@ sub admin_op {
     my $sophia = ${$args->[HEAP]->{sophia}};
 
     # if there are no params, op the caller
-    $sophia->yield( mode => $target_chan => "+o" => substr $who, 0, index($who, '!') ) and return
-        if !$parts[0];
+    if (!$parts) {
+        $sophia->yield( mode => $target_chan => "+o" => substr $who, 0, index($who, '!') );
+        return;
+    }
 
     # op the list of users
     $sophia->yield( mode => $target_chan => sprintf('+%s', 'o' x ($#parts + 1)) => join ' ', @parts );

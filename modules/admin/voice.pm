@@ -37,8 +37,10 @@ sub admin_voice {
     my $sophia = ${$args->[HEAP]->{sophia}};
 
     # if there are no params, voice the caller
-    $sophia->yield( mode => $target_chan => '+v' => substr $who, 0, index($who, '!') ) and return
-        if !$parts[0];
+    if (!$parts[0]) {
+        $sophia->yield( mode => $target_chan => '+v' => substr $who, 0, index($who, '!') );
+        return;
+    }
 
     # voice the list of users
     $sophia->yield( mode => $target_chan => sprintf('+%s', 'v' x ($#parts + 1)) => join ' ', @parts );
