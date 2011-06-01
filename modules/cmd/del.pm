@@ -17,25 +17,20 @@ sub deinit_cmd_del {
 }
 
 sub cmd_del {
-    my $args = $_[0];
+    my ($args, $target) = @_;
     my ($where, $content) = ($args->[ARG1], $args->[ARG2]);
+    $target //= $where->[0];
     
-    my $idx = index $content, ' ';
-    return unless $idx > -1;
+    my @parts = split /\s+/, $content;
+    shift @parts;
 
-    $content = substr $content, $idx + 1;
-    $content =~ s/^\s+//;
-
-    $idx = index $content, ' ';
-    $content = substr $content, 0, $idx if $idx > -1;
-    
     my $cache_commands = sophia_cache_load('mod:cmd', 'commands');
-    return unless $cache_commands && $cache_commands->{$content};
+    return unless $cache_commands;
 
-    delete $cache_commands->{$content};
+    delete $cache_commands->{$_} for @parts;
 
     my $sophia = ${$args->[HEAP]->{sophia}};
-    $sophia->yield(privmsg => $where->[0] => sprintf('%1$s%2$s%1$s deleted.', "\x02", $content));
+    $sophia->yield(privmsg => $target => sprintf('%1$s%2$s%1$s deleted.', "\x02", join ', ', @parts));
 }
 
 1;

@@ -17,8 +17,9 @@ sub deinit_cmd_cmd {
 }
 
 sub cmd_cmd {
-    my $args = $_[0];
+    my ($args, $target) = @_;
     my ($where, $content) = ($args->[ARG1], $args->[ARG2]);
+    $target //= $where->[0];
 
     my $idx = index $content, ' ';
     return if $idx == -1;
@@ -34,7 +35,7 @@ sub cmd_cmd {
     return unless $cache_commands && $cache_commands->{$content};
 
     my $sophia = ${$args->[HEAP]->{sophia}};
-    $sophia->yield(privmsg => $where->[0] => $cache_commands->{$content});
+    $sophia->yield(privmsg => $target => $cache_commands->{$content});
 }
 
 1;
