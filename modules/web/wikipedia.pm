@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-sophia_module_add('web.wikipedia', '1.0', \&init_web_wikipedia, \&deinit_web_wikipedia);
+sophia_module_add('web.wikipedia', '2.0', \&init_web_wikipedia, \&deinit_web_wikipedia);
 
 sub init_web_wikipedia {
     sophia_command_add('web.wiki', \&web_wikipedia, 'Provides wikipedia searching.', '');

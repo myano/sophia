@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-sophia_module_add('sophia.join', '1.0', \&init_sophia_join, \&deinit_sophia_join);
+sophia_module_add('sophia.join', '2.0', \&init_sophia_join, \&deinit_sophia_join);
 
 sub init_sophia_join {
     sophia_global_command_add('join', \&sophia_join, 'Joins one or more channels.', '', SOPHIA_ACL_FOUNDER);
@@ -26,9 +26,12 @@ sub sophia_join {
     my @parts = split /\s+/, $content;
     shift @parts;
 
+    my $chans = sophia_cache_load('sophia_main', 'channels');
     for (@parts) {
         if (length) {
             sophia_log('sophia', sprintf('Joining (%s) requested by %s.', $_, $who));
+            # store the channel for listchans
+            $chans->{$_} = 1;
             $sophia->yield(join => $_);
         }
     }

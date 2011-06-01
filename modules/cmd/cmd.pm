@@ -1,27 +1,28 @@
 use strict;
 use warnings;
 
-sophia_module_add('usercmd.cmd', '1.0', \&init_usercmd_cmd, \&deinit_usercmd_cmd);
+sophia_module_add('cmd.cmd', '1.0', \&init_cmd_cmd, \&deinit_cmd_cmd);
 
-sub init_usercmd_cmd {
-    sophia_global_command_add('cmd', \&usercmd_cmd, 'Calls a user-defined command.', '');
+sub init_cmd_cmd {
+    sophia_global_command_add('cmd', \&cmd_cmd, 'Calls a user-defined command.', '');
 
     return 1;
 }
 
-sub deinit_usercmd_cmd {
-    delete_sub 'init_usercmd_cmd';
-    delete_sub 'usercmd_cmd';
+sub deinit_cmd_cmd {
+    delete_sub 'init_cmd_cmd';
+    delete_sub 'cmd_cmd';
     sophia_global_command_del 'cmd';
-    delete_sub 'deinit_usercmd_cmd';
+    delete_sub 'deinit_cmd_cmd';
 }
 
-sub usercmd_cmd {
-    my $args = $_[0];
+sub cmd_cmd {
+    my ($args, $target) = @_;
     my ($where, $content) = ($args->[ARG1], $args->[ARG2]);
+    $target //= $where->[0];
 
     my $idx = index $content, ' ';
-    return unless $idx > -1;
+    return if $idx == -1;
     $content = substr $content, $idx + 1;
 
     $content =~ s/^\s+//;
@@ -30,11 +31,11 @@ sub usercmd_cmd {
 
     $content = lc $content;
 
-    $content = sophia_cache_load('usercmd', $content);
-    return unless $content;
+    my $cache_commands = sophia_cache_load('mod:cmd', 'commands');
+    return unless $cache_commands && $cache_commands->{$content};
 
     my $sophia = ${$args->[HEAP]->{sophia}};
-    $sophia->yield(privmsg => $where->[0] => $content);
+    $sophia->yield(privmsg => $target => $cache_commands->{$content});
 }
 
 1;

@@ -21,7 +21,7 @@ sub deinit_config_reload {
 sub config_reload {
     my ($args, $target) = @_;
     my $where = $args->[ARG1];
-    $target ||= $where->[0];
+    $target //= $where->[0];
 
     my $sophia = ${$args->[HEAP]->{sophia}};
     my $message = &sophia_reload_config ? 'Config reloaded.' : 'Config failed to reload.';

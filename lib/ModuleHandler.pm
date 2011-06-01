@@ -75,7 +75,7 @@ sub sophia_command_add {
     $command = substr $module_command, index($module_command, '.') + 1;
     return if $module eq $global_module;
 
-    $cmd_access ||= SOPHIA_ACL_NONE;
+    $cmd_access //= SOPHIA_ACL_NONE;
     $sophia::COMMANDS->{$module}{$command}{init} = $cmd_hook;
     $sophia::COMMANDS->{$module}{$command}{desc} = $cmd_desc;
     $sophia::COMMANDS->{$module}{$command}{help} = $cmd_help;
@@ -84,7 +84,7 @@ sub sophia_command_add {
 
 sub sophia_global_command_add {
     my ($command, $cmd_hook, $cmd_desc, $cmd_help, $cmd_access) = @_;
-    $cmd_access ||= SOPHIA_ACL_NONE;
+    $cmd_access //= SOPHIA_ACL_NONE;
     $sophia::COMMANDS->{$global_module}{$command}{init} = $cmd_hook;
     $sophia::COMMANDS->{$global_module}{$command}{desc} = $cmd_desc;
     $sophia::COMMANDS->{$global_module}{$command}{help} = $cmd_help;

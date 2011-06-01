@@ -21,7 +21,7 @@ sub deinit_acl_load {
 sub acl_load {
     my ($args, $target) = @_;
     my $where = $args->[ARG1];
-    $target ||= $where->[0];
+    $target //= $where->[0];
 
     my $master = &sophia_get_master;
 

@@ -21,7 +21,7 @@ sub deinit_config_set {
 sub config_set {
     my ($args, $target) = @_;
     my ($where, $content) = ($args->[ARG1], $args->[ARG2]);
-    $target ||= $where->[0];
+    $target //= $where->[0];
 
     my @opts = split /\s+/, $content;
     my $sophia = ${$args->[HEAP]->{sophia}};

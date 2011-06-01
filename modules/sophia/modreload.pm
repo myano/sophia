@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-sophia_module_add('sophia.modreload', '1.0', \&init_sophia_modreload, \&deinit_sophia_modreload);
+sophia_module_add('sophia.modreload', '2.0', \&init_sophia_modreload, \&deinit_sophia_modreload);
 
 sub init_sophia_modreload {
     sophia_global_command_add('mod:reload', \&sophia_modreload, 'Reloads all or a specified module.', '', SOPHIA_ACL_FOUNDER);
@@ -21,7 +21,7 @@ sub deinit_sophia_modreload {
 sub sophia_modreload {
     my ($args, $target) = @_;
     my ($who, $where, $content) = ($args->[ARG0], $args->[ARG1], $args->[ARG2]);
-    $target ||= $where->[0];
+    $target //= $where->[0];
 
     my $sophia = ${$args->[HEAP]->{sophia}};
 

@@ -12,7 +12,7 @@ my %roulette_settings = (
     'TIMEOUT'       => 60, # in seconds
 );
 
-sophia_module_add('games.roulette', '1.0', \&init_games_roulette, \&deinit_games_roulette);
+sophia_module_add('games.roulette', '2.0', \&init_games_roulette, \&deinit_games_roulette);
 
 sub init_games_roulette {
     sophia_global_command_add('roulette', \&games_roulette, 'Roulette game.', '');

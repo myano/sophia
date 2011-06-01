@@ -21,7 +21,7 @@ sub deinit_acl_save {
 sub acl_save {
     my ($args, $target) = @_;
     my $where = $args->[ARG1];
-    $target ||= $where->[0];
+    $target //= $where->[0];
 
     &sophia_acl_db_save;
 

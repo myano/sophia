@@ -24,7 +24,7 @@ sub deinit_acl_flags {
 sub acl_flags {
     my ($args, $target) = @_;
     my ($where, $content) = ($args->[ARG1], $args->[ARG2]);
-    $target ||= $where->[0];
+    $target //= $where->[0];
 
     my @opts = split /\s+/, $content;
     return unless scalar(@opts) == 4;

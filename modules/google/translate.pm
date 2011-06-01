@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-sophia_module_add('google.translate', '1.0', \&init_google_translate, \&deinit_google_translate);
+sophia_module_add('google.translate', '2.0', \&init_google_translate, \&deinit_google_translate);
 
 sub init_google_translate {
     sophia_command_add('google.translate', \&google_translate, 'Utilize Google for translations.', '');
