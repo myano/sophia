@@ -367,12 +367,14 @@ sub sophia_uid_from_host {
     my $host = $_[0];
     return unless $host;
 
-    $host = lc $host;
     my $hostmask;
     for (keys %SOPHIA_ACL_HOST2UID) {
         $hostmask = $_;
-        $hostmask =~ s/\*/.*?/g;
-        return $SOPHIA_ACL_HOST2UID{$_} if $host =~ /$hostmask/;
+        $hostmask =~ s/\./\\\./gxsm;
+        $hostmask =~ s/\?/\./gxsm;
+        $hostmask =~ s/\*/\.\*/gxsm;
+        $hostmask =~ s/\//\\\//gxsm;
+        return $SOPHIA_ACL_HOST2UID{$_} if $host =~ /$hostmask/xsmi;
     }
 
     return;
