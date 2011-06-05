@@ -77,4 +77,5 @@ loadmodule "admin.voice";
 # loadmodule "web.acronym";
 # loadmodule "web.ln_s";
 # loadmodule "web.urltitle";
+# loadmodule "web.weather";
 # loadmodule "web.wikipedia";
