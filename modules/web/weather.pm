@@ -39,9 +39,9 @@ sub web_weather {
     return if !$objXML;
     $objXML = ${$objXML};
 
-    my $dataset = web_weather_getData(\$objXML, '//display_location/full', '//station_id', '//weather', '//temperature_string', '//relative_humidity', '//wind_string', '//wind_dir', '//wind_degrees', '//wind_mph', '//dewpoint_string', '//pressure_string', '//visibility_mi');
+    my $dataset = web_weather_getData(\$objXML, '//display_location/full', '//station_id', '//weather', '//temperature_string', '//relative_humidity', '//wind_dir', '//wind_degrees', '//wind_mph', '//dewpoint_string', '//pressure_string', '//visibility_mi');
 
-    my $result = sprintf('%s (%s)  %s, %s.  Humidity: %s.  Wind: %s (%s, %s degrees at %s mph).  Dewpoint: %s.  Air pressure: %s.  Visibility: %s miles.', @{$dataset});
+    my $result = sprintf('%s (%s)  --  %s, %s.  Humidity: %s.  Wind: %s, %s degrees at %s mph.  Dewpoint: %s.  Air pressure: %s.  Visibility: %s miles.', @{$dataset});
     
     my $sophia = ${$args->[HEAP]->{sophia}};
     $sophia->yield(privmsg => $where->[0] => $result);
