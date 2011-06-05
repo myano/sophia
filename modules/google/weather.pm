@@ -16,6 +16,15 @@ sub deinit_google_weather {
     delete_sub 'deinit_google_weather';
 }
 
+sub google_weather_getData {
+    my ($obj, @selectors) = @_;
+    $obj = ${$obj};
+
+    my @results;
+    push @results, $obj->findnodes($_)->[0]->getAttribute('data') for @selectors;
+    return \@results;
+}
+
 sub google_weather {
     my $args = $_[0];
     my ($where, $content) = ($args->[ARG1], $args->[ARG2]);
@@ -26,31 +35,20 @@ sub google_weather {
     return unless $objXML;
     $objXML = ${$objXML};
 
-    my $output = '';
-    
-    $output .= $objXML->findnodes('//city')->[0]->getAttribute('data');
-    $output .= '  --- ';
-
-    my $condition = $objXML->findnodes('//current_conditions/condition')->[0]->getAttribute('data');
-    my $tempf = $objXML->findnodes('//current_conditions/temp_f')->[0]->getAttribute('data');
-    $output .= sprintf('Now: %s (%s).   ', $condition, $tempf);
+    my @messages;
+    my $dataset = google_weather_getData(\$objXML, '//city', '//current_conditions/condition', '//current_conditions/temp_f', '//current_conditions/temp_c', '//current_conditions/humidity', '//current_conditions/wind_condition');
+    push @messages, sprintf('%s  --  Now: %s (%s F / %s C).   Humidity: %s.   Wind: %s.', @{$dataset});
 
     my @forecasts = $objXML->findnodes('//forecast_conditions');
-    my ($day, $day_low, $day_high, $day_cond) = '';
-    my $today = 1;
-
+    my $line = '';
     for (@forecasts) {
-        $day = $_->findnodes('./day_of_week')->[0];
-        $day_low = $_->findnodes('./low')->[0];
-        $day_high = $_->findnodes('./high')->[0];
-        $day_cond = $_->findnodes('./condition')->[0];
-        $day = $day->getAttribute('data');
-        $day = 'Today' if $today; $today = 0;
-        $output .= sprintf('%s: %s (%s | %s).   ', $day, $day_cond->getAttribute('data'), $day_high->getAttribute('data'), $day_low->getAttribute('data'));
+        $dataset = google_weather_getData(\$_, './day_of_week', './condition', './low', './high');
+        $line .= sprintf('%s: %s (%s F | %s F).   ', @{$dataset});
     }
+    push @messages, $line;
 
     my $sophia = ${$args->[HEAP]->{sophia}};
-    $sophia->yield(privmsg => $where->[0] => $output);
+    $sophia->yield(privmsg => $where->[0] => $_) for @messages;
 }
 
 1;
