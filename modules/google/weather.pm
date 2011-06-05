@@ -28,7 +28,10 @@ sub google_weather_getData {
 sub google_weather {
     my $args = $_[0];
     my ($where, $content) = ($args->[ARG1], $args->[ARG2]);
-    $content = substr $content, index($content, ' ') + 1;
+    my $idx = index $content, ' ';
+    return if $idx == -1;
+
+    $content = substr $content, $idx + 1;
     $content =~ s/ /+/g;
 
     my $objXML = loadXML(sprintf('http://www.google.com/ig/api?weather=%s', $content));
