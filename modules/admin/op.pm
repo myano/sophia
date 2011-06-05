@@ -37,7 +37,7 @@ sub admin_op {
     my $sophia = ${$args->[HEAP]->{sophia}};
 
     # if there are no params, op the caller
-    if (!$parts) {
+    if (!$parts[0]) {
         $sophia->yield( mode => $target_chan => "+o" => substr $who, 0, index($who, '!') );
         return;
     }
