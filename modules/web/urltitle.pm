@@ -18,10 +18,10 @@ sub deinit_web_urltitle {
 
 sub web_urltitle {
     my $args = $_[0];
-    my ($where, $content) = ($args->[ARG1], $args->[ARG2]);
-
+    my ($who, $where, $content) = ($args->[ARG0], $args->[ARG1], $args->[ARG2]);
+    
+    return if $who =~ /cia\.atheme\.org/;  # ignore CIA bot commit bit.ly lookups.
     return if $content !~ /\b(http(?:s)?\:\/\/[a-zA-Z0-9\-]+(?:\.[a-zA-Z0-9\-]+)*\.[a-zA-Z]{2,6}(?:\/?|(?:\/[\w\-]+)*)(?:\/?|\/\w+\.[a-zA-Z]{2,4}(?:\?[\w]+\=[\w\-]+)?)?(?:\&[\w]+\=[\w\-]+)*)\b/i;
-    return if $1 =~ /bit\.ly/;
 
     my $response = curl_get($1);
     return unless $response;
