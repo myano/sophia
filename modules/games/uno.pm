@@ -36,6 +36,7 @@ sub games_uno {
     if (!$opts[0])
     {
         $sophia->yield(privmsg => $where->[0] => 'To start an uno game type: !uno start');
+        return;
     }
 
     # check if the argument is an uno command
