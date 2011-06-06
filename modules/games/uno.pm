@@ -38,8 +38,18 @@ sub games_uno {
     # check if the argument is an uno command
     given (uc $opts[0]) {
         when (/^CARDS|C$/) {
+            # check if the game is active
+            if (!$UNO_STARTED) {
+                $sophia->yield(privmsg => $where->[0] => 'No uno game started.');
+                return;
+            }
         }
         when (/^CARDCOUNT|CC$/) {
+            # check if the game is active
+            if (!$UNO_STARTED) {
+                $sophia->yield(privmsg => $where->[0] => 'No uno game started.');
+                return;
+            }
         }
         when ('DEAL') {
             # check if the game is active
@@ -83,8 +93,18 @@ sub games_uno {
             push (@PLAYERS, $who);
         }
         when ('PASS') {
+            # check if the game is active
+            if (!$UNO_STARTED) {
+                $sophia->yield(privmsg => $where->[0] => 'No uno game started.');
+                return;
+            }
         }
         when (/^PLAY|P$/) {
+            # check if the game is active
+            if (!$UNO_STARTED) {
+                $sophia->yield(privmsg => $where->[0] => 'No uno game started.');
+                return;
+            }
         }
         when ('SCORE') {
         }
@@ -112,11 +132,20 @@ sub games_uno {
             $sophia->yield(privmsg => $where->[0] => 'The uno game has been stopped.');
         }
         when (/^TOPCARD|TOP$/) {
+            # check if the game is active
+            if (!$UNO_STARTED) {
+                $sophia->yield(privmsg => $where->[0] => 'No uno game started.');
+                return;
+            }
         }
         when (/^TOP10|TOPTEN$/) {
         }
         when (/^QUIT|Q$/) {
-
+            # check if the game is active
+            if (!$UNO_STARTED) {
+                $sophia->yield(privmsg => $where->[0] => 'No uno game started.');
+                return;
+            }
         }
 
         # not a valid command, do nothing
