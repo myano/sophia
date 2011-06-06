@@ -3,7 +3,8 @@ use warnings;
 use feature 'switch';
 use List::Util qw(shuffle);
 
-my ($UNO_STARTED, $UNO_STARTTIME, $DEALER, $ORDER, $CURRENT_TURN, @DECK, %PLAYERS);
+my ($UNO_STARTED, $UNO_STARTTIME, $ORDER) = (0, 0, 0);
+my ($UNO_CHAN, $DEALER, $CURRENT_TURN, @DECK, %PLAYERS);
 
 sophia_module_add('games.uno', '1.0', \&init_games_uno, \&deinit_games_uno);
 
@@ -53,11 +54,23 @@ sub games_uno {
         when ('SCORE') {
         }
         when (/^START|S$/) {
+            if ($UNO_STARTED) {
+                my $target = ($where->[0] eq $UNO_CHAN) ? '' : 'in %s ';
+                $sophia->yield(privmsg => $where->[0] => sprintf('Game already started %sby %s', $target, $DEALER));
+                return;
+            }
+
             $UNO_STARTTIME = time();
             $UNO_STARTED = 1;
+            $UNO_CHAN = $where->[0];
             $DEALER = $who;
         }
         when ('STOP') {
+            if (!$UNO_STARTED) {
+                $sophia->yield(privmsg => $where->[0] => 'No uno game has started.');
+                return;
+            }
+
             $UNO_STARTED = 0;
         }
         when (/^TOPCARD|TOP$/) {
