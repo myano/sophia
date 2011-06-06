@@ -60,7 +60,12 @@ sub games_uno {
                 $sophia->yield(privmsg => $where->[0] => 'No uno game started.');
                 return;
             }
-
+            # check if there are enough players to start a game
+            if (scalar(@nums) < 2)
+            {
+                $sophia->yield(privmsg => $where->[0] => 'Not enough players to start a game.');
+                return;
+            }
             # get a deck
             my $deck = &games_uno_newdeck;
             @DECK = @{$deck};
