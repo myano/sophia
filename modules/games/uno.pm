@@ -53,6 +53,7 @@ sub games_uno {
         when ('SCORE') {
         }
         when (/^START|S$/) {
+            $UNO_STARTTIME = time();
         }
         when ('STOP') {
         }
