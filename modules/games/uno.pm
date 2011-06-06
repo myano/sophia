@@ -116,6 +116,7 @@ sub games_uno {
         when (/^TOP10|TOPTEN$/) {
         }
         when (/^QUIT|Q$/) {
+
         }
 
         # not a valid command, do nothing
@@ -131,11 +132,12 @@ sub games_uno_newdeck {
                   R:S R:S B:S B:S Y:S Y:S G:S G:S R:R R:R B:R B:R Y:R Y:R G:R G:R
                   R:D2 R:D2 B:D2 B:D2 Y:D2 Y:D2 G:D2 G:D2 W:* W:* W:* W:* WD4:* WD4* WD4:* WD4:*/;
 
-    # compound the decksize by 5!
-    push @deck, @deck for (1 .. 5);
+    # compound the decksize by 3!
+    push @deck, @deck for (1 .. 3);
 
     # shuffle the deck trice
-    @deck = shuffle(@deck) for (1 .. 3);
+    my $rand= int(rand(10)) + 2;
+    @deck = shuffle(@deck) for (1 .. $rand);
 
     return \@deck;
 }
