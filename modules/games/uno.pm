@@ -42,23 +42,36 @@ sub games_uno {
         when (/^CARDCOUNT|CC$/) {
         }
         when ('DEAL') {
-            foreach $player_playing (@PLAYERS)
-            {
-                my $val = 0;
-                my @temp_cards = ();
-                while ($val <= 7)
-                {
-                    push(@{$temp_cards}, pop(@deck));
-                    $val = $val + 1;
-                }
-                push(@{$PLAYERS_CARDS{$player_playing}}, @temp_cards);
+            # check if the game is active
+            if (!$UNO_STARTED) {
+                $sophia->yield(privmsg => $where->[0] => 'No uno game started.');
+                return;
             }
-            $sophia->yield(privmsg => $where->[0] => 'The deck has been suffled and all cards have been dealt.');
+
+            # get a deck
+            my $deck = &games_uno_newdeck;
+            @DECK = @{$deck};
+
+            # give each player 7 cards
+            map { push @{$PLAYERS_CARDS{$_}}, pop @DECK for (1 .. 7); } @PLAYERS;
+
         }
         when (/^DRAW|D$/) {
+            # check if the game is active
+            if (!$UNO_STARTED) {
+                $sophia->yield(privmsg => $where->[0] => 'No uno game started.');
+                return;
+            }
+
             push(@{$PLAYERS_CARDS{$who}}, pop(@deck));
         }
         when (/^JOIN|J$/) {
+            # check if the game is active
+            if (!$UNO_STARTED) {
+                $sophia->yield(privmsg => $where->[0] => 'No uno game started.');
+                return;
+            }
+
             push (@PLAYERS, $who);
         }
         when ('PASS') {
