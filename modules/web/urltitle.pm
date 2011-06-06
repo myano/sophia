@@ -21,7 +21,7 @@ sub web_urltitle {
     my ($who, $where, $content) = ($args->[ARG0], $args->[ARG1], $args->[ARG2]);
     
     return if $who =~ /cia\.atheme\.org/;  # ignore CIA bot commit bit.ly lookups.
-    return if $content !~ /\b(http(?:s)?\:\/\/[a-zA-Z0-9\-]+(?:\.[a-zA-Z0-9\-]+)*\.[a-zA-Z]{2,6}(?:\/?|(?:\/[\w\-]+)*)(?:\/?|\/\w+\.[a-zA-Z]{2,4}(?:\?[\w]+\=[\w\-]+)?)?(?:\&[\w]+\=[\w\-]+)*)\b/i;
+    return if $content !~ /\b(https?:\/\/[^ ]+)\b/xsmi;
 
     my $response = curl_get($1);
     return unless $response;
