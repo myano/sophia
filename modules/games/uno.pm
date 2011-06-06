@@ -8,6 +8,7 @@ sub init_games_uno {
     sophia_global_command_add('uno:stop', \&games_uno_stop, 'Uno game.', '');
     sophia_global_command_add('uno:fstop', \&games_uno_stop, 'Uno game.', '', SOPHIA_ACL_OP | SOPHIA_ACL_AUTOOP);
     sophia_global_command_add('uno:draw', \&games_uno_draw, 'Uno game.', '');
+    sophia_global_command_add('uno:play', \&games_uno_play, 'Uno game.', '');
 
     return 1;
 }
@@ -51,6 +52,14 @@ sub games_uno_fstop {
 }
 
 sub games_uno_start {
+    my $args = $_[0];
+    my $where = $args->[ARG1];
+    my $sophia = ${$args->[HEAP]->{sophia}};
+
+    # ...
+}
+
+sub games_uno_play {
     my $args = $_[0];
     my $where = $args->[ARG1];
     my $sophia = ${$args->[HEAP]->{sophia}};
