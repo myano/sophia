@@ -4,7 +4,7 @@ use feature 'switch';
 use List::Util qw(shuffle);
 
 my ($UNO_STARTED, $UNO_STARTTIME, $ORDER) = (0, 0, 0);
-my ($UNO_CHAN, $DEALER, $CURRENT_TURN, @DECK, %PLAYERS);
+my ($UNO_CHAN, $DEALER, $CURRENT_TURN, @DECK, %PLAYERS_CARDS, @PLAYERS);
 
 sophia_module_add('games.uno', '1.0', \&init_games_uno, \&deinit_games_uno);
 
@@ -42,10 +42,21 @@ sub games_uno {
         when (/^CARDCOUNT|CC$/) {
         }
         when ('DEAL') {
+            foreach $player_playing (@PLAYERS)
+            {
+                my $val = 0;
+                while ($val <= 7)
+                {
+                    $card = pop(@deck);
+                    push($PLAYERS_CARDS{$player_playing}, $card);
+                    $val = $val + 1;
+                }
+            }
         }
         when (/^DRAW|D$/) {
         }
         when (/^JOIN|J$/) {
+            push (@PLAYERS, $who);
         }
         when ('PASS') {
         }
@@ -67,7 +78,7 @@ sub games_uno {
         }
         when ('STOP') {
             if (!$UNO_STARTED) {
-                $sophia->yield(privmsg => $where->[0] => 'No uno game has started.');
+                $sophia->yield(privmsg => $where->[0] => 'There is no uno game started.');
                 return;
             }
 
