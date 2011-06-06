@@ -3,7 +3,7 @@ use warnings;
 use feature 'switch';
 use List::Util qw(shuffle);
 
-my ($UNO_STARTED, $UNO_STARTTIME, $DEALER, $ORDER, $CURRENT_TURN, @DECK, %PLAYERS);
+my ($UNO_STARTED, $UNO_STARTTIME, $DEALER, $ORDER, $CURRENT_TURN, @DECK, %PLAYERS_CARDS, @PLAYERS);
 
 sophia_module_add('games.uno', '1.0', \&init_games_uno, \&deinit_games_uno);
 
@@ -41,10 +41,21 @@ sub games_uno {
         when (/^CARDCOUNT|CC$/) {
         }
         when ('DEAL') {
+            foreach $player_playing (@PLAYERS)
+            {
+                my $val = 0;
+                while ($val <= 7)
+                {
+                    $card = pop(@deck);
+                    push($PLAYERS_CARDS{$player_playing}, $card);
+                    $val = $val + 1;
+                }
+            }
         }
         when (/^DRAW|D$/) {
         }
         when (/^JOIN|J$/) {
+            push (@PLAYERS, $who);
         }
         when ('PASS') {
         }
