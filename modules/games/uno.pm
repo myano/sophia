@@ -44,12 +44,13 @@ sub games_uno {
             foreach $player_playing (@PLAYERS)
             {
                 my $val = 0;
+                my @temp_cards = ();
                 while ($val <= 7)
                 {
-                    $card = pop(@deck);
-                    push(@{$PLAYERS_CARDS{$player_playing}}, $card);
+                    push(@{$temp_cards}, pop(@deck));
                     $val = $val + 1;
                 }
+                push(@{$PLAYERS_CARDS{$player_playing}}, $cards);
             }
         }
         when (/^DRAW|D$/) {
