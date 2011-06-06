@@ -53,6 +53,7 @@ sub games_uno {
                 }
                 push(@{$PLAYERS_CARDS{$player_playing}}, @temp_cards);
             }
+            $sophia->yield(privmsg => $where->[0] => 'The deck has been suffled and all cards have been dealt.');
         }
         when (/^DRAW|D$/) {
             push(@{$PLAYERS_CARDS{$who}}, pop(@deck));
