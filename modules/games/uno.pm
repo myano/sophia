@@ -54,8 +54,11 @@ sub games_uno {
         }
         when (/^START|S$/) {
             $UNO_STARTTIME = time();
+            $UNO_STARTED = 1;
+            $DEALER = $who;
         }
         when ('STOP') {
+            $UNO_STARTED = 0;
         }
         when (/^TOPCARD|TOP$/) {
         }
