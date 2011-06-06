@@ -68,7 +68,7 @@ sub games_uno {
         when (/^START|S$/) {
             if ($UNO_STARTED) {
                 my $target = ($where->[0] eq $UNO_CHAN) ? '' : 'in %s ';
-                $sophia->yield(privmsg => $where->[0] => sprintf('Game already started %sby %s', $target, $DEALER));
+                $sophia->yield(privmsg => $where->[0] => sprintf('Game already started %s by %s', $target, $DEALER));
                 return;
             }
 
