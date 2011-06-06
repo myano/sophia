@@ -63,7 +63,13 @@ sub games_uno {
                 return;
             }
 
-            push(@{$PLAYERS_CARDS{$who}}, pop(@deck));
+            # if the deck is empty, generate a new deck
+            if (!scalar @DECK) {
+                my $deck = &games_uno_newdeck;
+                @DECK = @{$deck};
+            }
+
+            push(@{$PLAYERS_CARDS{$who}}, pop(@DECK));
         }
         when (/^JOIN|J$/) {
             # check if the game is active
@@ -119,6 +125,9 @@ sub games_uno_newdeck {
                   G:0 G:1 G:2 G:3 G:4 G:5 G:6 G:7 G:8 G:9 G:1 G:2 G:3 G:4 G:5 G:6 G:7 G:8 G:9
                   R:S R:S B:S B:S Y:S Y:S G:S G:S R:R R:R B:R B:R Y:R Y:R G:R G:R
                   R:D2 R:D2 B:D2 B:D2 Y:D2 Y:D2 G:D2 G:D2 W:* W:* W:* W:* WD4:* WD4* WD4:* WD4:*/;
+
+    # compound the decksize by 5!
+    push @deck, @deck for (1 .. 5);
 
     # shuffle the deck trice
     @deck = shuffle(@deck) for (1 .. 3);
