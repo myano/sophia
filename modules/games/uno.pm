@@ -67,4 +67,12 @@ sub games_uno_play {
     # ...
 }
 
+sub games_uno_new_dek {
+    my $args = $_[0];
+    my $where = $args->[ARG1];
+    my $sophia = ${$args->[HEAP]->{sophia}};
+
+    # ...
+}
+
 1;
