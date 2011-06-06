@@ -30,10 +30,13 @@ sub games_uno {
     my @opts = split /\s+/, $content;
     shift @opts;
 
-    # if there is no argument, do nothing
-    return if !$opts[0];
-
     my $sophia = ${$args->[HEAP]->{sophia}};
+
+    # if there is no argument, state help on how to start a game.
+    if (!$opts[0])
+    {
+        $sophia->yield(privmsg => $where->[0] => 'To start an uno game type: !uno start');
+    }
 
     # check if the argument is an uno command
     given (uc $opts[0]) {
@@ -164,7 +167,7 @@ sub games_uno_newdeck {
     # compound the decksize by 3!
     push @deck, @deck for (1 .. 3);
 
-    # shuffle the deck trice
+    # shuffle the deck a random number of times!
     my $rand= int(rand(10)) + 2;
     @deck = shuffle(@deck) for (1 .. $rand);
 
