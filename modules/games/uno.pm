@@ -109,6 +109,7 @@ sub games_uno {
             }
 
             $UNO_STARTED = 0;
+            $sophia->yield(privmsg => $where->[0] => 'The uno game has been stopped.');
         }
         when (/^TOPCARD|TOP$/) {
         }
