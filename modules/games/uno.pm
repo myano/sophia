@@ -55,6 +55,7 @@ sub games_uno {
             }
         }
         when (/^DRAW|D$/) {
+            push(@{$PLAYERS_CARDS{$who}}, pop(@deck));
         }
         when (/^JOIN|J$/) {
             push (@PLAYERS, $who);
