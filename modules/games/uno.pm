@@ -47,7 +47,7 @@ sub games_uno {
                 while ($val <= 7)
                 {
                     $card = pop(@deck);
-                    push($PLAYERS_CARDS{$player_playing}, $card);
+                    push(@{$PLAYERS_CARDS{$player_playing}}, $card);
                     $val = $val + 1;
                 }
             }
