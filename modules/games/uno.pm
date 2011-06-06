@@ -51,10 +51,11 @@ sub games_uno {
                     push(@{$temp_cards}, pop(@deck));
                     $val = $val + 1;
                 }
-                push(@{$PLAYERS_CARDS{$player_playing}}, $cards);
+                push(@{$PLAYERS_CARDS{$player_playing}}, @temp_cards);
             }
         }
         when (/^DRAW|D$/) {
+            push(@{$PLAYERS_CARDS{$who}}, pop(@deck));
         }
         when (/^JOIN|J$/) {
             push (@PLAYERS, $who);
@@ -68,7 +69,7 @@ sub games_uno {
         when (/^START|S$/) {
             if ($UNO_STARTED) {
                 my $target = ($where->[0] eq $UNO_CHAN) ? '' : 'in %s ';
-                $sophia->yield(privmsg => $where->[0] => sprintf('Game already started %sby %s', $target, $DEALER));
+                $sophia->yield(privmsg => $where->[0] => sprintf('Game already started %s by %s', $target, $DEALER));
                 return;
             }
 
