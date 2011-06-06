@@ -21,27 +21,24 @@ sub deinit_sophia_msg {
 sub sophia_msg {
     my ($args, $target) = @_;
     my ($where, $content) = ($args->[ARG1], $args->[ARG2]);
-    $target //= $where->[0];
-
-    my $self = &sophia_get_config;
-    my $isSelf = lc $target eq lc $self->{nick};
+    my $recipient = $where->[0];
 
     my $idx = index $content, ' ';
     return unless $idx > -1;
 
     $content = substr $content, $idx + 1;
 
-    # if the target is sophia, get first arg as the target
-    if ($isSelf) {
+    # if this is a privmsg
+    if ($target) {
         $content =~ s/^\s+//;
         $idx = index $content, ' ';
         return unless $idx > -1;
-        $target = substr $content, 0, $idx;
+        $recipient = substr $content, 0, $idx;
         $content = substr $content, $idx + 1;
     }
 
     my $sophia = ${$args->[HEAP]->{sophia}};
-    $sophia->yield(privmsg => $target => $content);
+    $sophia->yield(privmsg => $recipient => $content);
 }
 
 1;
