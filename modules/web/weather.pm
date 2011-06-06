@@ -40,6 +40,7 @@ sub web_weather {
     $objXML = ${$objXML};
 
     my $dataset = web_weather_getData(\$objXML, '//display_location/full', '//station_id', '//weather', '//temperature_string', '//relative_humidity', '//wind_dir', '//wind_degrees', '//wind_mph', '//dewpoint_string', '//pressure_string', '//visibility_mi');
+    return if $dataset->[0] eq ', ';
 
     my $result = sprintf('%s (%s)  --  %s, %s.  Humidity: %s.  Wind: %s, %s degrees at %s mph.  Dewpoint: %s.  Air pressure: %s.  Visibility: %s miles.', @{$dataset});
     
