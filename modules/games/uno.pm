@@ -51,7 +51,7 @@ sub games_uno {
                     push(@{$temp_cards}, pop(@deck));
                     $val = $val + 1;
                 }
-                push(@{$PLAYERS_CARDS{$player_playing}}, $cards);
+                push(@{$PLAYERS_CARDS{$player_playing}}, @temp_cards);
             }
         }
         when (/^DRAW|D$/) {
