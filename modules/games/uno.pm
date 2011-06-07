@@ -5,6 +5,19 @@ use List::Util qw(shuffle);
 
 my ($UNO_STARTED, $UNO_ISDEALT, $UNO_STARTTIME, $UNO_LASTACTIVITY, $ORDER) = (0, 0, 0, 0, 0);
 my ($UNO_CHAN, $DEALER, $CURRENT_TURN, @DECK, %PLAYERS_CARDS, @PLAYERS);
+my %CARD_COLORS = (
+    R   =>  '04',
+    Y   =>  '08',
+    G   =>  '09',
+    B   =>  '12',
+);
+my %CARD_POINTS = (
+    D2  => 20,
+    R   => 20,
+    S   => 20,
+    W   => 50,
+    WD4 => 50,
+)
 
 sophia_module_add('games.uno', '1.0', \&init_games_uno, \&deinit_games_uno);
 
@@ -47,6 +60,24 @@ sub games_uno {
                 $sophia->yield(privmsg => $where->[0] => 'No uno game started.');
                 return;
             }
+
+            # check if the player is in the game
+            if (!defined $PLAYERS_CARDS{$who}) {
+                $sophia->yield(privmsg => $where->[0] => 'You are not in the game.');
+                return;
+            }
+
+            # have the players been dealt a hand?
+            if (!$UNO_ISDEALT) {
+                $sophia->yield(privmsg => $where->[0] => 'The game has not started. Awaiting "UNO DEAL" command.');
+                return;
+            }
+
+            # display the user's cards
+            my @cards = @{$PLAYERS_CARDS{$who}};
+            my $cardstr = join '  ', map { sprintf('%1$s[%2$s]%1$s', "\3$CARD_COLORS{$_}", $_) if /([^:]+):(.+)$/; } @cards;
+            
+            $sophia->yield(notice => substr($who, 0, index($who, '!')) => $cardstr);
         }
         when (/^CARDCOUNT|CC$/) {
             # check if the game is active
@@ -68,6 +99,9 @@ sub games_uno {
 
             # give each player 7 cards
             map { push @{$PLAYERS_CARDS{$_}}, pop @DECK for (1 .. 7); } @PLAYERS;
+
+            # set isdealt to 1
+            $UNO_ISDEALT = 1;
 
             $sophia->yield(privmsg => $where->[0] => 'All cards have been dealt.');
 
