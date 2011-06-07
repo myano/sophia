@@ -423,6 +423,10 @@ sub sophia_user_exists {
 
 sub sophia_acl_bits2flags {
     my $bits = $_[0];
+
+    # no bits? do nothing
+    return if !$bits;
+
     my $flags = '';
 
     for (keys %SOPHIA_ACL_FLAGS) {
