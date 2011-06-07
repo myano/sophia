@@ -100,6 +100,9 @@ sub games_uno {
             # give each player 7 cards
             map { push @{$PLAYERS_CARDS{$_}}, pop @DECK for (1 .. 7); } @PLAYERS;
 
+            # set isdealt to 1
+            $UNO_ISDEALT = 1;
+
             $sophia->yield(privmsg => $where->[0] => 'All cards have been dealt.');
 
         }
