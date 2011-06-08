@@ -3,8 +3,21 @@ use warnings;
 use feature 'switch';
 use List::Util qw(shuffle);
 
-my ($UNO_STARTED, $UNO_STARTTIME, $ORDER) = (0, 0, 0);
+my ($UNO_STARTED, $UNO_ISDEALT, $UNO_STARTTIME, $UNO_LASTACTIVITY, $ORDER) = (0, 0, 0, 0, 0);
 my ($UNO_CHAN, $DEALER, $CURRENT_TURN, @DECK, %PLAYERS_CARDS, @PLAYERS);
+my %CARD_COLORS = (
+    R   =>  '04',
+    Y   =>  '08',
+    G   =>  '09',
+    B   =>  '12',
+);
+my %CARD_POINTS = (
+    D2  => 20,
+    R   => 20,
+    S   => 20,
+    W   => 50,
+    WD4 => 50,
+)
 
 sophia_module_add('games.uno', '1.0', \&init_games_uno, \&deinit_games_uno);
 
@@ -36,6 +49,7 @@ sub games_uno {
     if (!$opts[0])
     {
         $sophia->yield(privmsg => $where->[0] => 'To start an uno game type: !uno start');
+        return;
     }
 
     # check if the argument is an uno command
@@ -46,6 +60,24 @@ sub games_uno {
                 $sophia->yield(privmsg => $where->[0] => 'No uno game started.');
                 return;
             }
+
+            # check if the player is in the game
+            if (!defined $PLAYERS_CARDS{$who}) {
+                $sophia->yield(privmsg => $where->[0] => 'You are not in the game.');
+                return;
+            }
+
+            # have the players been dealt a hand?
+            if (!$UNO_ISDEALT) {
+                $sophia->yield(privmsg => $where->[0] => 'The game has not started. Awaiting "UNO DEAL" command.');
+                return;
+            }
+
+            # display the user's cards
+            my @cards = @{$PLAYERS_CARDS{$who}};
+            my $cardstr = join '  ', map { sprintf('%1$s[%2$s]%1$s', "\3$CARD_COLORS{$_}", $_) if /([^:]+):(.+)$/; } @cards;
+            
+            $sophia->yield(notice => substr($who, 0, index($who, '!')) => $cardstr);
         }
         when (/^CARDCOUNT|CC$/) {
             # check if the game is active
@@ -72,6 +104,9 @@ sub games_uno {
 
             # give each player 7 cards
             map { push @{$PLAYERS_CARDS{$_}}, pop @DECK for (1 .. 7); } @PLAYERS;
+
+            # set isdealt to 1
+            $UNO_ISDEALT = 1;
 
             $sophia->yield(privmsg => $where->[0] => 'All cards have been dealt.');
 
@@ -127,8 +162,11 @@ sub games_uno {
             $UNO_STARTED = 1;
             $UNO_CHAN = $where->[0];
             $DEALER = $who;
-            $sophia->yield(privmsg => $where->[0] => 'Uno game started!');
 
+            # add the dealer to the list of players
+            push @PLAYERS, $who;
+
+            $sophia->yield(privmsg => $where->[0] => 'Uno game started!');
         }
         when ('STOP') {
             if (!$UNO_STARTED) {
@@ -136,8 +174,20 @@ sub games_uno {
                 return;
             }
 
-            $UNO_STARTED = 0;
-            $sophia->yield(privmsg => $where->[0] => 'The uno game has been stopped.');
+            my $time = time;
+            my $perms = sophia_get_host_perms($who);
+            $perms = $perms & (SOPHIA_ACL_OP | SOPHIA_ACL_AUTOOP | SOPHIA_ACL_FRIEND | SOPHIA_ACL_ADMIN | SOPHIA_ACL_FOUNDER);
+
+            # can the game be stopped? Ops or higher can always stop the game
+            if ($perms || $DEALER eq $who || $time - $UNO_LASTACTIVITY > $UNO_INACTIVITY_TIMEOUT) {
+                $UNO_STARTED = $UNO_STARTTIME = $ORDER = 0;
+                $UNO_CHAN = $DEALER = $CURRENT_TURN = @DECK = %PLAYERS_CARDS = @PLAYERS = undef;
+
+                $sophia->yield(privmsg => $where->[0] => 'Game stopped.');
+                return;
+            }
+
+            $sophia->yield(privmsg => $where->[0] => sprintf('Please wait %d seconds to stop the game.'), $UNO_INACTIVITY_TIMEOUT - ($time - $UNO_LASTACTIVITY));
         }
         when (/^TOPCARD|TOP$/) {
             # check if the game is active
@@ -154,6 +204,32 @@ sub games_uno {
                 $sophia->yield(privmsg => $where->[0] => 'No uno game started.');
                 return;
             }
+
+            my $num_players = scalar @PLAYERS;
+
+            # if there is only one player, that player cannot quit
+            if ($num_players == 1) {
+                $sophia->yield(privmsg => $where->[0] => 'The last player cannot quit the game. Use STOP to stop the game.');
+                return;
+            }
+
+            # TODO: If there are only 2 players and the game is dealt, then the player who quit
+            # would result in the winner of the last player.
+
+            # try to remove the user
+            my @remains = grep { $_ ne $who } @PLAYERS;
+            
+            # did the user get removed?
+            if ($#remains == $num_players) {
+                $sophia->yield(privmsg => $where->[0] => 'You are not in the game.');
+                return;
+            }
+
+            @PLAYERS = @remains;
+
+            # remove the player cards
+            delete $PLAYERS_CARDS{$who};
+            $sophia->yield(privmsg => $where->[0] => sprintf('Player %s has quit.'), $who);
         }
 
         # not a valid command, do nothing

@@ -425,6 +425,9 @@ sub sophia_acl_bits2flags {
     my $bits = $_[0];
     my $flags = '';
 
+    # no bits? do nothing
+    return $flags if !$bits;
+
     for (keys %SOPHIA_ACL_FLAGS) {
         $flags .= $_ if $bits & $SOPHIA_ACL_FLAGS{$_};
     }
