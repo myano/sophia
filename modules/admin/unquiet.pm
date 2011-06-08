@@ -23,7 +23,7 @@ sub admin_unquiet {
     my ($where, $content) = ($args->[ARG1], $args->[ARG2]);
     my $target_chan = $where->[0];
 
-    my @parts = split /\s+/, $content;
+    my @parts = split ' ', $content;
 
     # the first arg in @parts will be the command: !unquiet, so toss it out
     shift @parts;

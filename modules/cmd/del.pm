@@ -21,7 +21,7 @@ sub cmd_del {
     my ($where, $content) = ($args->[ARG1], $args->[ARG2]);
     $target //= $where->[0];
     
-    my @parts = split /\s+/, $content;
+    my @parts = split ' ', $content;
     shift @parts;
 
     my $cache_commands = sophia_cache_load('mod:cmd', 'commands');

@@ -427,7 +427,7 @@ sub sophia_load_config {
         s/^\s+//;
         next LINE if /^#/ || /^\s*$/;  # ignoring comments and lame lines
 
-        @opts = split /\s+/;
+        @opts = split ' ';
         $len = scalar @opts;
 
         $opts[0] = lc $opts[0];
