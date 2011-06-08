@@ -3,6 +3,7 @@ use warnings;
 use feature 'switch';
 use List::Util qw(shuffle);
 
+my $UNO_INACTIVITY_TIMEOUT = 30; # in seconds
 my ($UNO_STARTED, $UNO_ISDEALT, $UNO_STARTTIME, $UNO_LASTACTIVITY, $ORDER, $POINTS_POT) = (0, 0, 0, 0, 0, 0);
 my ($UNO_CHAN, $DEALER, $CURRENT_TURN, @DECK, %PLAYERS_CARDS, @PLAYERS, %PLAYERS_RECORDS);
 my %CARD_COLORS = (
@@ -17,7 +18,7 @@ my %CARD_POINTS = (
     S   => 20,
     W   => 50,
     WD4 => 50,
-)
+);
 
 sophia_module_add('games.uno', '1.0', \&init_games_uno, \&deinit_games_uno);
 
@@ -31,6 +32,8 @@ sub deinit_games_uno {
     delete_sub 'init_games_uno';
     delete_sub 'games_uno';
     delete_sub 'games_uno_newdeck';
+    delete_sub 'games_uno_stop';
+    delete_sub 'games_uno_setrecord';
     sophia_global_command_del 'uno';
     delete_sub 'deinit_games_uno';
 }
@@ -48,13 +51,13 @@ sub games_uno {
     # if there is no argument, state help on how to start a game.
     if (!$opts[0])
     {
-        $sophia->yield(privmsg => $where->[0] => 'To start an uno game type: !uno start');
+        $sophia->yield(privmsg => $where->[0] => 'To start an uno game use: uno start');
         return;
     }
 
     # check if the argument is an uno command
     given (uc $opts[0]) {
-        when (/^CARDS|C$/) {
+        when (/^(CARDS|C)$/) {
             # check if the game is active
             if (!$UNO_STARTED) {
                 $sophia->yield(privmsg => $where->[0] => 'No uno game started.');
@@ -79,7 +82,7 @@ sub games_uno {
             
             $sophia->yield(notice => substr($who, 0, index($who, '!')) => $cardstr);
         }
-        when (/^CARDCOUNT|CC$/) {
+        when (/^(CARDCOUNT|CC)$/) {
             # check if the game is active
             if (!$UNO_STARTED) {
                 $sophia->yield(privmsg => $where->[0] => 'No uno game started.');
@@ -112,7 +115,7 @@ sub games_uno {
             $sophia->yield(privmsg => $where->[0] => 'All cards have been dealt.');
 
         }
-        when (/^DRAW|D$/) {
+        when (/^(DRAW|D)$/) {
             # check if the game is active
             if (!$UNO_STARTED) {
                 $sophia->yield(privmsg => $where->[0] => 'No uno game started.');
@@ -127,7 +130,7 @@ sub games_uno {
 
             push(@{$PLAYERS_CARDS{$who}}, pop(@DECK));
         }
-        when (/^JOIN|J$/) {
+        when (/^(JOIN|J)$/) {
             # check if the game is active
             if (!$UNO_STARTED) {
                 $sophia->yield(privmsg => $where->[0] => 'No uno game started.');
@@ -143,7 +146,7 @@ sub games_uno {
                 return;
             }
         }
-        when (/^PLAY|P$/) {
+        when (/^(PLAY|P)$/) {
             # check if the game is active
             if (!$UNO_STARTED) {
                 $sophia->yield(privmsg => $where->[0] => 'No uno game started.');
@@ -152,7 +155,7 @@ sub games_uno {
         }
         when ('SCORE') {
         }
-        when (/^START|S$/) {
+        when (/^(START|S)$/) {
             if ($UNO_STARTED) {
                 my $target = ($where->[0] eq $UNO_CHAN) ? '' : 'in %s ';
                 $sophia->yield(privmsg => $where->[0] => sprintf('Game already started %sby %s', $target, $DEALER));
@@ -189,14 +192,14 @@ sub games_uno {
 
             $sophia->yield(privmsg => $where->[0] => sprintf('Please wait %d seconds to stop the game.'), $UNO_INACTIVITY_TIMEOUT - ($time - $UNO_LASTACTIVITY));
         }
-        when (/^TOPCARD|TOP$/) {
+        when (/^(TOPCARD|TOP)$/) {
             # check if the game is active
             if (!$UNO_STARTED) {
                 $sophia->yield(privmsg => $where->[0] => 'No uno game started.');
                 return;
             }
         }
-        when (/^TOP10|TOPTEN$/) {
+        when (/^(TOP10|TOPTEN)$/) {
             # if there are no records, there is no top 10
             if (! keys %PLAYERS_RECORDS ) {
                 $sophia->yield(privmsg => $where->[0] => 'There are no stats at this moment.');
@@ -204,13 +207,13 @@ sub games_uno {
             }
 
             # get the top 10
-            my $num = $scrob = 1;
+            my $num = my $scrob = 1;
             my $max = scalar(keys %PLAYERS_RECORDS);
             
             # if $max is more than 10, set $max to 10
             $max = 10 if $max > 10;
 
-            my $points, $wins, $losses;
+            my ($points, $wins, $losses);
             my @top10 =
                 # get the output string for each record
                 map {
@@ -228,7 +231,7 @@ sub games_uno {
             my $target = substr $who, 0, index($who, '!');
             $sophia->yield(privmsg => $target => $_) for @top10;
         }
-        when (/^QUIT|Q$/) {
+        when (/^(QUIT|Q)$/) {
             # check if the game is active
             if (!$UNO_STARTED) {
                 $sophia->yield(privmsg => $where->[0] => 'No uno game started.');
@@ -258,7 +261,7 @@ sub games_uno {
 
             # for this player that quit, they lost the points in their hand.
             map {
-                $PLAYERS_POT += (defined $CARD_POINTS{$2}) ? $CARD_POINTS{$2} : $1 if /^([^:]+):(.+)$/;
+                $POINTS_POT += (defined $CARD_POINTS{$2}) ? $CARD_POINTS{$2} : $1 if /^([^:]+):(.+)$/;
             } @{$PLAYERS_CARDS{$who}};
 
             # if this quitter doesn't exist in $PLAYERS_RECORDS, add it.
@@ -269,7 +272,7 @@ sub games_uno {
                 # give the winner the points. POINTS_POT is the points given up by players who QUIT
                 &games_uno_setrecord({PLAYER => $PLAYERS[0], WINS => 1, POINTS => $POINTS_POT});
 
-                $sophia->yield(privmsg => $where->[0] => sprintf("\2%s\2 has won the game with \2%d\2 points!", substr($PLAYERS[0], 0, index($PLAYERS[0], '!')), $PLAYERS_POT));
+                $sophia->yield(privmsg => $where->[0] => sprintf("\2%s\2 has won the game with \2%d\2 points!", substr($PLAYERS[0], 0, index($PLAYERS[0], '!')), $POINTS_POT));
                 &games_uno_stop;
             }
 
@@ -302,7 +305,7 @@ sub games_uno_newdeck {
 }
 
 sub games_uno_stop {
-    $UNO_STARTED = $UNO_STARTTIME = $ORDER = $PLAYERS_POT = 0;
+    $UNO_STARTED = $UNO_STARTTIME = $ORDER = $POINTS_POT = 0;
     $UNO_CHAN = $DEALER = $CURRENT_TURN = @DECK = %PLAYERS_CARDS = @PLAYERS = undef;
 }
 
