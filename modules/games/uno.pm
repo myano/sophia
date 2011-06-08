@@ -3,8 +3,8 @@ use warnings;
 use feature 'switch';
 use List::Util qw(shuffle);
 
-my ($UNO_STARTED, $UNO_ISDEALT, $UNO_STARTTIME, $UNO_LASTACTIVITY, $ORDER) = (0, 0, 0, 0, 0);
-my ($UNO_CHAN, $DEALER, $CURRENT_TURN, @DECK, %PLAYERS_CARDS, @PLAYERS);
+my ($UNO_STARTED, $UNO_ISDEALT, $UNO_STARTTIME, $UNO_LASTACTIVITY, $ORDER, $POINTS_POT) = (0, 0, 0, 0, 0, 0);
+my ($UNO_CHAN, $DEALER, $CURRENT_TURN, @DECK, %PLAYERS_CARDS, @PLAYERS, %PLAYERS_RECORDS);
 my %CARD_COLORS = (
     R   =>  '04',
     Y   =>  '08',
@@ -75,7 +75,7 @@ sub games_uno {
 
             # display the user's cards
             my @cards = @{$PLAYERS_CARDS{$who}};
-            my $cardstr = join '  ', map { sprintf('%1$s[%2$s]%1$s', "\3$CARD_COLORS{$_}", $_) if /([^:]+):(.+)$/; } @cards;
+            my $cardstr = join '  ', map { sprintf('%1$s[%2$s]%1$s', "\3$CARD_COLORS{$_}", $_) if /^([^:]+):(.+)$/; } @cards;
             
             $sophia->yield(notice => substr($who, 0, index($who, '!')) => $cardstr);
         }
@@ -90,6 +90,12 @@ sub games_uno {
             # check if the game is active
             if (!$UNO_STARTED) {
                 $sophia->yield(privmsg => $where->[0] => 'No uno game started.');
+                return;
+            }
+
+            # the game cannot start unless there are at least 2 players
+            if (scalar(@PLAYERS) < 2) {
+                $sophia->yield(privmsg => $where->[0] => 'Not enough players. A minimum of 2 players required to play uno.');
                 return;
             }
 
@@ -175,8 +181,7 @@ sub games_uno {
 
             # can the game be stopped? Ops or higher can always stop the game
             if ($perms || $DEALER eq $who || $time - $UNO_LASTACTIVITY > $UNO_INACTIVITY_TIMEOUT) {
-                $UNO_STARTED = $UNO_STARTTIME = $ORDER = 0;
-                $UNO_CHAN = $DEALER = $CURRENT_TURN = @DECK = %PLAYERS_CARDS = @PLAYERS = undef;
+                &games_uno_stop;
 
                 $sophia->yield(privmsg => $where->[0] => 'Game stopped.');
                 return;
@@ -192,6 +197,36 @@ sub games_uno {
             }
         }
         when (/^TOP10|TOPTEN$/) {
+            # if there are no records, there is no top 10
+            if (! keys %PLAYERS_RECORDS ) {
+                $sophia->yield(privmsg => $where->[0] => 'There are no stats at this moment.');
+                return;
+            }
+
+            # get the top 10
+            my $num = $scrob = 1;
+            my $max = scalar(keys %PLAYERS_RECORDS);
+            
+            # if $max is more than 10, set $max to 10
+            $max = 10 if $max > 10;
+
+            my $points, $wins, $losses;
+            my @top10 =
+                # get the output string for each record
+                map {
+                    $points = $PLAYERS_RECORDS{$_}{POINTS};
+                    $wins = $PLAYERS_RECORDS{$_}{WINS};
+                    $losses = $PLAYERS_RECORDS{$_}{LOSSES};
+                    sprintf("%d. \2%s\2 (\2%d\2 points in %d games, \2%d\2 win%s, %s points per game, \2%s\2 win percentage", $num++, $_, $points, $wins + $losses, $wins, $points / ($wins + $losses), $wins / ($wins + $losses));
+                }
+                # only get the top 10
+                grep { $scrob++ <= $max; }
+                # sort by highest points to lowest points
+                sort { $PLAYERS_RECORDS{$a}{POINTS} > $PLAYERS_RECORDS{$b}{POINTS} }
+                keys %PLAYERS_RECORDS;
+
+            my $target = substr $who, 0, index($who, '!');
+            $sophia->yield(privmsg => $target => $_) for @top10;
         }
         when (/^QUIT|Q$/) {
             # check if the game is active
@@ -202,25 +237,41 @@ sub games_uno {
 
             my $num_players = scalar @PLAYERS;
 
-            # if there is only one player, that player cannot quit
+            # if there is only one player, and that player quits, stop the game
+            # this case can only occur if $UNO_ISDEALT is 0. A game cannot start with just 1 player.
             if ($num_players == 1) {
-                $sophia->yield(privmsg => $where->[0] => 'The last player cannot quit the game. Use STOP to stop the game.');
+                &games_uno_stop;
+                $sophia->yield(privmsg => $where->[0] => 'No players left. Game stopped.');
                 return;
             }
-
-            # TODO: If there are only 2 players and the game is dealt, then the player who quit
-            # would result in the winner of the last player.
 
             # try to remove the user
             my @remains = grep { $_ ne $who } @PLAYERS;
             
             # did the user get removed?
-            if ($#remains == $num_players) {
+            if ($num_players == scalar @remains) {
                 $sophia->yield(privmsg => $where->[0] => 'You are not in the game.');
                 return;
             }
 
             @PLAYERS = @remains;
+
+            # for this player that quit, they lost the points in their hand.
+            map {
+                $PLAYERS_POT += (defined $CARD_POINTS{$2}) ? $CARD_POINTS{$2} : $1 if /^([^:]+):(.+)$/;
+            } @{$PLAYERS_CARDS{$who}};
+
+            # if this quitter doesn't exist in $PLAYERS_RECORDS, add it.
+            &games_uno_setrecord({ PLAYER => $who, LOSSES => 1 });
+
+            # if the game is on and there were 2 players and one of them quit, then the other wins
+            if ($num_players == 2 && $UNO_ISDEALT && defined $PLAYERS_CARDS{$who}) {
+                # give the winner the points. POINTS_POT is the points given up by players who QUIT
+                &games_uno_setrecord({PLAYER => $PLAYERS[0], WINS => 1, POINTS => $POINTS_POT});
+
+                $sophia->yield(privmsg => $where->[0] => sprintf("\2%s\2 has won the game with \2%d\2 points!", substr($PLAYERS[0], 0, index($PLAYERS[0], '!')), $PLAYERS_POT));
+                &games_uno_stop;
+            }
 
             # remove the player cards
             delete $PLAYERS_CARDS{$who};
@@ -248,6 +299,31 @@ sub games_uno_newdeck {
     @deck = shuffle(@deck) for (1 .. $rand);
 
     return \@deck;
+}
+
+sub games_uno_stop {
+    $UNO_STARTED = $UNO_STARTTIME = $ORDER = $PLAYERS_POT = 0;
+    $UNO_CHAN = $DEALER = $CURRENT_TURN = @DECK = %PLAYERS_CARDS = @PLAYERS = undef;
+}
+
+sub games_uno_setrecord {
+    my $hashref = $_[0];
+    return if !defined $hashref->{PLAYER};
+    
+    my $player = $hashref->{PLAYER};
+
+    # if the player doesn't exist, add it
+    $PLAYERS_RECORDS{$player} = {
+        WINS    => 0,
+        LOSSES  => 0,
+        POINTS  => 0
+    }
+        if !exists $PLAYERS_RECORDS{$player};
+
+    for ('WINS', 'LOSSES', 'POINTS') {
+        $PLAYERS_RECORDS{$player}{$_} += $hashref->{$_}
+            if $hashref->{$_};
+    }
 }
 
 1;
