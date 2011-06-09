@@ -30,7 +30,7 @@ sub sophia_action {
 
     # if this is a privmsg
     if ($target) {
-        $content =~ s/^\s+//;
+        $content =~ s/\A\s+//;
         $idx = index $content, ' ';
         return unless $idx > -1;
         $recipient = substr $content, 0, $idx;

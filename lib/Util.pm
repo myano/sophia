@@ -4,8 +4,8 @@ use warnings;
 sub trim {
     my @args = @_;
     map {
-        $_ =~ s/^\s+//;
-        $_ =~ s/\s+$//;
+        $_ =~ s/\A\s+//;
+        $_ =~ s/\s+\z//;
     } @args;
     return @args;
 }

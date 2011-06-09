@@ -67,7 +67,7 @@ sub games_uno {
 
     # check if the argument is an uno command
     given (uc $opts[0]) {
-        when (/^(CARDS|C)$/) {
+        when (/\A(CARDS|C)\z/) {
             # check if the game is active
             if (!$UNO_STATES{STARTED}) {
                 $sophia->yield(privmsg => $where->[0] => 'No uno game started.');
@@ -88,11 +88,11 @@ sub games_uno {
 
             # display the user's cards
             my @cards = @{$PLAYERS_CARDS{$who}};
-            my $cardstr = join '  ', map { sprintf('%1$s[%2$s]%1$s', "\3$CARD_COLORS{$_}", $_) if /^([^:]+):(.+)$/; } @cards;
+            my $cardstr = join '  ', map { sprintf('%1$s[%2$s]%1$s', "\3$CARD_COLORS{$_}", $_) if /\A([^:]+):(.+)\z/; } @cards;
             
             $sophia->yield(notice => substr($who, 0, index($who, '!')) => $cardstr);
         }
-        when (/^(CARDCOUNT|CC)$/) {
+        when (/\A(CARDCOUNT|CC)\z/) {
             # check if the game is active
             if (!$UNO_STATES{STARTED}) {
                 $sophia->yield(privmsg => $where->[0] => 'No uno game started.');
@@ -125,7 +125,7 @@ sub games_uno {
             $sophia->yield(privmsg => $where->[0] => 'All cards have been dealt.');
 
         }
-        when (/^(DRAW|D)$/) {
+        when (/\A(DRAW|D)\z/) {
             # check if the game is active
             if (!$UNO_STATES{STARTED}) {
                 $sophia->yield(privmsg => $where->[0] => 'No uno game started.');
@@ -140,7 +140,7 @@ sub games_uno {
 
             push(@{$PLAYERS_CARDS{$who}}, pop(@DECK));
         }
-        when (/^(JOIN|J)$/) {
+        when (/\A(JOIN|J)\z/) {
             # check if the game is active
             if (!$UNO_STATES{STARTED}) {
                 $sophia->yield(privmsg => $where->[0] => 'No uno game started.');
@@ -156,7 +156,7 @@ sub games_uno {
                 return;
             }
         }
-        when (/^(PLAY|P)$/) {
+        when (/\A(PLAY|P)\z/) {
             # check if the game is active
             if (!$UNO_STATES{STARTED}) {
                 $sophia->yield(privmsg => $where->[0] => 'No uno game started.');
@@ -165,7 +165,7 @@ sub games_uno {
         }
         when ('SCORE') {
         }
-        when (/^(START|S)$/) {
+        when (/\A(START|S)\z/) {
             if ($UNO_STATES{STARTED}) {
                 my $target = ($where->[0] eq $UNO_STATES{CHANNEL}) ? '' : 'in %s ';
                 $sophia->yield(privmsg => $where->[0] => sprintf('Game already started %sby %s', $target, $UNO_STATES{DEALER}));
@@ -202,14 +202,14 @@ sub games_uno {
 
             $sophia->yield(privmsg => $where->[0] => sprintf('Please wait %d seconds to stop the game.'), $UNO_STATES{INACTIVITY_TIMEOUT} - ($time - $UNO_STATES{LASTACTIVITY}));
         }
-        when (/^(TOPCARD|TOP)$/) {
+        when (/\A(TOPCARD|TOP)\z/) {
             # check if the game is active
             if (!$UNO_STATES{STARTED}) {
                 $sophia->yield(privmsg => $where->[0] => 'No uno game started.');
                 return;
             }
         }
-        when (/^(TOP10|TOPTEN)$/) {
+        when (/\A(TOP10|TOPTEN)\z/) {
             # if there are no records, there is no top 10
             if (! keys %PLAYERS_RECORDS ) {
                 $sophia->yield(privmsg => $where->[0] => 'There are no stats at this moment.');
@@ -241,7 +241,7 @@ sub games_uno {
             my $target = substr $who, 0, index($who, '!');
             $sophia->yield(privmsg => $target => $_) for @top10;
         }
-        when (/^(QUIT|Q)$/) {
+        when (/\A(QUIT|Q)\z/) {
             # check if the game is active
             if (!$UNO_STATES{STARTED}) {
                 $sophia->yield(privmsg => $where->[0] => 'No uno game started.');
@@ -271,7 +271,7 @@ sub games_uno {
 
             # for this player that quit, they lost the points in their hand.
             map {
-                $UNO_STATES{POINTS_POT} += (defined $CARD_POINTS{$2}) ? $CARD_POINTS{$2} : $1 if /^([^:]+):(.+)$/;
+                $UNO_STATES{POINTS_POT} += (defined $CARD_POINTS{$2}) ? $CARD_POINTS{$2} : $1 if /\A([^:]+):(.+)\z/;
             } @{$PLAYERS_CARDS{$who}};
 
             # if this quitter doesn't exist in $PLAYERS_RECORDS, add it.

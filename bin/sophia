@@ -312,12 +312,12 @@ sub exec_events_trigger {
     my ($who, $content) = ($args->[ARG0], $args->[ARG2]);
 
     # triggers ?
-    return unless $content && $content =~ /^$SOPHIA{trigger}/;
+    return unless $content && $content =~ /\A$SOPHIA{trigger}/;
 
     my $perms = sophia_get_host_perms($who);
     return if $perms & 0x0040;
 
-    $content =~ s/^$SOPHIA{trigger}//;
+    $content =~ s/\A$SOPHIA{trigger}//;
     my ($module, $command, $trigger, $idx, $ac, $x);
 
     $idx = index $content, ' ';
@@ -342,7 +342,7 @@ sub exec_events_trigger {
         } or sophia_log('sophia', '[ERROR] ' . $!) and sophia_log('sophia', '[ERROR] ' .$@);
     }
     # module:command trigger
-    elsif ($trigger =~ m/^([^:]+):(.+)$/) {
+    elsif ($trigger =~ m/\A([^:]+):(.+)\z/) {
         ($module, $command) = ($1, $2);
         if ($sophia::EVENTS->{$namespace}{$module}{$command}) {
             $ac = $sophia::EVENTS->{$namespace}{$module}{$command}{access};
@@ -364,12 +364,12 @@ sub exec_triggers {
     # triggers ?
     return unless $content;
     
-    if ($content =~ /^$SOPHIA{nick}(,|:)\s/) {
-        $content =~ s/^$SOPHIA{nick}(,|:)\s//;
+    if ($content =~ /\A$SOPHIA{nick}(,|:)\s/) {
+        $content =~ s/\A$SOPHIA{nick}(,|:)\s//;
         $args->[ARG2] = $content;
     }
-    elsif ($content =~ /^$SOPHIA{trigger}/) {
-        $content =~ s/^$SOPHIA{trigger}//;
+    elsif ($content =~ /\A$SOPHIA{trigger}/) {
+        $content =~ s/\A$SOPHIA{trigger}//;
     }
     else {
         return;
@@ -399,7 +399,7 @@ sub exec_triggers {
         } or sophia_log('sophia', '[ERROR] ' . $!) and sophia_log('sophia', '[ERROR] '. $@);
     }
     # module:command trigger
-    elsif ($trigger =~ m/^([^:]+):(.+)$/) {
+    elsif ($trigger =~ m/\A([^:]+):(.+)\z/) {
         ($module, $command) = ($1, $2);
 
         if ($sophia::COMMANDS->{$module}{$command}) {
@@ -424,8 +424,8 @@ sub sophia_load_config {
 
     LINE: while (<$fh>) {
         chomp;
-        s/^\s+//;
-        next LINE if /^#/ || /^\s*$/;  # ignoring comments and lame lines
+        s/\A\s+//;
+        next LINE if /\A#/ || /\A\s*\z/;  # ignoring comments and lame lines
 
         @opts = split ' ';
         $len = scalar @opts;

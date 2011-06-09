@@ -27,7 +27,7 @@ sub cmd_set {
     return if $idx == -1;
 
     $content = substr $content, $idx + 1;
-    $content =~ s/^\s+//;
+    $content =~ s/\A\s+//;
     $idx = index $content, ' ';
     return if $idx == -1;
 
