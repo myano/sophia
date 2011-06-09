@@ -117,7 +117,7 @@ sub games_uno {
             @DECK = @{$deck};
 
             # give each player 7 cards
-            map { push @{$PLAYERS_CARDS{$_}}, pop @DECK for (1 .. 7); } @PLAYERS;
+            map { push @{$PLAYERS_CARDS{$_}}, shift @DECK for (1 .. 7); } @PLAYERS;
 
             # set isdealt to 1
             $UNO_STATES{ISDEALT} = 1;
@@ -138,7 +138,7 @@ sub games_uno {
                 @DECK = @{$deck};
             }
 
-            push(@{$PLAYERS_CARDS{$who}}, pop(@DECK));
+            push(@{$PLAYERS_CARDS{$who}}, shift(@DECK));
         }
         when (/\A(JOIN|J)\z/) {
             # check if the game is active
@@ -208,6 +208,23 @@ sub games_uno {
                 $sophia->yield(privmsg => $where->[0] => 'No uno game started.');
                 return;
             }
+
+            # is the game dealt?
+            if (!$UNO_STATES{ISDEALT}) {
+                $sophia->yield(privmsg => $where->[0] => 'The game hasn\'t started yet.');
+                return;
+            }
+
+            # if the deck is empty, get a new deck
+            if (!scalar @DECK) {
+                my $deck_ref = games_uno_newdeck();
+                @DECK = @{$deck_ref};
+            }
+
+            # get the top card
+            my $topcard = $DECK[0];
+            my ($color, $card) = ($topcard =~ m/\A([^:]+):(.+)\z/;);
+            $sophia->yield(privmsg => $where->[0] => sprintf('Top card: %1%s%2$s[%3$s]%2$s%1$s', "\2", $CARD_COLORS{$color}, $card));
         }
         when (/\A(TOP10|TOPTEN)\z/) {
             # if there are no records, there is no top 10
