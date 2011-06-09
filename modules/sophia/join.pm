@@ -23,7 +23,7 @@ sub sophia_join {
     my ($who, $content) = ($args->[ARG0], $args->[ARG2]);
 
     my $sophia = ${$args->[HEAP]->{sophia}};
-    my @parts = split /\s+/, $content;
+    my @parts = split ' ', $content;
     shift @parts;
 
     my $chans = sophia_cache_load('sophia_main', 'channels');

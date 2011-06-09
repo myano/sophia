@@ -23,7 +23,7 @@ sub help_main {
     my $args = $_[0];
     my ($who, $content) = ($args->[ARG0], $args->[ARG2]);
 
-    return help_main_cmd($args) unless $content =~ /^.help\s*$/;
+    return help_main_cmd($args) unless $content =~ /\A.help\s*\z/;
     
     my $perms = sophia_get_host_perms($who);
     $who = substr $who, 0, index($who, '!');
@@ -51,14 +51,14 @@ sub help_main_cmd {
     my $args = $_[0];
     my ($who, $content) = ($args->[ARG0], $args->[ARG2]);
 
-    my @opts = split /\s+/, $content;
+    my @opts = split ' ', $content;
     return unless $#opts > 0;
 
     my ($module, $cmd) = (undef, $opts[1]);
     my $perms = sophia_get_host_perms($who);
     $who = substr $who, 0, index($who, '!');
 
-    if ($cmd =~ /^([^:]+):(.+)$/) {
+    if ($cmd =~ /\A([^:]+):(.+)\z/) {
         ($module, $cmd) = ($1, $2);
     }
     else {

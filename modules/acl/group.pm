@@ -27,7 +27,7 @@ sub acl_group {
     my ($where, $content) = ($args->[ARG1], $args->[ARG2]);
     $target //= $where->[0];
 
-    my @opts = split /\s+/, $content;
+    my @opts = split ' ', $content;
     return unless scalar(@opts) == 3;
 
     my $sophia = $args->[HEAP]->{sophia};

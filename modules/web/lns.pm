@@ -24,7 +24,7 @@ sub web_lns {
     return unless $idx > -1;
 
     $content = substr $content, $idx + 1;
-    $content =~ s/^\s*//;
+    $content =~ s/\A\s*//;
 
     my %postdata = (
         url => uri_escape($content),

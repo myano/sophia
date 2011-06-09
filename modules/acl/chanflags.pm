@@ -26,7 +26,7 @@ sub acl_chanflags {
     my ($where, $content) = ($args->[ARG1], $args->[ARG2]);
     $target //= $where->[0];
 
-    my @opts = split /\s+/, $content;
+    my @opts = split ' ', $content;
     return unless scalar(@opts) == 5;
 
     my $opt = $opts[1];

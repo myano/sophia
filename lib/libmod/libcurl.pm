@@ -14,7 +14,7 @@ sub loadXML {
 
 sub curl_get {
     my $uri = $_[0];
-    return unless ($uri =~ /^https?:\/\/[^ ]+$/);
+    return unless ($uri =~ /\Ahttps?:\/\/[^ ]+\z/);
 
     my $curl = WWW::Curl::Easy->new;
     $curl->setopt(CURLOPT_HEADER, 0);
@@ -37,7 +37,7 @@ sub curl_get {
 
 sub curl_post {
     my ($uri, $postdata) = @_;
-    return unless ($uri =~ /^https?:\/\/[^ ]+$/);
+    return unless ($uri =~ /\Ahttps?:\/\/[^ ]+\z/);
     
     my %postdata = %{$postdata};
 

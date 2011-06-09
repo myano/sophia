@@ -28,7 +28,7 @@ sub cmd_save {
     my $cmds = &sophia_cache_load('mod:cmd', 'commands');
 
     open my $fh, '>', $cmd_db or sophia_log('sophia', "Unable to open $cmd_db file for saving: $!") and return 0;
-    print $fh $_, ' ', $cmds->{$_} for keys %{$cmds};
+    print {$fh} $_, ' ', $cmds->{$_} for keys %{$cmds};
     close $fh;
 
     my $sophia = ${$args->[HEAP]->{sophia}};

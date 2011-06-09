@@ -117,7 +117,7 @@ unless ($CONFIGURATIONS{IN_DEBUG_MODE}) {
         sophia_log('sophia',"sophia forked into the background with pid: $pid");
 
         open my $fh, '>', "$Bin/../etc/sophia.pid" or trigger_error('sophia', 'Missing etc directory.');
-        print $fh "$pid";
+        print {$fh} "$pid";
         close $fh;
 
         exit;
@@ -312,12 +312,12 @@ sub exec_events_trigger {
     my ($who, $content) = ($args->[ARG0], $args->[ARG2]);
 
     # triggers ?
-    return unless $content && $content =~ /^$SOPHIA{trigger}/;
+    return unless $content && $content =~ /\A$SOPHIA{trigger}/;
 
     my $perms = sophia_get_host_perms($who);
     return if $perms & 0x0040;
 
-    $content =~ s/^$SOPHIA{trigger}//;
+    $content =~ s/\A$SOPHIA{trigger}//;
     my ($module, $command, $trigger, $idx, $ac, $x);
 
     $idx = index $content, ' ';
@@ -342,7 +342,7 @@ sub exec_events_trigger {
         } or sophia_log('sophia', '[ERROR] ' . $!) and sophia_log('sophia', '[ERROR] ' .$@);
     }
     # module:command trigger
-    elsif ($trigger =~ m/^([^:]+):(.+)$/) {
+    elsif ($trigger =~ m/\A([^:]+):(.+)\z/) {
         ($module, $command) = ($1, $2);
         if ($sophia::EVENTS->{$namespace}{$module}{$command}) {
             $ac = $sophia::EVENTS->{$namespace}{$module}{$command}{access};
@@ -364,12 +364,12 @@ sub exec_triggers {
     # triggers ?
     return unless $content;
     
-    if ($content =~ /^$SOPHIA{nick}(,|:)\s/) {
-        $content =~ s/^$SOPHIA{nick}(,|:)\s//;
+    if ($content =~ /\A$SOPHIA{nick}(,|:)\s/) {
+        $content =~ s/\A$SOPHIA{nick}(,|:)\s//;
         $args->[ARG2] = $content;
     }
-    elsif ($content =~ /^$SOPHIA{trigger}/) {
-        $content =~ s/^$SOPHIA{trigger}//;
+    elsif ($content =~ /\A$SOPHIA{trigger}/) {
+        $content =~ s/\A$SOPHIA{trigger}//;
     }
     else {
         return;
@@ -399,7 +399,7 @@ sub exec_triggers {
         } or sophia_log('sophia', '[ERROR] ' . $!) and sophia_log('sophia', '[ERROR] '. $@);
     }
     # module:command trigger
-    elsif ($trigger =~ m/^([^:]+):(.+)$/) {
+    elsif ($trigger =~ m/\A([^:]+):(.+)\z/) {
         ($module, $command) = ($1, $2);
 
         if ($sophia::COMMANDS->{$module}{$command}) {
@@ -424,10 +424,10 @@ sub sophia_load_config {
 
     LINE: while (<$fh>) {
         chomp;
-        s/^\s+//;
-        next LINE if /^#/ || /^\s*$/;  # ignoring comments and lame lines
+        s/\A\s+//;
+        next LINE if /\A#/ || /\A\s*\z/;  # ignoring comments and lame lines
 
-        @opts = split /\s+/;
+        @opts = split ' ';
         $len = scalar @opts;
 
         $opts[0] = lc $opts[0];
@@ -504,24 +504,24 @@ sub sophia_save_config {
 
     open my $fh, '>', $CONFIGURATIONS{MAIN_CONFIG};
     
-    print $fh '# indicates a comment line', "\n\n";
-    print $fh 'nick ', $SOPHIA{nick}, "\n";
-    print $fh 'username ', $SOPHIA{username}, "\n";
-    print $fh 'realname ', $SOPHIA{realname}, "\n";
-    print $fh 'password ', $SOPHIA{password}, "\n";
-    print $fh 'usermode ', $SOPHIA{usermode}, "\n\n\n";
-    print $fh 'server ', $SOPHIA{server}, "\n";
-    print $fh 'port ', ($SOPHIA{usessl} ? '+' : ''), $SOPHIA{port}, "\n\n\n";
-    print $fh 'owner_name ', $SOPHIA{owner_name}, "\n";
-    print $fh 'owner_host ', $SOPHIA{owner_host}, "\n\n\n";
-    print $fh 'trigger ', substr($SOPHIA{trigger}, 1), "\n\n\n";
+    print {$fh} '# indicates a comment line', "\n\n";
+    print {$fh} 'nick ', $SOPHIA{nick}, "\n";
+    print {$fh} 'username ', $SOPHIA{username}, "\n";
+    print {$fh} 'realname ', $SOPHIA{realname}, "\n";
+    print {$fh} 'password ', $SOPHIA{password}, "\n";
+    print {$fh} 'usermode ', $SOPHIA{usermode}, "\n\n\n";
+    print {$fh} 'server ', $SOPHIA{server}, "\n";
+    print {$fh} 'port ', ($SOPHIA{usessl} ? '+' : ''), $SOPHIA{port}, "\n\n\n";
+    print {$fh} 'owner_name ', $SOPHIA{owner_name}, "\n";
+    print {$fh} 'owner_host ', $SOPHIA{owner_host}, "\n\n\n";
+    print {$fh} 'trigger ', substr($SOPHIA{trigger}, 1), "\n\n\n";
     
-    print $fh '# join the following channels', "\n";
-    print $fh 'channel ', $_, "\n" for keys %{$SOPHIA{channels}};
+    print {$fh} '# join the following channels', "\n";
+    print {$fh} 'channel ', $_, "\n" for keys %{$SOPHIA{channels}};
 
-    print $fh "\n\n";
-    print $fh '# command aliases', "\n";
-    print $fh 'alias ', $_, ' ', $CMD_ALIASES{$_}, "\n" for keys %CMD_ALIASES;
+    print {$fh} "\n\n";
+    print {$fh} '# command aliases', "\n";
+    print {$fh} 'alias ', $_, ' ', $CMD_ALIASES{$_}, "\n" for keys %CMD_ALIASES;
 
     close $fh;
 
