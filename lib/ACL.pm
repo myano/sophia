@@ -374,7 +374,7 @@ sub sophia_uid_from_host {
         $hostmask =~ s/\?/\./gxsm;
         $hostmask =~ s/\*/\.\*/gxsm;
         $hostmask =~ s/\//\\\//gxsm;
-        return $SOPHIA_ACL_HOST2UID{$_} if $host =~ /$hostmask/xsmi;
+        return $SOPHIA_ACL_HOST2UID{$_} if $host =~ /\A$hostmask\z/xsmi;
     }
 
     return;
