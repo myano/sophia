@@ -51,7 +51,7 @@ sub help_main_cmd {
     my $args = $_[0];
     my ($who, $content) = ($args->[ARG0], $args->[ARG2]);
 
-    my @opts = split /\s+/, $content;
+    my @opts = split ' ', $content;
     return unless $#opts > 0;
 
     my ($module, $cmd) = (undef, $opts[1]);

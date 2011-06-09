@@ -53,7 +53,7 @@ sub games_uno {
     my ($who, $where, $content) = ($args->[ARG0], $args->[ARG1], $args->[ARG2]);
 
     # the first param will be !uno, so strip it
-    my @opts = split /\s+/, $content;
+    my @opts = split ' ', $content;
     shift @opts;
 
     my $sophia = ${$args->[HEAP]->{sophia}};

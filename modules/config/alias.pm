@@ -23,7 +23,7 @@ sub config_alias {
     my ($where, $content) = ($args->[ARG1], $args->[ARG2]);
     $target //= $where->[0];
 
-    my @opts = split /\s+/, $content;
+    my @opts = split ' ', $content;
     my $len = scalar @opts;
     return unless $len > 1;
 

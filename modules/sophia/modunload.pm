@@ -25,7 +25,7 @@ sub sophia_modunload {
 
     my $sophia = ${$args->[HEAP]->{sophia}};
 
-    my @parts = split /\s+/, $content;
+    my @parts = split ' ', $content;
     shift @parts;
 
     for (@parts) {
