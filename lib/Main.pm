@@ -29,7 +29,7 @@ sub sophia_log {
         close $fh;
     }
     open my $fh, '>>', "$Bin/../var/$log.log" or return;
-    print $fh '(', scalar(localtime(time())), ') ', $err_msg, "\n";
+    print {$fh} '(', scalar(localtime(time())), ') ', $err_msg, "\n";
     close $fh;
 }
 

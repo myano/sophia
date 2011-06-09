@@ -117,7 +117,7 @@ unless ($CONFIGURATIONS{IN_DEBUG_MODE}) {
         sophia_log('sophia',"sophia forked into the background with pid: $pid");
 
         open my $fh, '>', "$Bin/../etc/sophia.pid" or trigger_error('sophia', 'Missing etc directory.');
-        print $fh "$pid";
+        print {$fh} "$pid";
         close $fh;
 
         exit;
@@ -504,24 +504,24 @@ sub sophia_save_config {
 
     open my $fh, '>', $CONFIGURATIONS{MAIN_CONFIG};
     
-    print $fh '# indicates a comment line', "\n\n";
-    print $fh 'nick ', $SOPHIA{nick}, "\n";
-    print $fh 'username ', $SOPHIA{username}, "\n";
-    print $fh 'realname ', $SOPHIA{realname}, "\n";
-    print $fh 'password ', $SOPHIA{password}, "\n";
-    print $fh 'usermode ', $SOPHIA{usermode}, "\n\n\n";
-    print $fh 'server ', $SOPHIA{server}, "\n";
-    print $fh 'port ', ($SOPHIA{usessl} ? '+' : ''), $SOPHIA{port}, "\n\n\n";
-    print $fh 'owner_name ', $SOPHIA{owner_name}, "\n";
-    print $fh 'owner_host ', $SOPHIA{owner_host}, "\n\n\n";
-    print $fh 'trigger ', substr($SOPHIA{trigger}, 1), "\n\n\n";
+    print {$fh} '# indicates a comment line', "\n\n";
+    print {$fh} 'nick ', $SOPHIA{nick}, "\n";
+    print {$fh} 'username ', $SOPHIA{username}, "\n";
+    print {$fh} 'realname ', $SOPHIA{realname}, "\n";
+    print {$fh} 'password ', $SOPHIA{password}, "\n";
+    print {$fh} 'usermode ', $SOPHIA{usermode}, "\n\n\n";
+    print {$fh} 'server ', $SOPHIA{server}, "\n";
+    print {$fh} 'port ', ($SOPHIA{usessl} ? '+' : ''), $SOPHIA{port}, "\n\n\n";
+    print {$fh} 'owner_name ', $SOPHIA{owner_name}, "\n";
+    print {$fh} 'owner_host ', $SOPHIA{owner_host}, "\n\n\n";
+    print {$fh} 'trigger ', substr($SOPHIA{trigger}, 1), "\n\n\n";
     
-    print $fh '# join the following channels', "\n";
-    print $fh 'channel ', $_, "\n" for keys %{$SOPHIA{channels}};
+    print {$fh} '# join the following channels', "\n";
+    print {$fh} 'channel ', $_, "\n" for keys %{$SOPHIA{channels}};
 
-    print $fh "\n\n";
-    print $fh '# command aliases', "\n";
-    print $fh 'alias ', $_, ' ', $CMD_ALIASES{$_}, "\n" for keys %CMD_ALIASES;
+    print {$fh} "\n\n";
+    print {$fh} '# command aliases', "\n";
+    print {$fh} 'alias ', $_, ' ', $CMD_ALIASES{$_}, "\n" for keys %CMD_ALIASES;
 
     close $fh;
 
