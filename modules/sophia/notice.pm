@@ -33,7 +33,7 @@ sub sophia_notice {
 
     # if the target is sophia, get first arg as the target
     if ($isSelf) {
-        $content =~ s/^\s+//;
+        $content =~ s/\A\s+//;
         $idx = index $content, ' ';
         return unless $idx > -1;
         $target = substr $content, 0, $idx;

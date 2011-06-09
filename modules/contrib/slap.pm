@@ -24,7 +24,7 @@ sub contrib_slap {
 
     my $sophia = ${$args->[HEAP]->{sophia}};
     $content = substr $content, $idx + 1;
-    $content =~ s/^\s+//;
+    $content =~ s/\A\s+//;
     $content = substr $content, 0, index($content, ' ') if index($content, ' ') > -1;
     $sophia->yield( ctcp => $where->[0] => 'ACTION slaps ' . $content );
 }

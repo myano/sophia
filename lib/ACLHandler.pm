@@ -49,27 +49,27 @@ sub sophia_acl_db_save {
     $SOPHIA_ACL_HOST2UID = &sophia_acl_host2uid;
 
     for (keys %{$SOPHIA_ACL_GROUPS}) {
-        print $fh sprintf('SG S %s %s%s', $_, sophia_acl_bits2flags($SOPHIA_ACL_GROUPS->{$_}{FLAGS}), "\n");
+        print {$fh} sprintf('SG S %s %s%s', $_, sophia_acl_bits2flags($SOPHIA_ACL_GROUPS->{$_}{FLAGS}), "\n");
 
         for my $chan (keys %{$SOPHIA_ACL_GROUPS->{$_}{CHANNELS}}) {
-            print $fh sprintf('SG C %s %s %s%s', $chan, $_, sophia_acl_bits2flags($SOPHIA_ACL_GROUPS->{$_}{CHANNELS}{$chan}), "\n");
+            print {$fh} sprintf('SG C %s %s %s%s', $chan, $_, sophia_acl_bits2flags($SOPHIA_ACL_GROUPS->{$_}{CHANNELS}{$chan}), "\n");
         }
     }
 
     for (keys %{$SOPHIA_ACL_USERS}) {
-        print $fh sprintf('SU S %s %s%s', $_, sophia_acl_bits2flags($SOPHIA_ACL_USERS->{$_}{FLAGS}), "\n");
+        print {$fh} sprintf('SU S %s %s%s', $_, sophia_acl_bits2flags($SOPHIA_ACL_USERS->{$_}{FLAGS}), "\n");
 
         for my $group (keys %{$SOPHIA_ACL_USERS->{$_}{GROUPS}}) {
-            print $fh sprintf('SU G %s %s%s', $_, $group, "\n");
+            print {$fh} sprintf('SU G %s %s%s', $_, $group, "\n");
         }
 
         for my $chan (keys %{$SOPHIA_ACL_USERS->{$_}{CHANNELS}}) {
-            print $fh sprintf('SU C %s %s %s%s', $chan, $_, sophia_acl_bits2flags($SOPHIA_ACL_USERS->{$_}{CHANNELS}{$chan}), "\n");
+            print {$fh} sprintf('SU C %s %s %s%s', $chan, $_, sophia_acl_bits2flags($SOPHIA_ACL_USERS->{$_}{CHANNELS}{$chan}), "\n");
         }
     }
 
     for (keys %{$SOPHIA_ACL_HOST2UID}) {
-        print $fh sprintf('SU I %s %s%s', $SOPHIA_ACL_HOST2UID->{$_}, $_, "\n");
+        print {$fh} sprintf('SU I %s %s%s', $SOPHIA_ACL_HOST2UID->{$_}, $_, "\n");
     }
 
     close $fh;

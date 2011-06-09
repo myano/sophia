@@ -26,7 +26,7 @@ sub sophia_cmd_load {
 
     LINE: while (<$fh>) {
         chomp;
-        next LINE if /^\s*$/;
+        next LINE if /\A\s*\z/;
 
         $idx = index $_, ' ';
         next LINE if $idx == -1;

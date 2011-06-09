@@ -25,7 +25,7 @@ sub cmd_cmd {
     return if $idx == -1;
     $content = substr $content, $idx + 1;
 
-    $content =~ s/^\s+//;
+    $content =~ s/\A\s+//;
     $idx = index $content, ' ';
     $content = substr $content, 0, $idx if $idx > -1;
 

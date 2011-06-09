@@ -29,7 +29,7 @@ sub admin_kickban {
     $content = substr $content, $idx + 1;
 
     # strip out leading whitespacing.
-    $content =~ s/^\s+//;
+    $content =~ s/\A\s+//;
 
     $idx = index $content, ' ';
     return if $idx == -1;

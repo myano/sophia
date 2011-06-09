@@ -20,7 +20,7 @@ sub google_translate {
     my $args = $_[0];
     my ($where, $content) = ($args->[ARG1], $args->[ARG2]);
     $content = substr $content, index($content, ' ') + 1;
-    $content =~ s/^\s+//;
+    $content =~ s/\A\s+//;
 
     return unless $content;
 

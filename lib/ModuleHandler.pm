@@ -123,10 +123,10 @@ sub sophia_load_modules {
 
     LINE: while (<$fh>) {
         chomp;
-        s/^\s+//;
-        next LINE if !/^loadmodule / or !/\;/;  # ignoring comments and lame lines
+        s/\A\s+//;
+        next LINE if !/\Aloadmodule / or !/\;/;  # ignoring comments and lame lines
         s/\;//;
-        s/^loadmodule\s+//;
+        s/\Aloadmodule\s+//;
         s/"//g;
 
         sophia_module_load($_);
