@@ -51,6 +51,7 @@ sub deinit_games_uno {
 sub games_uno {
     my $args = $_[0];
     my ($who, $where, $content) = ($args->[ARG0], $args->[ARG1], $args->[ARG2]);
+    my $nick = substr $who, 0, index($who, '!');
 
     # the first param will be !uno, so strip it
     my @opts = split ' ', $content;
@@ -90,7 +91,7 @@ sub games_uno {
             my @cards = @{$PLAYERS_CARDS{$who}};
             my $cardstr = join '  ', map { sprintf('%1$s[%2$s]%1$s', "\3$CARD_COLORS{$_}", $_) if /\A([^:]+):(.+)\z/; } @cards;
             
-            $sophia->yield(notice => substr($who, 0, index($who, '!')) => $cardstr);
+            $sophia->yield(notice => $nick => $cardstr);
         }
         when (/\A(CARDCOUNT|CC)\z/) {
             # check if the game is active
@@ -116,8 +117,14 @@ sub games_uno {
             my $deck = &games_uno_newdeck;
             @DECK = @{$deck};
 
+            # assign player order
+            push @PLAYERS, $_ for keys %PLAYERS_CARDS;
+
+            # shuffle the order of the players 3 times
+            @PLAYERS = shuffle(@PLAYERS) for (1 .. 3);
+
             # give each player 7 cards
-            map { push @{$PLAYERS_CARDS{$_}}, shift @DECK for (1 .. 7); } @PLAYERS;
+            map { push @{$PLAYERS_CARDS{$_}}, shift @DECK for (1 .. 7); } keys %PLAYERS_CARDS;
 
             # set isdealt to 1
             $UNO_STATES{ISDEALT} = 1;
@@ -147,7 +154,26 @@ sub games_uno {
                 return;
             }
 
-            push (@PLAYERS, $who);
+            # if the game is dealt, the player can't join
+            if ($UNO_STATES{ISDEALT}) {
+                # if the player is already in the game
+                if (exists $PLAYERS_CARDS{$who}) {
+                    $sophia->yield(privmsg => $where->[0] => 'You are already in the game.');
+                    return;
+                }
+
+                # otherwise, too bad
+                $sophia->yield(privmsg => $where->[0] => 'Sorry, the game is already in session.');
+                return;
+            }
+
+            # if the user is already joined, don't re-add the user.
+            if (exists $PLAYERS_CARDS{$who}) {
+                $sophia->yield(privmsg => $where->[0] => 'You\'re already in the game.');
+                return;
+            }
+
+            $PLAYERS_CARDS{$who} = [];
         }
         when ('PASS') {
             # check if the game is active
@@ -178,9 +204,9 @@ sub games_uno {
             $UNO_STATES{DEALER} = $who;
 
             # add the dealer to the list of players
-            push @PLAYERS, $who;
+            $PLAYERS_CARDS{$who} = [];
 
-            $sophia->yield(privmsg => $where->[0] => 'Uno game started!');
+            $sophia->yield(privmsg => $where->[0] => sprintf('Uno game started by %s!', $nick));
         }
         when ('STOP') {
             if (!$UNO_STATES{STARTED}) {
@@ -255,8 +281,7 @@ sub games_uno {
                 sort { $PLAYERS_RECORDS{$a}{POINTS} > $PLAYERS_RECORDS{$b}{POINTS} }
                 keys %PLAYERS_RECORDS;
 
-            my $target = substr $who, 0, index($who, '!');
-            $sophia->yield(privmsg => $target => $_) for @top10;
+            $sophia->yield(privmsg => $nick => $_) for @top10;
         }
         when (/\A(QUIT|Q)\z/) {
             # check if the game is active
@@ -302,6 +327,8 @@ sub games_uno {
                 $sophia->yield(privmsg => $where->[0] => sprintf("\2%s\2 has won the game with \2%d\2 points!", substr($PLAYERS[0], 0, index($PLAYERS[0], '!')), $UNO_STATES{POINTS_POT}));
                 &games_uno_stop;
             }
+
+            # TODO: Make sure to assign the NEXT player who should go after this player quits
 
             # remove the player cards
             delete $PLAYERS_CARDS{$who};
