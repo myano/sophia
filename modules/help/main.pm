@@ -43,8 +43,8 @@ sub help_main {
                 # get the commands
                 keys %{$commands{$module}};
     }
-    my @results = ($cmds =~ m/.{0,300}[^ ]* ?/g);
-    $sophia->yield(notice => $who => $_) for @results;
+    my $messages = irc_split_lines($cmds);
+    $sophia->yield(notice => $who => $_) for @{$messages};
 }
 
 sub help_main_cmd {

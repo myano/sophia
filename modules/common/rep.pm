@@ -32,55 +32,61 @@ sub load_rep {
     while (<$fh>)
     {
         my @line = split ' ';
-        my $name = shift @line;
-        $reps{$name} = \@line;
+        my $name = $line[0];
+        $reps{$name}{UP} = $line[1];
+        $reps{$name}{DOWN} = $line[2];
     }
-    {close $fh}
+    close $fh;
 }
 
 sub save_rep {
     open my $out_fh, '>', 'etc/rep.db' or return;
     for (keys %reps) {
-        print {$out_fh} sprintf('%s %d %d' . "\n", $_, @{$reps{$_}});  
+        print {$out_fh} sprintf('%s %d %d%s', $_, $reps{$_}{UP}, $rep{$_}{DOWN}, "\n");
     }
-    {close $out_fh}
-}    
+    close $out_fh;
+}
 
 sub common_rep_add {
     my $args = $_[0];
     my ($where, $content) = ($args->[ARG1], $args->[ARG2]);
     my $sophia = ${$args->[HEAP]->{sophia}};
-    $content = substr $content, index($content, ' ') + 1;
-    $content =~ s/ //g;
-    $content = lc $content;
-    $reps{$content}[0] += 1;
+    
+    my @opts = split ' ', $content;
+    return if scalar @opts < 2;
+
+    my $recipient = $opts[1];
+    $reps{$recipient}{UP} += 1;
     save_rep();
-    $sophia->yield(privmsg => $where->[0] => "One point added to $content.");
+    $sophia->yield(privmsg => $where->[0] => "One point added to $recipient.");
 }
 
 sub common_rep_rm {
     my $args = $_[0];
     my ($where, $content) = ($args->[ARG1], $args->[ARG2]);
     my $sophia = ${$args->[HEAP]->{sophia}};
-    $content = substr $content, index($content, ' ') + 1;
-    $content =~ s/ //g;
-    $content = lc $content;
-    $reps{$content}[1] += 1;
+
+    my @opts = split ' ', $content;
+    return if scalar @otps < 2;
+
+    my $recipient = $opts[1];
+    $reps{$recipient}{DOWN} += 1;
     save_rep();
-    $sophia->yield(privmsg => $where->[0] => "One point removed from $content.");
+    $sophia->yield(privmsg => $where->[0] => "One point removed from $recipient.");
 }
 
 sub common_rep {
     my $args = $_[0];
     my ($where, $content) = ($args->[ARG1], $args->[ARG2]);
     my $sophia = ${$args->[HEAP]->{sophia}};
-    my $saystr = "";
-    for (keys %reps)
-    {
-        my $net = int($reps{$_}[0]) - int($reps{$_}[1]);
-        $saystr .= "$_ has +$reps{$_}[0]/-$reps{$_}[1], $net | ";
-    }
-    $sophia->yield(privmsg => $where->[0] => $saystr);
+
+    my $result =
+        join ' | ',
+        map { sprintf('%s has +%d/-%d (%d)', $_, $reps{$_}{UP}, $reps{$_}{DOWN}, $reps{$_}{UP} - $reps{$_}{DOWN}); }
+        keys %reps;
+
+    my $messages = irc_split_lines($result);
+    $sophia->yield(privmsg => $where->[0] => $_) for @{$messages};
 }
 
 1;
