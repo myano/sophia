@@ -22,14 +22,11 @@ sub common_countdown {
     my ($where, $content) = ($args->[ARG1], $args->[ARG2]);
     my $sophia = ${$args->[HEAP]->{sophia}};
 
-    my $idx = index $content, ' ';
-    $content = $idx > -1 ? substr($content, $idx + 1) : '';
-    if ($content eq "") { return; }
-
-    my ($years, $months, $days, $hours, $mins, $secs) = split /\W+/, $content;
-    $months = $months - 1;
-
-    my $times = timelocal($secs,$mins,$hours,$days,$months,$years);
+    my @opts = split ' ', $content;
+    shift @opts;
+    return if !scalar @opts;
+    --$opts[1]; # decrement the month since localtime reads the month as an int from 0 .. 11
+    my $times = timelocal(reverse @opts);
 
     my $curtime = time();
     my $diff = $times - $curtime;
