@@ -49,6 +49,7 @@ loadmodule "admin.voice";
 
 ## These modules are optional, but common.main is required
 ## for most modules. So uncomment common.main.
+# loadmodule "common.countdown";
 # loadmodule "common.main";
 # loadmodule "common.ping";
 # loadmodule "common.time";
