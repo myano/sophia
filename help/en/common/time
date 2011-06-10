@@ -1,4 +1,4 @@
-Syntax: common:time [<timezone>]
+Syntax: common:time [<timezone>] [offset]
 This command must be used in a channel.
-It prints out the time in GMT if no timezone is given.
-Otherwise, it prints out the time in the specified timezone.
+It prints out the time in GMT if no timezone is given. Otherwise, it prints out the time in the specified timezone.
+The [offset] is optional. 
