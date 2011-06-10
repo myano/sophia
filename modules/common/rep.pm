@@ -1,12 +1,15 @@
 use strict;
 use warnings;
 
+my %reps;
+
 sophia_module_add('common.rep', '1.0', \&init_common_rep, \&deinit_common_rep);
 
 sub init_common_rep {
     sophia_command_add('common.rep', \&common_rep, 'Prints the top 10 users', '');
     sophia_command_add('common.rep++', \&common_rep_add, 'Adds a point to a user.', '');
     sophia_command_add('common.rep--', \&common_rep_rm, 'Removes a point from a user.', '');
+    load_rep();
 
     return 1;
 }
@@ -22,8 +25,6 @@ sub deinit_common_rep {
     sophia_command_del 'common.rep--';
     delete_sub 'deinit_common_rep';
 }
-
-my %reps;
 
 sub load_rep {
     open my $fh, '<', 'etc/rep.db' or return;
@@ -52,7 +53,6 @@ sub common_rep_add {
     $content = substr $content, index($content, ' ') + 1;
     $content =~ s/ //g;
     $content = lc $content;
-    load_rep();
     $reps{$content}[0] += 1;
     save_rep();
     $sophia->yield(privmsg => $where->[0] => "One point added to $content.");
@@ -65,7 +65,6 @@ sub common_rep_rm {
     $content = substr $content, index($content, ' ') + 1;
     $content =~ s/ //g;
     $content = lc $content;
-    load_rep();
     $reps{$content}[1] += 1;
     save_rep();
     $sophia->yield(privmsg => $where->[0] => "One point removed from $content.");
@@ -75,12 +74,11 @@ sub common_rep {
     my $args = $_[0];
     my ($where, $content) = ($args->[ARG1], $args->[ARG2]);
     my $sophia = ${$args->[HEAP]->{sophia}};
-    load_rep();
     my $saystr = "";
-    while (my ($a, $b) = each %reps)
+    for (keys %reps)
     {
-        my $net = int($reps{$a}[0]) - int($reps{$a}[1]);
-        $saystr .= "$a has +$reps{$a}[0]/-$reps{$a}[1], $net | ";
+        my $net = int($reps{$_}[0]) - int($reps{$_}[1]);
+        $saystr .= "$_ has +$reps{$_}[0]/-$reps{$_}[1], $net | ";
     }
     $sophia->yield(privmsg => $where->[0] => $saystr);
 }
