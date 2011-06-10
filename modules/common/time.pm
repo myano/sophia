@@ -221,7 +221,7 @@ my %timezones =
 sophia_module_add('common.time', '1.0', \&init_common_time, \&deinit_common_time);
 
 sub init_common_time {
-    sophia_command_add('common.time', \&common_time, 'Print the current time.', 'Prints the current time. If no paramters are given it prints GMT.');
+    sophia_command_add('common.time', \&common_time, 'Print the current time.', 'Prints the current time. If no parameters are given it prints GMT.');
     sophia_global_command_add('time', \&common_time, 'Print the current time', 'Prints the current time. If no parameters are given it prints GMT.');
 
     return 1;
