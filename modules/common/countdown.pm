@@ -6,7 +6,6 @@ sophia_module_add('common.countdown', '1.0', \&init_common_countdown, \&deinit_c
 
 sub init_common_countdown {
     sophia_command_add('common.countdown', \&common_countdown, 'Prints a countdown to a given date.', '');
-    sophia_global_command_add('countdown', \&common_countdown, 'Prints a countdown to a given date.', '');
 
     return 1;
 }
