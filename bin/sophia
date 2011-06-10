@@ -312,12 +312,12 @@ sub exec_events_trigger {
     my ($who, $content) = ($args->[ARG0], $args->[ARG2]);
 
     # triggers ?
-    return unless $content && $content =~ /\A$SOPHIA{trigger}/;
+    return unless $content && $content =~ /\A\Q$SOPHIA{trigger}\E/;
 
     my $perms = sophia_get_host_perms($who);
     return if $perms & 0x0040;
 
-    $content =~ s/\A$SOPHIA{trigger}//;
+    $content =~ s/\A\Q$SOPHIA{trigger}\E//;
     my ($module, $command, $trigger, $idx, $ac, $x);
 
     $idx = index $content, ' ';
@@ -368,8 +368,8 @@ sub exec_triggers {
         $content =~ s/\A$SOPHIA{nick}(,|:)\s//;
         $args->[ARG2] = $content;
     }
-    elsif ($content =~ /\A$SOPHIA{trigger}/) {
-        $content =~ s/\A$SOPHIA{trigger}//;
+    elsif ($content =~ /\A\Q$SOPHIA{trigger}\E/) {
+        $content =~ s/\A\Q$SOPHIA{trigger}\E//;
     }
     else {
         return;
@@ -446,7 +446,6 @@ sub sophia_load_config {
                     }
                     $SOPHIA{port} = $opts[1];
                 }
-                elsif ($opts[0] eq 'trigger')       { $SOPHIA{trigger} = sprintf('\%s', $opts[1]); }
                 elsif (exists $SOPHIA{$opts[0]})    { $SOPHIA{$opts[0]} = $opts[1]; }
             }
         }
@@ -514,7 +513,7 @@ sub sophia_save_config {
     print {$fh} 'port ', ($SOPHIA{usessl} ? '+' : ''), $SOPHIA{port}, "\n\n\n";
     print {$fh} 'owner_name ', $SOPHIA{owner_name}, "\n";
     print {$fh} 'owner_host ', $SOPHIA{owner_host}, "\n\n\n";
-    print {$fh} 'trigger ', substr($SOPHIA{trigger}, 1), "\n\n\n";
+    print {$fh} 'trigger ', $SOPHIA{trigger}, "\n\n\n";
     
     print {$fh} '# join the following channels', "\n";
     print {$fh} 'channel ', $_, "\n" for keys %{$SOPHIA{channels}};
@@ -544,7 +543,6 @@ sub sophia_set_config_option {
             }
             $SOPHIA{port} = $opts[2];
         }
-        when ('trigger') { $SOPHIA{trigger} = sprintf('\%s', $opts[2]); }
 
         default { 
             return 0 unless exists $SOPHIA{$opts[1]};
