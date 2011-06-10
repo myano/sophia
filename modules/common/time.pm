@@ -249,8 +249,6 @@ sub common_time {
         if (defined $timezones{$tzoffset[0]}) {
             my $offset = $timezones{$tzoffset[0]};
             my $arraylen = @tzoffset;
-            $arraylen = scalar (@tzoffset);
-            $arraylen = $#tzoffset + 1;
             if ($arraylen == 2) { $offset = ($offset * 3600) + (3600 * $tzoffset[1]); }
             elsif ($arraylen == 3) { $offset = ($offset * 3600) + (3600 * $tzoffset[2]); }
             $sophia->yield(privmsg => $where->[0] => sprintf('%s %s', scalar(gmtime(time() + $offset)), $content));
