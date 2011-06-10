@@ -28,7 +28,7 @@ sub common_countdown {
     shift @opts;
     return if !scalar @opts;
     --$opts[1]; # decrement the month since localtime reads the month as an int from 0 .. 11
-    my $times = timelocal(reverse @opts);
+    my $times = timelocal(0,0,0,$opts[2],$opts[1],$opts[0]);
 
     my $curtime = time();
     my $diff = $times - $curtime;
