@@ -1,5 +1,6 @@
 use strict;
 use warnings;
+use Time::Local;
 
 sophia_module_add('common.countdown', '1.0', \&init_common_countdown, \&deinit_common_countdown);
 
@@ -24,6 +25,7 @@ sub common_countdown {
 
     my $idx = index $content, ' ';
     $content = $idx > -1 ? substr($content, $idx + 1) : '';
+    if ($content eq "") { return; }
 
     my ($years, $months, $days, $hours, $mins, $secs) = split /\W+/, $content;
     $months = $months - 1;
