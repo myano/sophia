@@ -231,6 +231,7 @@ sub deinit_common_time {
     delete_sub 'init_common_time';
     delete_sub 'common_time';
     sophia_command_del 'common.time';
+    sophia_command_del 'time';
     delete_sub 'deinit_common_time';
 }
 
