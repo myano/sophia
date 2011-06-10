@@ -30,7 +30,8 @@ sub web_urltitle {
         my $title = $1;
         my $sophia = ${$args->[HEAP]->{sophia}};
         $title =~ s/\s{2,}/ /g;
-        $sophia->yield(privmsg => $where->[0] => decode_entities($title));
+        $title = decode_entities($title);
+        $sophia->yield(privmsg => $where->[0] => "[ $title ]");
     }
 }
 

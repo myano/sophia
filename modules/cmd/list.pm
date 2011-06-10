@@ -28,8 +28,8 @@ sub cmd_list {
     return unless $cache_commands;
 
     my $commands = join ' ', keys %{$cache_commands};
-    my @messages = ($commands =~ m/.{0,300}[^ ]* ?/g);
-    $sophia->yield(privmsg => $target => $_) for @messages;
+    my $messages = irc_split_lines($commands);
+    $sophia->yield(privmsg => $target => $_) for @{$messages};
 }
 
 1;

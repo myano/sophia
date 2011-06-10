@@ -1,10 +1,12 @@
 use strict;
 use warnings;
+use Time::Local;
 
 sophia_module_add('common.countdown', '1.0', \&init_common_countdown, \&deinit_common_countdown);
 
 sub init_common_countdown {
     sophia_command_add('common.countdown', \&common_countdown, 'Prints a countdown to a given date.', '');
+    sophia_global_command_add('countdown', \&common_countdown, 'Prints a countdown to a given date.', '');
 
     return 1;
 }
@@ -13,6 +15,7 @@ sub deinit_common_countdown {
     delete_sub 'init_common_countdown';
     delete_sub 'common_countdown';
     sophia_command_del 'common.countdown';
+    sophia_command_del 'countdown';
     delete_sub 'deinit_common_countdown';
 }
 
@@ -21,13 +24,11 @@ sub common_countdown {
     my ($where, $content) = ($args->[ARG1], $args->[ARG2]);
     my $sophia = ${$args->[HEAP]->{sophia}};
 
-    my $idx = index $content, ' ';
-    $content = $idx > -1 ? substr($content, $idx + 1) : '';
-
-    my ($years, $months, $days, $hours, $mins, $secs) = split /\W+/, $content;
-    $months = $months - 1;
-
-    my $times = timelocal($secs,$mins,$hours,$days,$months,$years);
+    my @opts = split ' ', $content;
+    shift @opts;
+    return if !scalar @opts;
+    --$opts[1]; # decrement the month since localtime reads the month as an int from 0 .. 11
+    my $times = timelocal(0,0,0,$opts[2],$opts[1],$opts[0]);
 
     my $curtime = time();
     my $diff = $times - $curtime;
