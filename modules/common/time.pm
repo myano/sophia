@@ -106,7 +106,6 @@ my %timezones =
     'AST' => -4, 
     'ACT' => -5, 
     'MST' => -7, 
-    'PST' => -8, 
     'YST' => -9, 
     'HST' => -10, 
     'CAT' => -10, 
@@ -191,7 +190,6 @@ my %timezones =
     'NZST' => -12, 
     'NZDT' => -13, 
     'NZT' => -12, 
-    'PST' => 8, 
     'ROK' => -9, 
     'SAD' => -10, 
     'SAST' => -9, 
@@ -221,8 +219,8 @@ my %timezones =
 sophia_module_add('common.time', '1.0', \&init_common_time, \&deinit_common_time);
 
 sub init_common_time {
-    sophia_command_add('common.time', \&common_time, 'Print the current time.', 'Prints the current time. If no paramters are given it prints GMT.');
-    sophia_global_command_add('time', \&common_time, 'Print the current time', 'Prints the current time. If no parameters are given it prints GMT.');
+    sophia_command_add('common.time', \&common_time, 'Print the current time.', 'Prints the current time. If no parameters are given it prints GMT.');
+    sophia_global_command_add('time', \&common_time, 'Print the current time.', 'Prints the current time. If no parameters are given it prints GMT.');
 
     return 1;
 }
@@ -231,6 +229,7 @@ sub deinit_common_time {
     delete_sub 'init_common_time';
     delete_sub 'common_time';
     sophia_command_del 'common.time';
+    sophia_command_del 'time';
     delete_sub 'deinit_common_time';
 }
 
@@ -241,26 +240,43 @@ sub common_time {
 
     my $idx = index $content, ' ';
     $content = $idx > -1 ? substr($content, $idx + 1) : '';
-    $content =~ s/\s+//g;
 
     my $sophia = ${$args->[HEAP]->{sophia}};
-    if ( $content =~ /[+-]?\d+/ ) {
+    # !time EDT +3
+    if ( $content =~ /\w+\s?[+-]\s?\d+/ )
+    {
+        my @tzoffset = split(/ /, $content);
+        if (defined $timezones{$tzoffset[0]}) {
+            my $offset = $timezones{$tzoffset[0]};
+            my $arraylen = @tzoffset;
+            if ($arraylen == 2) { $offset = ($offset * 3600) + (3600 * $tzoffset[1]); }
+            elsif ($arraylen == 3) { $offset = ($offset * 3600) + (3600 * $tzoffset[2]); }
+            $sophia->yield(privmsg => $where->[0] => sprintf('%s %s', scalar(gmtime(time() + $offset)), $content));
+        }
+    }
+    # !time +3
+    elsif ( $content =~ /[+-]?\d+/ )
+    {
         my $offset = $content;
         return if abs($offset) > 100000;
-        my $offsetsec = $offset * 3600;
+            my $offsetsec = $offset * 3600;
         $sophia->yield(privmsg => $where->[0] => sprintf('%s %s', scalar(gmtime(time() + $offsetsec)), $offset));
     }
-    else {
-        $content = uc $content;
+    # !time EDT
+    elsif ( $content =~ /\w+$/ )
+    {
         if (defined $timezones{$content}) {
             my $offset = $timezones{$content};
             $offset = $offset * 3600;
             $sophia->yield(privmsg => $where->[0] => sprintf('%s %s', scalar(gmtime(time() + $offset)), $content));
         }
-        else {
-            $sophia->yield(privmsg => $where->[0] => sprintf('%s GMT', scalar(gmtime(time()))));
-        }
     }
+    # !time -- default to GMT time
+    else
+    {
+        $sophia->yield(privmsg => $where->[0] => sprintf('%s GMT', scalar(gmtime(time()))));
+    }
+
 }
 
 1;
