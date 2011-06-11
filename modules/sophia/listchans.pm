@@ -27,10 +27,10 @@ sub sophia_listchans {
     return unless $chans;
 
     my $result = join ' ', keys %{$chans};
-    my @messages = ($result =~ m/.{0,300}[^ ]* ?/g);
+    my $messages = irc_split_lines($result);
 
     my $sophia = ${$args->[HEAP]->{sophia}};
-    $sophia->yield(notice => $target => $_) for @messages;
+    $sophia->yield(notice => $target => $_) for @{$messages};
 }
 
 1;

@@ -43,8 +43,8 @@ sub help_main {
                 # get the commands
                 keys %{$commands{$module}};
     }
-    my @results = ($cmds =~ m/.{0,300}[^ ]* ?/g);
-    $sophia->yield(notice => $who => $_) for @results;
+    my $messages = irc_split_lines($cmds);
+    $sophia->yield(notice => $who => $_) for @{$messages};
 }
 
 sub help_main_cmd {
@@ -57,6 +57,9 @@ sub help_main_cmd {
     my ($module, $cmd) = (undef, $opts[1]);
     my $perms = sophia_get_host_perms($who);
     $who = substr $who, 0, index($who, '!');
+
+    my $aliases = sophia_get_aliases();
+    $cmd = $aliases->{$cmd} if exists $aliases->{$cmd};
 
     if ($cmd =~ /\A([^:]+):(.+)\z/) {
         ($module, $cmd) = ($1, $2);

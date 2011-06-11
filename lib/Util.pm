@@ -10,4 +10,9 @@ sub trim {
     return @args;
 }
 
+sub irc_split_lines {
+    my @messages = (shift =~ m/.{0,300}[^ ]* ?/g);
+    return \@messages;
+}
+
 1;
