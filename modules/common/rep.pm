@@ -42,7 +42,7 @@ sub load_rep {
 sub save_rep {
     open my $out_fh, '>', 'etc/rep.db' or return;
     for (keys %reps) {
-        print {$out_fh} sprintf('%s %d %d%s', $_, $reps{$_}{UP}, $rep{$_}{DOWN}, "\n");
+        print {$out_fh} sprintf('%s %d %d%s', $_, $reps{$_}{UP}, $reps{$_}{DOWN}, "\n");
     }
     close $out_fh;
 }
@@ -67,7 +67,7 @@ sub common_rep_rm {
     my $sophia = ${$args->[HEAP]->{sophia}};
 
     my @opts = split ' ', $content;
-    return if scalar @otps < 2;
+    return if scalar @opts < 2;
 
     my $recipient = $opts[1];
     $reps{$recipient}{DOWN} += 1;
