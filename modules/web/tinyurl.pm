@@ -5,7 +5,6 @@ sophia_module_add('web.tinyurl', '2.0', \&init_web_tinyurl, \&deinit_web_tinyurl
 
 sub init_web_tinyurl {
     sophia_command_add('web.tinyurl', \&web_tinyurl, 'Creates a tinyurl redirector link.', '');
-    sophia_global_command_add('tiny', \&web_tinyurl, 'Creates a tinyurl redirector link.', '');
 
     return 1;
 }
@@ -14,7 +13,6 @@ sub deinit_web_tinyurl {
     delete_sub 'init_web_tinyurl';
     delete_sub 'web_tinyurl';
     sophia_command_del 'web.tinyurl';
-    sophia_command_del 'tiny';
     delete_sub 'deinit_web_tinyurl';
 }
 

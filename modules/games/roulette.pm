@@ -15,9 +15,9 @@ my %roulette_settings = (
 sophia_module_add('games.roulette', '2.0', \&init_games_roulette, \&deinit_games_roulette);
 
 sub init_games_roulette {
-    sophia_global_command_add('roulette', \&games_roulette, 'Roulette game.', '');
-    sophia_global_command_add('roulette:stop', \&games_roulette_stop, 'Roulette game.', '');
-    sophia_global_command_add('roulette:fstop', \&games_roulette_stop, 'Roulette game.', '', SOPHIA_ACL_OP | SOPHIA_ACL_AUTOOP);
+    sophia_command_add('games.roulette', \&games_roulette, 'Roulette game.', '');
+    sophia_command_add('games.roulette:stop', \&games_roulette_stop, 'Roulette game.', '');
+    sophia_command_add('games.roulette:fstop', \&games_roulette_stop, 'Roulette game.', '', SOPHIA_ACL_OP | SOPHIA_ACL_AUTOOP);
 
     return 1;
 }
@@ -26,7 +26,8 @@ sub deinit_games_roulette {
     delete_sub 'init_games_roulette';
     delete_sub 'games_roulette';
     sophia_command_del 'games.roulette';
-    sophia_global_command_del 'roulette';
+    sophia_command_del 'games.roulette:stop';
+    sophia_command_del 'games.roulette:fstop';
     undef %roulette_settings;
     delete_sub 'deinit_games_roulette';
 }

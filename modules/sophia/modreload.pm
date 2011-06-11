@@ -4,7 +4,7 @@ use warnings;
 sophia_module_add('sophia.modreload', '2.0', \&init_sophia_modreload, \&deinit_sophia_modreload);
 
 sub init_sophia_modreload {
-    sophia_global_command_add('mod:reload', \&sophia_modreload, 'Reloads all or a specified module.', '', SOPHIA_ACL_FOUNDER);
+    sophia_command_add('sophia.mod:reload', \&sophia_modreload, 'Reloads all or a specified module.', '', SOPHIA_ACL_FOUNDER);
     sophia_event_privmsg_hook('sophia.mod:reload', \&sophia_modreload, 'Reloads all or a specified module.', '', SOPHIA_ACL_FOUNDER);
 
     return 1;
@@ -13,7 +13,7 @@ sub init_sophia_modreload {
 sub deinit_sophia_modreload {
     delete_sub 'init_sophia_modreload';
     delete_sub 'sophia_modreload';
-    sophia_global_command_del 'mod:reload';
+    sophia_command_del 'sophia.mod:reload';
     sophia_event_privmsg_dehook 'sophia.mod:reload';
     delete_sub 'deinit_sophia_modreload';
 }

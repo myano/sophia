@@ -4,7 +4,7 @@ use warnings;
 sophia_module_add('sophia.modunload', '2.0', \&init_sophia_modunload, \&deinit_sophia_modunload);
 
 sub init_sophia_modunload {
-    sophia_global_command_add('mod:unload', \&sophia_modunload, 'Unloads all or a specified module.', '', SOPHIA_ACL_FOUNDER);
+    sophia_command_add('sophia.mod:unload', \&sophia_modunload, 'Unloads all or a specified module.', '', SOPHIA_ACL_FOUNDER);
     sophia_event_privmsg_hook('sophia.mod:unload', \&sophia_modunload, 'Unloads all or a specified module.', '', SOPHIA_ACL_FOUNDER);
 
     return 1;
@@ -13,7 +13,7 @@ sub init_sophia_modunload {
 sub deinit_sophia_modunload {
     delete_sub 'init_sophia_modunload';
     delete_sub 'sophia_modunload';
-    sophia_global_command_del 'mod:unload';
+    sophia_command_del 'sophia.mod:unload';
     sophia_event_privmsg_dehook 'sophia.mod:unload';
     delete_sub 'deinit_sophia_modunload';
 }

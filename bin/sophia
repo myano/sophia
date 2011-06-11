@@ -29,7 +29,6 @@ our %CONFIGURATIONS;
     MAIN_CONFIG     => "$Bin/../etc/sophia.conf",
     MODULES_CONFIG  => "$Bin/../etc/sophia.modules.conf",
     ACL_DB          => "$Bin/../etc/sophia.acl.db",
-    GLOBAL_MODULE   => 'sophia',
     IN_DEBUG_MODE   => 0,
     DO_RESTART      => 0,
 );
@@ -330,19 +329,8 @@ sub exec_events_trigger {
     # is this an alias? 
     $trigger = $CMD_ALIASES{$trigger} if defined $CMD_ALIASES{$trigger};
 
-    # global event trigger
-    if ($sophia::EVENTS->{$namespace}{$CONFIGURATIONS{GLOBAL_MODULE}}{$trigger}) {
-        $ac = $sophia::EVENTS->{$namespace}{$CONFIGURATIONS{GLOBAL_MODULE}}{$trigger}{access};
-        if ($ac) {
-            return unless $perms & $ac;
-        }
-        eval {
-            $x = &{$sophia::EVENTS->{$namespace}{$CONFIGURATIONS{GLOBAL_MODULE}}{$trigger}{init}}($args, $target);
-            1;
-        } or sophia_log('sophia', '[ERROR] ' . $!) and sophia_log('sophia', '[ERROR] ' .$@);
-    }
     # module:command trigger
-    elsif ($trigger =~ m/\A([^:]+):(.+)\z/) {
+    if ($trigger =~ m/\A([^:]+):(.+)\z/) {
         ($module, $command) = ($1, $2);
         if ($sophia::EVENTS->{$namespace}{$module}{$command}) {
             $ac = $sophia::EVENTS->{$namespace}{$module}{$command}{access};
@@ -387,19 +375,8 @@ sub exec_triggers {
     # is this an alias? 
     $trigger = $CMD_ALIASES{$trigger} if defined $CMD_ALIASES{$trigger};
 
-    # sophia command / global trigger?
-    if ($sophia::COMMANDS->{$CONFIGURATIONS{GLOBAL_MODULE}}{$trigger}) {
-        $ac = $sophia::COMMANDS->{$CONFIGURATIONS{GLOBAL_MODULE}}{$trigger}{access};
-        if ($ac) {
-            return unless $perms & $ac;
-        }
-        eval {
-            $x = &{$sophia::COMMANDS->{$CONFIGURATIONS{GLOBAL_MODULE}}{$trigger}{init}}($args);
-            1;
-        } or sophia_log('sophia', '[ERROR] ' . $!) and sophia_log('sophia', '[ERROR] '. $@);
-    }
     # module:command trigger
-    elsif ($trigger =~ m/\A([^:]+):(.+)\z/) {
+    if ($trigger =~ m/\A([^:]+):(.+)\z/) {
         ($module, $command) = ($1, $2);
 
         if ($sophia::COMMANDS->{$module}{$command}) {

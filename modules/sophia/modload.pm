@@ -4,7 +4,7 @@ use warnings;
 sophia_module_add('sophia.modload', '2.0', \&init_sophia_modload, \&deinit_sophia_modload);
 
 sub init_sophia_modload {
-    sophia_global_command_add('mod:load', \&sophia_modload, 'Loads a specified module.', '', SOPHIA_ACL_FOUNDER);
+    sophia_command_add('sophia.mod:load', \&sophia_modload, 'Loads a specified module.', '', SOPHIA_ACL_FOUNDER);
     sophia_event_privmsg_hook('sophia.mod:load', \&sophia_modload, 'Loads a specified module.', '', SOPHIA_ACL_FOUNDER);
 
     return 1;
@@ -13,7 +13,7 @@ sub init_sophia_modload {
 sub deinit_sophia_modload {
     delete_sub 'init_sophia_modload';
     delete_sub 'sophia_modload';
-    sophia_global_command_del 'mod:load';
+    sophia_command_del 'sophia.mod:load';
     sophia_event_privmsg_dehook 'sophia.mod:load';
     delete_sub 'deinit_sophia_modload';
 }

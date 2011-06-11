@@ -1,7 +1,6 @@
 use strict;
 use warnings;
 
-my $global_module = $sophia::CONFIGURATIONS{GLOBAL_MODULE};
 sub sophia_module_load {
     my $module = $_[0];
     $module =~ s/\./\//;
@@ -73,7 +72,6 @@ sub sophia_command_add {
     my ($module, $command);
     $module = substr $module_command, 0, index($module_command, '.');
     $command = substr $module_command, index($module_command, '.') + 1;
-    return if $module eq $global_module;
 
     $cmd_access //= SOPHIA_ACL_NONE;
     $sophia::COMMANDS->{$module}{$command}{init} = $cmd_hook;
@@ -82,31 +80,15 @@ sub sophia_command_add {
     $sophia::COMMANDS->{$module}{$command}{access} = $cmd_access;
 }
 
-sub sophia_global_command_add {
-    my ($command, $cmd_hook, $cmd_desc, $cmd_help, $cmd_access) = @_;
-    $cmd_access //= SOPHIA_ACL_NONE;
-    $sophia::COMMANDS->{$global_module}{$command}{init} = $cmd_hook;
-    $sophia::COMMANDS->{$global_module}{$command}{desc} = $cmd_desc;
-    $sophia::COMMANDS->{$global_module}{$command}{help} = $cmd_help;
-    $sophia::COMMANDS->{$global_module}{$command}{access} = $cmd_access;
-}
-
 sub sophia_command_del {
     my ($module_command) = @_;
     return unless $module_command;
 
     my $module = substr $module_command, 0, index($module_command, '.');
     my $command = substr $module_command, index($module_command, '.') + 1;
-    return unless $module && $command && $module ne $global_module;
+    return unless $module && $command;
 
     delete $sophia::COMMANDS->{$module}{$command};
-}
-
-sub sophia_global_command_del {
-    my $command = $_[0];
-    return unless $command;
-
-    delete $sophia::COMMANDS->{$global_module}{$command};
 }
 
 sub sophia_timer_add {

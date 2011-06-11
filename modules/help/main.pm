@@ -4,8 +4,8 @@ use warnings;
 sophia_module_add('help.main', '1.0', \&init_help_main, \&deinit_help_main);
 
 sub init_help_main {
-    sophia_global_command_add('help', \&help_main, 'Prints the help message for commands.', '');
-    sophia_event_privmsg_hook('sophia.help', \&help_main, 'Prints the help message for commands.', '');
+    sophia_command_add('help.help', \&help_main, 'Prints the help message for commands.', '');
+    sophia_event_privmsg_hook('help.help', \&help_main, 'Prints the help message for commands.', '');
 
     return 1;
 }
@@ -14,8 +14,8 @@ sub deinit_help_main {
     delete_sub 'init_help_main';
     delete_sub 'help_main';
     delete_sub 'help_main_cmd';
-    sophia_global_command_del 'help';
-    sophia_event_privmsg_dehook 'sophia.help';
+    sophia_command_del 'help.help';
+    sophia_event_privmsg_dehook 'help.help';
     delete_sub 'deinit_help_main';
 }
 

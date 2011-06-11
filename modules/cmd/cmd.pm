@@ -4,7 +4,7 @@ use warnings;
 sophia_module_add('cmd.cmd', '1.0', \&init_cmd_cmd, \&deinit_cmd_cmd);
 
 sub init_cmd_cmd {
-    sophia_global_command_add('cmd', \&cmd_cmd, 'Calls a user-defined command.', '');
+    sophia_command_add('cmd.cmd', \&cmd_cmd, 'Calls a user-defined command.', '');
 
     return 1;
 }
@@ -12,7 +12,7 @@ sub init_cmd_cmd {
 sub deinit_cmd_cmd {
     delete_sub 'init_cmd_cmd';
     delete_sub 'cmd_cmd';
-    sophia_global_command_del 'cmd';
+    sophia_command_del 'cmd.cmd';
     delete_sub 'deinit_cmd_cmd';
 }
 

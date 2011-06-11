@@ -4,7 +4,7 @@ use warnings;
 sophia_module_add('google.calc', '2.0', \&init_google_calc, \&deinit_google_calc);
 
 sub init_google_calc {
-    sophia_global_command_add('gcalc', \&google_calc, 'Uses Google for calculating stuff.', '');
+    sophia_command_add('google.calc', \&google_calc, 'Uses Google for calculating stuff.', '');
 
     return 1;
 }

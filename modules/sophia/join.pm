@@ -4,7 +4,7 @@ use warnings;
 sophia_module_add('sophia.join', '2.0', \&init_sophia_join, \&deinit_sophia_join);
 
 sub init_sophia_join {
-    sophia_global_command_add('join', \&sophia_join, 'Joins one or more channels.', '', SOPHIA_ACL_FOUNDER);
+    sophia_command_add('sophia.join', \&sophia_join, 'Joins one or more channels.', '', SOPHIA_ACL_FOUNDER);
     sophia_event_privmsg_hook('sophia.join', \&sophia_join, 'Joins one or more channels.', '', SOPHIA_ACL_FOUNDER);
 
     return 1;
@@ -13,7 +13,7 @@ sub init_sophia_join {
 sub deinit_sophia_join {
     delete_sub 'init_sophia_join';
     delete_sub 'sophia_join';
-    sophia_global_command_del 'join';
+    sophia_command_del 'sophia.join';
     sophia_event_privmsg_dehook 'sophia.join';
     delete_sub 'deinit_sophia_join';
 }

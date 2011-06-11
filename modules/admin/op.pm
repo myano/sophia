@@ -4,8 +4,8 @@ use warnings;
 sophia_module_add('admin.op', '2.0', \&init_admin_op, \&deinit_admin_op);
 
 sub init_admin_op {
-    sophia_global_command_add('op', \&admin_op, 'Ops the user/hostmask.', '', SOPHIA_ACL_OP | SOPHIA_ACL_AUTOOP);
-    sophia_event_privmsg_hook('sophia.op', \&admin_op, 'Ops the user/hostmask.', '', SOPHIA_ACL_OP | SOPHIA_ACL_AUTOOP);
+    sophia_command_add('admin.op', \&admin_op, 'Ops the user/hostmask.', '', SOPHIA_ACL_OP | SOPHIA_ACL_AUTOOP);
+    sophia_event_privmsg_hook('admin.op', \&admin_op, 'Ops the user/hostmask.', '', SOPHIA_ACL_OP | SOPHIA_ACL_AUTOOP);
 
     return 1;
 }
@@ -13,8 +13,8 @@ sub init_admin_op {
 sub deinit_admin_op {
     delete_sub 'init_admin_op';
     delete_sub 'admin_op';
-    sophia_global_command_del 'op';
-    sophia_event_privmsg_dehook 'sophia.op';
+    sophia_command_del 'admin.op';
+    sophia_event_privmsg_dehook 'admin.op';
     delete_sub 'deinit_admin_op';
 }
 
