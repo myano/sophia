@@ -37,11 +37,12 @@ sub help_main {
         $cmds .= 
             join ' ',
                 # define the output. If the module is sophia, it's a global command. Otherwise, list it as 'module:command'.
-                map  { sprintf('%s%s', ($module eq 'sophia' ? '' : $module . ':'), $_); }
+                map  { sprintf('%s:%s', $module, $_); }
                 # get the commands that the user has access to
                 grep { !$commands{$module}{$_}{access} or $perms & $commands{$module}{$_}{access} }
                 # get the commands
                 keys %{$commands{$module}};
+        $cmds .= ' ';
     }
     my $messages = irc_split_lines($cmds);
     $sophia->yield(notice => $who => $_) for @{$messages};
@@ -49,7 +50,7 @@ sub help_main {
 
 sub help_main_cmd {
     my $args = $_[0];
-    my ($who, $content) = ($args->[ARG0], $args->[ARG2]);
+    my ($who, $content, $heap) = ($args->[ARG0], $args->[ARG2], $args->[HEAP]);
 
     my @opts = split ' ', $content;
     return unless $#opts > 0;
@@ -58,15 +59,11 @@ sub help_main_cmd {
     my $perms = sophia_get_host_perms($who);
     $who = substr $who, 0, index($who, '!');
 
-    my $aliases = sophia_get_aliases();
-    $cmd = $aliases->{$cmd} if exists $aliases->{$cmd};
+    $cmd = $heap->{CMD_ALIASES}{$cmd} if exists $heap->{CMD_ALIASES}{$cmd};
 
-    if ($cmd =~ /\A([^:]+):(.+)\z/) {
-        ($module, $cmd) = ($1, $2);
-    }
-    else {
-        $module = $sophia::CONFIGURATIONS{GLOBAL_MODULE};
-    }
+    return if $cmd !~ /\A([^:]+):(.+)\z/;
+
+    ($module, $cmd) = ($1, $2);
 
     my $obj = $sophia::COMMANDS->{$module}{$cmd};
     return unless $obj;
