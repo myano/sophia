@@ -57,6 +57,7 @@ loadmodule "admin.voice";
 # loadmodule "common.countdown";
 # loadmodule "common.main";
 # loadmodule "common.ping";
+# loadmodule "common.rep";
 # loadmodule "common.time";
 
 # loadmodule "cmd.main";
