@@ -5,7 +5,6 @@ sophia_module_add('google.dictionary', '2.0', \&init_google_dictionary, \&deinit
 
 sub init_google_dictionary {
     sophia_command_add('google.dict', \&google_dictionary, 'Defines a word.', '');
-    sophia_global_command_add('dict', \&google_dictionary, 'Defines a word.', '');
 
     return 1;
 }

@@ -4,8 +4,8 @@ use warnings;
 sophia_module_add('admin.topic', '2.0', \&init_admin_topic, \&deinit_admin_topic);
 
 sub init_admin_topic {
-    sophia_global_command_add('topic', \&admin_topic, 'Displays or change the channel\'s topic.', '', SOPHIA_ACL_CHANGETOPIC);
-    sophia_event_privmsg_hook('sophia.topic', \&admin_topic, 'Displays or change the channel\'s topic.', '', SOPHIA_ACL_CHANGETOPIC);
+    sophia_command_add('admin.topic', \&admin_topic, 'Displays or change the channel\'s topic.', '', SOPHIA_ACL_CHANGETOPIC);
+    sophia_event_privmsg_hook('admin.topic', \&admin_topic, 'Displays or change the channel\'s topic.', '', SOPHIA_ACL_CHANGETOPIC);
 
     return 1;
 }
@@ -13,8 +13,8 @@ sub init_admin_topic {
 sub deinit_admin_topic {
     delete_sub 'init_admin_topic';
     delete_sub 'admin_topic';
-    sophia_global_command_del 'topic';
-    sophia_event_privmsg_dehook 'sophia.topic';
+    sophia_command_del 'admin.topic';
+    sophia_event_privmsg_dehook 'admin.topic';
     delete_sub 'deinit_admin_topic';
 }
 

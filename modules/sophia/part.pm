@@ -4,7 +4,7 @@ use warnings;
 sophia_module_add('sophia.part', '2.0', \&init_sophia_part, \&deinit_sophia_part);
 
 sub init_sophia_part {
-    sophia_global_command_add('part', \&sophia_part, 'Parts one or more channels.', '', SOPHIA_ACL_FOUNDER);
+    sophia_command_add('sophia.part', \&sophia_part, 'Parts one or more channels.', '', SOPHIA_ACL_FOUNDER);
     sophia_event_privmsg_hook('sophia.part', \&sophia_part, 'Parts one or more channels.', '', SOPHIA_ACL_FOUNDER);
 
     return 1;
@@ -13,7 +13,7 @@ sub init_sophia_part {
 sub deinit_sophia_part {
     delete_sub 'init_sophia_part';
     delete_sub 'sophia_part';
-    sophia_global_command_del 'part';
+    sophia_command_del 'sophia.part';
     sophia_event_privmsg_dehook 'sophia.part';
     delete_sub 'deinit_sophia_part';
 }

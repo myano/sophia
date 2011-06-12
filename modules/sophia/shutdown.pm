@@ -4,7 +4,7 @@ use warnings;
 sophia_module_add('sophia.shutdown', '2.0', \&init_sophia_shutdown, \&deinit_sophia_shutdown);
 
 sub init_sophia_shutdown {
-    sophia_global_command_add('shutdown', \&sophia_shutdown, 'Shutdown sophia.', '', SOPHIA_ACL_FOUNDER);
+    sophia_command_add('sophia.shutdown', \&sophia_shutdown, 'Shutdown sophia.', '', SOPHIA_ACL_FOUNDER);
     sophia_event_privmsg_hook('sophia.shutdown', \&sophia_shutdown, 'Shutdown sophia.', '', SOPHIA_ACL_FOUNDER);
 
     return 1;
@@ -13,7 +13,7 @@ sub init_sophia_shutdown {
 sub deinit_sophia_shutdown {
     delete_sub 'init_sophia_shutdown';
     delete_sub 'sophia_shutdown';
-    sophia_global_command_del 'shutdown';
+    sophia_command_del 'sophia.shutdown';
     sophia_event_privmsg_dehook 'sophia.shutdown';
     delete_sub 'deinit_sophia_shutdown';
 }

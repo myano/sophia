@@ -4,8 +4,8 @@ use warnings;
 sophia_module_add('common.ping', '1.0', \&init_common_ping, \&deinit_common_ping);
 
 sub init_common_ping {
-    sophia_global_command_add('ping', \&common_ping, 'Pings sophia and she will respond with a pong.', '');
-    sophia_event_privmsg_hook('sophia.ping', \&common_ping, 'Pings sophia and she will respond with a pong.', '');
+    sophia_command_add('common.ping', \&common_ping, 'Pings sophia and she will respond with a pong.', '');
+    sophia_event_privmsg_hook('common.ping', \&common_ping, 'Pings sophia and she will respond with a pong.', '');
 
     return 1;
 }
@@ -13,8 +13,8 @@ sub init_common_ping {
 sub deinit_common_ping {
     delete_sub 'init_common_ping';
     delete_sub 'common_ping';
-    sophia_global_command_del 'ping';
-    sophia_event_privmsg_dehook 'sophia.ping';
+    sophia_command_del 'common.ping';
+    sophia_event_privmsg_dehook 'common.ping';
     delete_sub 'deinit_common_ping';
 }
 

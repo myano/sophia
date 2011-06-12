@@ -33,7 +33,7 @@ my %CARD_POINTS = (
 sophia_module_add('games.uno', '1.0', \&init_games_uno, \&deinit_games_uno);
 
 sub init_games_uno {
-    sophia_global_command_add('uno', \&games_uno, 'Uno game.', '');
+    sophia_command_add('games.uno', \&games_uno, 'Uno game.', '');
 
     return 1;
 }
@@ -44,7 +44,7 @@ sub deinit_games_uno {
     delete_sub 'games_uno_newdeck';
     delete_sub 'games_uno_stop';
     delete_sub 'games_uno_setrecord';
-    sophia_global_command_del 'uno';
+    sophia_command_del 'games.uno';
     delete_sub 'deinit_games_uno';
 }
 

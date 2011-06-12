@@ -4,8 +4,8 @@ use warnings;
 sophia_module_add('admin.ban', '2.0', \&init_admin_ban, \&deinit_admin_ban);
 
 sub init_admin_ban {
-    sophia_global_command_add('ban', \&admin_ban, 'Bans the user/hostmask.', '', SOPHIA_ACL_OP | SOPHIA_ACL_AUTOOP);
-    sophia_event_privmsg_hook('sophia.ban', \&admin_ban, 'Bans the user/hostmask.', '', SOPHIA_ACL_OP | SOPHIA_ACL_AUTOOP);
+    sophia_command_add('admin.ban', \&admin_ban, 'Bans the user/hostmask.', '', SOPHIA_ACL_OP | SOPHIA_ACL_AUTOOP);
+    sophia_event_privmsg_hook('admin.ban', \&admin_ban, 'Bans the user/hostmask.', '', SOPHIA_ACL_OP | SOPHIA_ACL_AUTOOP);
 
     return 1;
 }
@@ -13,8 +13,8 @@ sub init_admin_ban {
 sub deinit_admin_ban {
     delete_sub 'init_admin_ban';
     delete_sub 'admin_ban';
-    sophia_global_command_del 'ban';
-    sophia_event_privmsg_dehook 'sophia.ban';
+    sophia_command_del 'admin.ban';
+    sophia_event_privmsg_dehook 'admin.ban';
     delete_sub 'deinit_admin_ban';
 }
 
