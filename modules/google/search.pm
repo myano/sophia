@@ -54,7 +54,6 @@ sub google_search {
         last if $endi == -1;
 
         $result = substr $response, $idx, $endi - $idx;
-        sophia_log('sophia', "s: $idx, e: $endi");
         $result = google_search_unescape($result);
         $result .= ' - ';
 
