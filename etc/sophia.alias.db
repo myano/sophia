@@ -3,6 +3,7 @@ listchans sophia:listchans
 kick admin:kick
 notice sophia:notice
 shutdown sophia:shutdown
+help help:help
 mod:reload sophia:modreload
 kickban admin:kickban
 act sophia:action
