@@ -4,8 +4,8 @@ use warnings;
 sophia_module_add('sophia.modload', '2.0', \&init_sophia_modload, \&deinit_sophia_modload);
 
 sub init_sophia_modload {
-    sophia_command_add('sophia.mod:load', \&sophia_modload, 'Loads a specified module.', '', SOPHIA_ACL_FOUNDER);
-    sophia_event_privmsg_hook('sophia.mod:load', \&sophia_modload, 'Loads a specified module.', '', SOPHIA_ACL_FOUNDER);
+    sophia_command_add('sophia.modload', \&sophia_modload, 'Loads a specified module.', '', SOPHIA_ACL_FOUNDER);
+    sophia_event_privmsg_hook('sophia.modload', \&sophia_modload, 'Loads a specified module.', '', SOPHIA_ACL_FOUNDER);
 
     return 1;
 }

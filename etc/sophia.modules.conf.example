@@ -2,7 +2,6 @@
 
 ## These modules are recommended!
 loadmodule "config.main";
-loadmodule "config.alias";
 loadmodule "config.reload";
 loadmodule "config.save";
 loadmodule "config.set";
@@ -49,6 +48,12 @@ loadmodule "admin.voice";
 
 ## These modules are optional, but common.main is required
 ## for most modules. So uncomment common.main.
+# loadmodule "alias.main";
+# loadmodule "alias.del";
+# loadmodule "alias.list";
+# loadmodule "alias.save";
+# loadmodule "alias.set";
+
 # loadmodule "common.countdown";
 # loadmodule "common.main";
 # loadmodule "common.ping";
