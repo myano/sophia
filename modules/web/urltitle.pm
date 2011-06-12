@@ -28,11 +28,16 @@ sub web_urltitle {
 
     if ($response =~ m#<title[^>]*>(.+?)</title>#xsmi) {
         my $title = $1;
-        my $sophia = ${$args->[HEAP]->{sophia}};
+
         $title =~ s/\r\n|\n//g;
+        $title =~ s/^\s+//g;
         $title =~ s/\s{2,}/ /g;
+
+        $title = '&laquo; ' . $title . ' &raquo;';
         $title = decode_entities($title);
-        $sophia->yield(privmsg => $where->[0] => "[ $title ]");
+        
+        my $sophia = ${$args->[HEAP]->{sophia}};
+        $sophia->yield(privmsg => $where->[0] => $title);
     }
 }
 
