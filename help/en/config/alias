@@ -1,6 +1,0 @@
-Syntax: config:alias del <alias>
-        config:alias list
-        config:alias set <alias> <value>
-DEL deletes the specified alias if it exists.
-LIST lists all aliases.
-SET will set the specified alias to the specified value.
