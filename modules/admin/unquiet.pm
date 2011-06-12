@@ -4,8 +4,8 @@ use warnings;
 sophia_module_add('admin.unquiet', '2.0', \&init_admin_unquiet, \&deinit_admin_unquiet);
 
 sub init_admin_unquiet {
-    sophia_global_command_add('unquiet', \&admin_unquiet, 'Unquiets the user/hostmask.', '', SOPHIA_ACL_OP | SOPHIA_ACL_AUTOOP);
-    sophia_event_privmsg_hook('sophia.unquiet', \&admin_unquiet, 'Unquiets the user/hostmask.', '', SOPHIA_ACL_OP | SOPHIA_ACL_AUTOOP);
+    sophia_command_add('admin.unquiet', \&admin_unquiet, 'Unquiets the user/hostmask.', '', SOPHIA_ACL_OP | SOPHIA_ACL_AUTOOP);
+    sophia_event_privmsg_hook('admin.unquiet', \&admin_unquiet, 'Unquiets the user/hostmask.', '', SOPHIA_ACL_OP | SOPHIA_ACL_AUTOOP);
 
     return 1;
 }
@@ -13,8 +13,8 @@ sub init_admin_unquiet {
 sub deinit_admin_unquiet {
     delete_sub 'init_admin_unquiet';
     delete_sub 'admin_unquiet';
-    sophia_global_command_del 'unquiet';
-    sophia_event_privmsg_dehook 'sophia.unquiet';
+    sophia_command_del 'admin.unquiet';
+    sophia_event_privmsg_dehook 'admin.unquiet';
     delete_sub 'deinit_admin_unquiet';
 }
 

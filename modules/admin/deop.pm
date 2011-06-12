@@ -4,8 +4,8 @@ use warnings;
 sophia_module_add('admin.deop', '2.0', \&init_admin_deop, \&deinit_admin_deop);
 
 sub init_admin_deop {
-    sophia_global_command_add('deop', \&admin_deop, 'Deops the user/hostmask.', '', SOPHIA_ACL_OP | SOPHIA_ACL_AUTOOP);
-    sophia_event_privmsg_hook('sophia.deop', \&admin_deop, 'Deops the user/hostmask.', '', SOPHIA_ACL_OP | SOPHIA_ACL_AUTOOP);
+    sophia_command_add('admin.deop', \&admin_deop, 'Deops the user/hostmask.', '', SOPHIA_ACL_OP | SOPHIA_ACL_AUTOOP);
+    sophia_event_privmsg_hook('admin.deop', \&admin_deop, 'Deops the user/hostmask.', '', SOPHIA_ACL_OP | SOPHIA_ACL_AUTOOP);
 
     return 1;
 }
@@ -13,8 +13,8 @@ sub init_admin_deop {
 sub deinit_admin_deop {
     delete_sub 'init_admin_deop';
     delete_sub 'admin_deop';
-    sophia_global_command_del 'deop';
-    sophia_event_privmsg_dehook 'sophia.deop';
+    sophia_command_del 'admin.deop';
+    sophia_event_privmsg_dehook 'admin.deop';
     delete_sub 'deinit_admin_deop';
 }
 

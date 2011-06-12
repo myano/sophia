@@ -29,7 +29,8 @@ our %CONFIGURATIONS;
     MAIN_CONFIG     => "$Bin/../etc/sophia.conf",
     MODULES_CONFIG  => "$Bin/../etc/sophia.modules.conf",
     ACL_DB          => "$Bin/../etc/sophia.acl.db",
-    GLOBAL_MODULE   => 'sophia',
+    ALIAS_DB        => "$Bin/../etc/sophia.alias.db",
+    LOAD_ALIASES    => 0,
     IN_DEBUG_MODE   => 0,
     DO_RESTART      => 0,
 );
@@ -70,7 +71,6 @@ require ModuleHandler;
 require Util;
 
 our (%COMMANDS, %MODULES, %TIMERS, %EVENTS, %EVENTSCONF);
-my %CMD_ALIASES;
 
 %EVENTSCONF = (
     join            => 'join',
@@ -224,6 +224,9 @@ sub irc_001 {
     # load modules
     sophia_load_modules();
 
+    # load aliases?
+    sophia_aliases_load(\$_[HEAP]) if $CONFIGURATIONS{LOAD_ALIASES};
+
     # hook up timers
     $_[KERNEL]->alarm( 'load_timers' => time() + 1 );
 }
@@ -309,7 +312,7 @@ sub exec_events {
 
 sub exec_events_trigger {
     my ($namespace, $args) = @_;
-    my ($who, $content) = ($args->[ARG0], $args->[ARG2]);
+    my ($who, $content, $heap) = ($args->[ARG0], $args->[ARG2], $args->[HEAP]);
 
     # triggers ?
     return unless $content && $content =~ /\A\Q$SOPHIA{trigger}\E/;
@@ -328,21 +331,10 @@ sub exec_events_trigger {
     $target = substr $who, 0, index($who, '!') if ($namespace eq $EVENTSCONF{privmsg} || $namespace eq $EVENTSCONF{notice});
 
     # is this an alias? 
-    $trigger = $CMD_ALIASES{$trigger} if defined $CMD_ALIASES{$trigger};
+    $trigger = $heap->{CMD_ALIASES}{$trigger} if defined $heap->{CMD_ALIASES}{$trigger};
 
-    # global event trigger
-    if ($sophia::EVENTS->{$namespace}{$CONFIGURATIONS{GLOBAL_MODULE}}{$trigger}) {
-        $ac = $sophia::EVENTS->{$namespace}{$CONFIGURATIONS{GLOBAL_MODULE}}{$trigger}{access};
-        if ($ac) {
-            return unless $perms & $ac;
-        }
-        eval {
-            $x = &{$sophia::EVENTS->{$namespace}{$CONFIGURATIONS{GLOBAL_MODULE}}{$trigger}{init}}($args, $target);
-            1;
-        } or sophia_log('sophia', '[ERROR] ' . $!) and sophia_log('sophia', '[ERROR] ' .$@);
-    }
     # module:command trigger
-    elsif ($trigger =~ m/\A([^:]+):(.+)\z/) {
+    if ($trigger =~ m/\A([^:]+):(.+)\z/) {
         ($module, $command) = ($1, $2);
         if ($sophia::EVENTS->{$namespace}{$module}{$command}) {
             $ac = $sophia::EVENTS->{$namespace}{$module}{$command}{access};
@@ -359,7 +351,7 @@ sub exec_events_trigger {
 
 sub exec_triggers {
     my $args = $_[0];
-    my ($who, $where, $content) = ($args->[ARG0], $args->[ARG1], $args->[ARG2]);
+    my ($who, $where, $content, $heap) = ($args->[ARG0], $args->[ARG1], $args->[ARG2], $args->[HEAP]);
 
     # triggers ?
     return unless $content;
@@ -385,21 +377,10 @@ sub exec_triggers {
     $trigger = $content if $idx == -1;
 
     # is this an alias? 
-    $trigger = $CMD_ALIASES{$trigger} if defined $CMD_ALIASES{$trigger};
+    $trigger = $heap->{CMD_ALIASES}{$trigger} if defined $heap->{CMD_ALIASES}{$trigger};
 
-    # sophia command / global trigger?
-    if ($sophia::COMMANDS->{$CONFIGURATIONS{GLOBAL_MODULE}}{$trigger}) {
-        $ac = $sophia::COMMANDS->{$CONFIGURATIONS{GLOBAL_MODULE}}{$trigger}{access};
-        if ($ac) {
-            return unless $perms & $ac;
-        }
-        eval {
-            $x = &{$sophia::COMMANDS->{$CONFIGURATIONS{GLOBAL_MODULE}}{$trigger}{init}}($args);
-            1;
-        } or sophia_log('sophia', '[ERROR] ' . $!) and sophia_log('sophia', '[ERROR] '. $@);
-    }
     # module:command trigger
-    elsif ($trigger =~ m/\A([^:]+):(.+)\z/) {
+    if ($trigger =~ m/\A([^:]+):(.+)\z/) {
         ($module, $command) = ($1, $2);
 
         if ($sophia::COMMANDS->{$module}{$command}) {
@@ -428,25 +409,21 @@ sub sophia_load_config {
         next LINE if /\A#/ || /\A\s*\z/;  # ignoring comments and lame lines
 
         @opts = split ' ';
-        $len = scalar @opts;
+        return if scalar @opts != 2;
 
         $opts[0] = lc $opts[0];
 
         given ($opts[0]) {
-            when ('alias')  { next LINE if $len != 3; $CMD_ALIASES{$opts[1]} = $opts[2]; }
-
-            default         {
-                next LINE if $len != 2;
-
-                if ($opts[0] eq 'channel')          { $SOPHIA{channels}{$opts[1]} = 1; }
-                elsif ($opts[0] eq 'port')          {
-                    if (index($opts[1], '+') == 0) {
-                        $SOPHIA{usessl} = 1;
-                        $opts[1] = substr $opts[1], 1;
-                    }
-                    $SOPHIA{port} = $opts[1];
+            when ('channel')          { $SOPHIA{channels}{$opts[1]} = 1; }
+            when ('port')          {
+                if (index($opts[1], '+') == 0) {
+                    $SOPHIA{usessl} = 1;
+                    $opts[1] = substr $opts[1], 1;
                 }
-                elsif (exists $SOPHIA{$opts[0]})    { $SOPHIA{$opts[0]} = $opts[1]; }
+                $SOPHIA{port} = $opts[1];
+            }
+            default {
+                $SOPHIA{$opts[0]} = $opts[1] if exists $SOPHIA{$opts[0]};
             }
         }
     }
@@ -518,10 +495,6 @@ sub sophia_save_config {
     print {$fh} '# join the following channels', "\n";
     print {$fh} 'channel ', $_, "\n" for keys %{$SOPHIA{channels}};
 
-    print {$fh} "\n\n";
-    print {$fh} '# command aliases', "\n";
-    print {$fh} 'alias ', $_, ' ', $CMD_ALIASES{$_}, "\n" for keys %CMD_ALIASES;
-
     close $fh;
 
     return 1;
@@ -553,35 +526,36 @@ sub sophia_set_config_option {
     return 1;
 }
 
-sub sophia_get_aliases {
-    return \%CMD_ALIASES;
-}
-
-sub sophia_set_alias_option {
-    my ($opt1, $opt2) = @_;
-    return 0 unless $opt1 && $opt2;
-
-    ($opt1, $opt2) = (lc $opt1, lc $opt2);
-
-    $CMD_ALIASES{$opt1} = $opt2;
-    return 1;
-}
-
-sub sophia_del_alias_option {
-    my $opt = $_[0];
-    return 0 unless $opt;
-
-    $opt = lc $opt;
-    return 0 unless defined $SOPHIA{$opt};
-
-    delete $SOPHIA{$opt};
-    return 1;
-}
-
 sub sophia_get_config {
     my %config = %SOPHIA;
     $config{password} = '';
     return \%config;
+}
+
+sub sophia_set {
+    my ($key, $val) = @_;
+    $CONFIGURATIONS{$key} = $val;
+    return;
+}
+
+sub sophia_aliases_load {
+    my $heap = shift;
+    return unless $heap;
+    $heap = ${$heap};
+
+    open my $fh, '<', $CONFIGURATIONS{ALIAS_DB} or sophia_log('sophia', sprintf('Unable to open %s for reading: %s', $CONFIGURATIONS{ALIAS_DB}, $!)) and return;
+
+    while (<$fh>) {
+        chomp;
+        return if /\A\s*\z/;
+
+        my @opts = split ' ';
+        $heap->{CMD_ALIASES}{$opts[0]} = $opts[1];
+    }
+
+    close $fh;
+
+    return;
 }
 
 __END__

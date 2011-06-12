@@ -4,7 +4,7 @@ use warnings;
 sophia_module_add('sophia.restart', '2.0', \&init_sophia_restart, \&deinit_sophia_restart);
 
 sub init_sophia_restart {
-    sophia_global_command_add('restart', \&sophia_restart, 'Restarts sophia.', '', SOPHIA_ACL_FOUNDER);
+    sophia_command_add('sophia.restart', \&sophia_restart, 'Restarts sophia.', '', SOPHIA_ACL_FOUNDER);
     sophia_event_privmsg_hook('sophia.restart', \&sophia_restart, 'Restarts sophia.', '', SOPHIA_ACL_FOUNDER);
     
     return 1;
@@ -13,7 +13,7 @@ sub init_sophia_restart {
 sub deinit_sophia_restart {
     delete_sub 'init_sophia_restart';
     delete_sub 'sophia_restart';
-    sophia_global_command_del 'restart';
+    sophia_command_del 'sophia.restart';
     sophia_event_privmsg_dehook 'sophia.restart';
     delete_sub 'deinit_sophia_restart';
 }

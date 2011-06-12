@@ -4,8 +4,8 @@ use warnings;
 sophia_module_add('admin.quiet', '2.0', \&init_admin_quiet, \&deinit_admin_quiet);
 
 sub init_admin_quiet {
-    sophia_global_command_add('quiet', \&admin_quiet, 'Quiets the user/hostmask.', '', SOPHIA_ACL_OP | SOPHIA_ACL_AUTOOP);
-    sophia_event_privmsg_hook('sophia.quiet', \&admin_quiet, 'Quiets the user/hostmask.', '', SOPHIA_ACL_OP | SOPHIA_ACL_AUTOOP);
+    sophia_command_add('admin.quiet', \&admin_quiet, 'Quiets the user/hostmask.', '', SOPHIA_ACL_OP | SOPHIA_ACL_AUTOOP);
+    sophia_event_privmsg_hook('admin.quiet', \&admin_quiet, 'Quiets the user/hostmask.', '', SOPHIA_ACL_OP | SOPHIA_ACL_AUTOOP);
 
     return 1;
 }
@@ -13,8 +13,8 @@ sub init_admin_quiet {
 sub deinit_admin_quiet {
     delete_sub 'init_admin_quiet';
     delete_sub 'admin_quiet';
-    sophia_global_command_del 'quiet';
-    sophia_event_privmsg_dehook 'sophia.quiet';
+    sophia_command_del 'admin.quiet';
+    sophia_event_privmsg_dehook 'admin.quiet';
     delete_sub 'deinit_admin_quiet';
 }
 

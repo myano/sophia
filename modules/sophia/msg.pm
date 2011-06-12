@@ -4,7 +4,7 @@ use warnings;
 sophia_module_add('sophia.msg', '1.0', \&init_sophia_msg, \&deinit_sophia_msg);
 
 sub init_sophia_msg {
-    sophia_global_command_add('say', \&sophia_msg, 'Sends a privmsg.', '');
+    sophia_command_add('sophia.say', \&sophia_msg, 'Sends a privmsg.', '');
     sophia_event_privmsg_hook('sophia.msg', \&sophia_msg, 'Sends a privmsg.', '', SOPHIA_ACL_ADMIN);
 
     1;
@@ -13,7 +13,7 @@ sub init_sophia_msg {
 sub deinit_sophia_msg {
     delete_sub 'init_sophia_msg';
     delete_sub 'sophia_msg';
-    sophia_global_command_del 'say';
+    sophia_command_del 'sophia.say';
     sophia_event_privmsg_dehook 'sophia.msg';
     delete_sub 'deinit_sophia_msg';
 }

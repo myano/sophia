@@ -4,8 +4,8 @@ use warnings;
 sophia_module_add('admin.unban', '2.0', \&init_admin_unban, \&deinit_admin_unban);
 
 sub init_admin_unban {
-    sophia_global_command_add('unban', \&admin_unban, 'Unbans the user/hostmask.', '', SOPHIA_ACL_OP | SOPHIA_ACL_AUTOOP);
-    sophia_event_privmsg_hook('sophia.unban', \&admin_unban, 'Unbans the user/hostmask.', '', SOPHIA_ACL_OP | SOPHIA_ACL_AUTOOP);
+    sophia_command_add('admin.unban', \&admin_unban, 'Unbans the user/hostmask.', '', SOPHIA_ACL_OP | SOPHIA_ACL_AUTOOP);
+    sophia_event_privmsg_hook('admin.unban', \&admin_unban, 'Unbans the user/hostmask.', '', SOPHIA_ACL_OP | SOPHIA_ACL_AUTOOP);
 
     return 1;
 }
@@ -13,8 +13,8 @@ sub init_admin_unban {
 sub deinit_admin_unban {
     delete_sub 'init_admin_unban';
     delete_sub 'admin_unban';
-    sophia_global_command_del 'unban';
-    sophia_event_privmsg_dehook 'sophia.unban';
+    sophia_command_del 'admin.unban';
+    sophia_event_privmsg_dehook 'admin.unban';
     delete_sub 'deinit_admin_unban';
 }
 

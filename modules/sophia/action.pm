@@ -4,7 +4,7 @@ use warnings;
 sophia_module_add('sophia.action', '1.0', \&init_sophia_action, \&deinit_sophia_action);
 
 sub init_sophia_action {
-    sophia_global_command_add('act', \&sophia_action, 'Sends an action.', '');
+    sophia_command_add('sophia.act', \&sophia_action, 'Sends an action.', '');
     sophia_event_privmsg_hook('sophia.action', \&sophia_action, 'Sends an action.', '', SOPHIA_ACL_ADMIN);
 
     1;
@@ -13,7 +13,7 @@ sub init_sophia_action {
 sub deinit_sophia_action {
     delete_sub 'init_sophia_action';
     delete_sub 'sophia_action';
-    sophia_global_command_del 'action';
+    sophia_command_del 'sophia.action';
     sophia_event_privmsg_dehook 'sophia.action';
     delete_sub 'deinit_sophia_action';
 }

@@ -4,8 +4,8 @@ use warnings;
 sophia_module_add('admin.kick', '2.0', \&init_admin_kick, \&deinit_admin_kick);
 
 sub init_admin_kick {
-    sophia_global_command_add('kick', \&admin_kick, 'Kicks user if bot is a chan op.', '', SOPHIA_ACL_OP | SOPHIA_ACL_AUTOOP);
-    sophia_event_privmsg_hook('sophia.kick', \&admin_kick, 'Kicks user if bot is a chan op.', '', SOPHIA_ACL_OP | SOPHIA_ACL_AUTOOP);
+    sophia_command_add('admin.kick', \&admin_kick, 'Kicks user if bot is a chan op.', '', SOPHIA_ACL_OP | SOPHIA_ACL_AUTOOP);
+    sophia_event_privmsg_hook('admin.kick', \&admin_kick, 'Kicks user if bot is a chan op.', '', SOPHIA_ACL_OP | SOPHIA_ACL_AUTOOP);
 
     return 1;
 }
@@ -13,8 +13,8 @@ sub init_admin_kick {
 sub deinit_admin_kick {
     delete_sub 'init_admin_kick';
     delete_sub 'admin_kick';
-    sophia_global_command_del 'kick';
-    sophia_event_privmsg_dehook 'sophia.kick';
+    sophia_command_del 'admin.kick';
+    sophia_event_privmsg_dehook 'admin.kick';
     delete_sub 'deinit_admin_kick';
 }
 

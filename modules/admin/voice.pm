@@ -4,8 +4,8 @@ use warnings;
 sophia_module_add('admin.voice', '2.0', \&init_admin_voice, \&deinit_admin_voice);
 
 sub init_admin_voice {
-    sophia_global_command_add('voice', \&admin_voice, 'Voices the user/hostmask.', '', SOPHIA_ACL_VOICE | SOPHIA_ACL_AUTOVOICE);
-    sophia_event_privmsg_hook('sophia.voice', \&admin_voice, 'Voices the user/hostmask.', '', SOPHIA_ACL_VOICE | SOPHIA_ACL_AUTOVOICE);
+    sophia_command_add('admin.voice', \&admin_voice, 'Voices the user/hostmask.', '', SOPHIA_ACL_VOICE | SOPHIA_ACL_AUTOVOICE);
+    sophia_event_privmsg_hook('admin.voice', \&admin_voice, 'Voices the user/hostmask.', '', SOPHIA_ACL_VOICE | SOPHIA_ACL_AUTOVOICE);
 
     return 1;
 }
@@ -13,8 +13,8 @@ sub init_admin_voice {
 sub deinit_admin_voice {
     delete_sub 'init_admin_voice';
     delete_sub 'admin_voice';
-    sophia_global_command_del 'voice';
-    sophia_event_privmsg_dehook 'sophia.voice';
+    sophia_command_del 'admin.voice';
+    sophia_event_privmsg_dehook 'admin.voice';
     delete_sub 'deinit_admin_voice';
 }
 
