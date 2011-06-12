@@ -545,9 +545,9 @@ sub sophia_aliases_load {
 
     open my $fh, '<', $CONFIGURATIONS{ALIAS_DB} or sophia_log('sophia', sprintf('Unable to open %s for reading: %s', $CONFIGURATIONS{ALIAS_DB}, $!)) and return;
 
-    while (<$fh>) {
+    LINE: while (<$fh>) {
         chomp;
-        return if /\A\s*\z/;
+        next LINE if /\A\s*\z/;
 
         my @opts = split ' ';
         $heap->{CMD_ALIASES}{$opts[0]} = $opts[1];
@@ -555,7 +555,7 @@ sub sophia_aliases_load {
 
     close $fh;
 
-    return;
+    return 1;
 }
 
 __END__
