@@ -21,7 +21,6 @@ use POE qw(Component::IRC);
 use POSIX qw(setsid);
 use Sub::Delete;
 use feature 'switch';
-use Data::Dumper;
 
 our %CONFIGURATIONS;
 %CONFIGURATIONS = (
