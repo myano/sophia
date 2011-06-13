@@ -1,0 +1,4 @@
+Syntax: alias:set <alias> <value>
+Binds the specified alias to the specified value. The value needs to be a valid command for this to work.
+Example: !alias:set gcalc google:calc
+         !gcalc

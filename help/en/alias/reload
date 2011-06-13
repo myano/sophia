@@ -1,0 +1,2 @@
+Syntax: alias:reload
+Reloads the aliases from the database file. This will wipe out any changes added unless you save (alias:save).

@@ -51,6 +51,7 @@ loadmodule "admin.voice";
 # loadmodule "alias.main";
 # loadmodule "alias.del";
 # loadmodule "alias.list";
+# loadmodule "alias.reload";
 # loadmodule "alias.save";
 # loadmodule "alias.set";
 
