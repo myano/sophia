@@ -1,0 +1,2 @@
+Syntax: alias:del <alias>
+Deletes the specified alias if it exists.

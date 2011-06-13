@@ -20,12 +20,20 @@ sub deinit_admin_topic {
 
 sub admin_topic {
     my ($args, $target) = @_;
-    my ($where, $content) = ($args->[ARG1], $args->[ARG2]);
-    my $target_chan = $where->[0];
+    my ($where, $content, $heap) = ($args->[ARG1], $args->[ARG2], $args->[HEAP]);
+    my $target_chan = lc $where->[0];
+    my $sophia = ${$heap->{sophia}};
 
-    # there needs to be at least ONE argument. Since the initial word is the command: !topic, ignore it
     my $idx = index $content, ' ';
-    return if $idx == -1;
+
+    # if there are no params, show the topic if it has one.
+    if ($idx == -1) {
+        $sophia->yield( privmsg => $target_chan => $heap->{TOPICS}{$target_chan} )
+            if defined $heap->{TOPICS}{$target_chan};
+
+        return;
+    }
+
     $content = substr $content, $idx + 1;
 
     # if this is a privmsg case, then the first arg is the channel
@@ -43,7 +51,6 @@ sub admin_topic {
 
     return if !$content;
 
-    my $sophia = ${$args->[HEAP]->{sophia}};
     $sophia->yield( topic => $target_chan => $content );
 }
 
