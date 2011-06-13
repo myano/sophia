@@ -1,3 +1,4 @@
-Syntax: admin:topic <new_topic>
-This command must be used in a channel.
-It changes the topic to the specified new topic.
+Syntax: admin:topic
+        admin:topic <new_topic>
+If called without an argument, sophia reports the channel topic.
+Otherwise, sophia will change the topic to the specified new topic.

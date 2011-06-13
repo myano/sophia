@@ -21,6 +21,7 @@ use POE qw(Component::IRC);
 use POSIX qw(setsid);
 use Sub::Delete;
 use feature 'switch';
+use Data::Dumper;
 
 our %CONFIGURATIONS;
 %CONFIGURATIONS = (
@@ -156,6 +157,7 @@ POE::Session->create(
         _start      => \&_start,
         _stop       => \&_stop,
         irc_001     => \&irc_001,
+        irc_332     => \&irc_332,
         irc_disconnected    => \&irc_disconnected,
         irc_error   => \&irc_error,
         irc_join    => \&irc_join,
@@ -167,6 +169,7 @@ POE::Session->create(
         irc_public  => \&irc_public,
         irc_quit    => \&irc_quit,
         irc_shutdown    => \&irc_shutdown,
+        irc_topic   => \&irc_topic,
         sig_int     => \&sig_int,
         load_timers => \&load_timers,
     },
@@ -231,6 +234,11 @@ sub irc_001 {
     $_[KERNEL]->alarm( 'load_timers' => time() + 1 );
 }
 
+sub irc_332 {
+    my ($heap, $arr_ref) = @_[HEAP, ARG2];
+    $heap->{TOPICS}{lc $arr_ref->[0]} = $arr_ref->[1];
+}
+
 sub irc_disconnected {
     $sophia->yield('shutdown');
 }
@@ -283,6 +291,11 @@ sub irc_shutdown {
         }
     }
     exit;
+}
+
+sub irc_topic {
+    my ($heap, $chan, $topic) = @_[HEAP, ARG1, ARG2];
+    $heap->{TOPICS}{lc $chan} = $topic;
 }
 
 sub sig_int {
