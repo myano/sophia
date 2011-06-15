@@ -37,6 +37,14 @@ sub sophia_modload {
         }
     }
 
+    my $len = scalar @loaded;
+
+    # if no modules are loaded, then tell the user
+    if ($len == 0) {
+        $sophia->yield(privmsg => $target => 'All modules failed to load.');
+        return;
+    }
+
     my $modules = sprintf('Module%s loaded: %s.', (scalar @loaded > 1 ? 's' : ''), join(', ', @loaded));
     my $messages = irc_split_lines($modules);
 

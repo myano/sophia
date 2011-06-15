@@ -42,7 +42,15 @@ sub sophia_modreload {
         }
     }
 
-    my $modules = sprintf('Module%s reloaded: %s.', (scalar @loaded > 1 ? 's' : ''), join(', ', @loaded));
+    my $len = scalar @loaded;
+
+    # if no modules are loaded, then tell the user
+    if ($len == 0) {
+        $sophia->yield(privmsg => $target => 'All modules failed to reload.');
+        return;
+    }
+
+    my $modules = sprintf('Module%s reloaded: %s.', ($len > 1 ? 's' : ''), join(', ', @loaded));
     my $messages = irc_split_lines($modules);
 
     $sophia->yield(privmsg => $target => $_) for @{$messages};
