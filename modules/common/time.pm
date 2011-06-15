@@ -242,7 +242,7 @@ sub common_time {
 
     my $sophia = ${$args->[HEAP]->{sophia}};
 
-    # if we have this timzone, show the time
+    # if we have this timezone, show the time
     if (defined(my $offset = $timezones{uc $content})) {
         $sophia->yield(privmsg => $where->[0] => sprintf('%s %s', scalar(gmtime(time() + $offset * 3600)), $content));
         return;
