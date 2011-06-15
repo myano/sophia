@@ -3,6 +3,13 @@ use warnings;
 
 sub sophia_module_load {
     my $module = $_[0];
+
+    # if the module exists, don't re-load
+    if (exists $sophia::MODULES->{$_[0]}) {
+        sophia_log('sophia', "[MODULE] modules/$module.pm is already loaded.");
+        return;
+    }
+
     $module =~ s/\./\//;
     return unless -e "$Bin/../modules/$module.pm";
 
