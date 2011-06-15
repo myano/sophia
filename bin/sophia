@@ -24,7 +24,7 @@ use feature 'switch';
 
 our %CONFIGURATIONS;
 %CONFIGURATIONS = (
-    VERSION         => 'sophia-2.0.0-dev',
+    VERSION         => 'sophia-2.1.0-dev',
     BASE_DIR        => "$Bin/..",
     MAIN_CONFIG     => "$Bin/../etc/sophia.conf",
     MODULES_CONFIG  => "$Bin/../etc/sophia.modules.conf",
