@@ -2,22 +2,22 @@ use strict;
 use warnings;
 use feature 'switch';
 
-sophia_module_add('admin.stopic', '1.0', \&init_admin_stopic, \&deinit_admin_stopic);
+sophia_module_add('admin.sedtopic', '1.0', \&init_admin_sedtopic, \&deinit_admin_sedtopic);
 
-sub init_admin_stopic {
-    sophia_command_add('admin.stopic', \&admin_stopic, 'Changes the channel topic with a substitute string: s///', '', SOPHIA_ACL_CHANGETOPIC);
+sub init_admin_sedtopic {
+    sophia_command_add('admin.sedtopic', \&admin_sedtopic, 'Changes the channel topic with a substitute string: s///', '', SOPHIA_ACL_CHANGETOPIC);
 
     return 1;
 }
 
-sub deinit_admin_stopic {
-    delete_sub 'init_admin_stopic';
-    delete_sub 'admin_stopic';
-    sophia_command_del 'admin.stopic';
-    delete_sub 'deinit_admin_stopic';
+sub deinit_admin_sedtopic {
+    delete_sub 'init_admin_sedtopic';
+    delete_sub 'admin_sedtopic';
+    sophia_command_del 'admin.sedtopic';
+    delete_sub 'deinit_admin_sedtopic';
 }
 
-sub admin_stopic {
+sub admin_sedtopic {
     my ($args, $target) = @_;
     my ($where, $content, $heap) = ($args->[ARG1], $args->[ARG2], $args->[HEAP]);
 
