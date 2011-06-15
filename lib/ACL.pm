@@ -59,7 +59,7 @@ sub sophia_acl_host2uid {
 
 sub sophia_group_add {
     my ($group_name, $flags) = @_;
-    return 0 if sophia_group_exists($group_name) || !$group_name;
+    return if sophia_group_exists($group_name) || !$group_name;
 
     $group_name = lc $group_name;
 
@@ -76,7 +76,7 @@ sub sophia_group_add {
 
 sub sophia_group_flags {
     my ($group_name, $flags) = @_;
-    return 0 unless sophia_group_exists($group_name) && $flags;
+    return unless sophia_group_exists($group_name) && $flags;
 
     $group_name = lc $group_name;
 
@@ -105,7 +105,7 @@ sub sophia_group_flags {
 
 sub sophia_group_chanflags {
     my ($group_name, $chan, $flags) = @_;
-    return 0 unless sophia_group_exists($group_name) && $chan && $flags;
+    return unless sophia_group_exists($group_name) && $chan && $flags;
 
     ($group_name, $chan) = (lc $group_name, lc $chan);
 
@@ -135,7 +135,7 @@ sub sophia_group_chanflags {
 
 sub sophia_group_rename {
     my ($old_name, $new_name) = @_;
-    return 0 unless sophia_group_exists($old_name) && $new_name;
+    return unless sophia_group_exists($old_name) && $new_name;
     return -1 if sophia_group_exists($new_name);
 
     ($old_name, $new_name) = (lc $old_name, $new_name);
@@ -147,7 +147,7 @@ sub sophia_group_rename {
 
 sub sophia_group_del {
     my $group_name = $_[0];
-    return 0 unless sophia_group_exists($group_name);
+    return unless sophia_group_exists($group_name);
 
     $group_name = lc $group_name;
 
@@ -157,7 +157,7 @@ sub sophia_group_del {
 
 sub sophia_user_add {
     my ($uid, $flags) = @_;
-    return 0 if sophia_user_exists($uid) || sophia_is_master($uid);
+    return if sophia_user_exists($uid) || sophia_is_master($uid);
 
     $uid = lc $uid;
 
@@ -207,7 +207,7 @@ sub sophia_get_user_perms {
 
 sub sophia_user_chanflags {
     my ($uid, $chan, $flags) = @_;
-    return 0 unless sophia_user_exists($uid) && !sophia_is_master($uid) && $chan && $flags;
+    return unless sophia_user_exists($uid) && !sophia_is_master($uid) && $chan && $flags;
 
     ($uid, $chan) = (lc $uid, lc $chan);
     my @flaglist = split //, $flags;
@@ -236,7 +236,7 @@ sub sophia_user_chanflags {
 
 sub sophia_user_flags {
     my ($uid, $flags) = @_;
-    return 0 unless sophia_user_exists($uid) && !sophia_is_master($uid) && $flags;
+    return unless sophia_user_exists($uid) && !sophia_is_master($uid) && $flags;
 
     $uid = lc $uid;
 
@@ -265,7 +265,7 @@ sub sophia_user_flags {
 
 sub sophia_user_group_add {
     my ($uid, $group_name) = @_;
-    return 0 unless sophia_user_exists($uid) && sophia_group_exists($group_name);
+    return unless sophia_user_exists($uid) && sophia_group_exists($group_name);
 
     ($uid, $group_name) = (lc $uid, lc $group_name);
 
@@ -276,7 +276,7 @@ sub sophia_user_group_add {
 
 sub sophia_user_group_del {
     my ($uid, $group_name) = @_;
-    return 0 unless sophia_user_exists($uid) && sophia_group_exists($group_name);
+    return unless sophia_user_exists($uid) && sophia_group_exists($group_name);
 
     ($uid, $group_name) = (lc $uid, lc $group_name);
 
@@ -287,7 +287,7 @@ sub sophia_user_group_del {
 
 sub sophia_userhost_add {
     my ($uid, $host) = @_;
-    return 0 unless sophia_user_exists($uid) && $host;
+    return unless sophia_user_exists($uid) && $host;
 
     ($uid, $host) = (lc $uid, lc $host);
 
@@ -299,8 +299,8 @@ sub sophia_userhost_add {
 
 sub sophia_userhost_del {
     my ($uid, $host) = @_;
-    return 0 unless sophia_user_exists($uid) && $host;
-    return 0 if sophia_is_master($uid) && $host eq $SOPHIA_ACL_MASTER{HOSTMASK};
+    return unless sophia_user_exists($uid) && $host;
+    return if sophia_is_master($uid) && $host eq $SOPHIA_ACL_MASTER{HOSTMASK};
 
     ($uid, $host) = (lc $uid, lc $host);
 
@@ -311,7 +311,7 @@ sub sophia_userhost_del {
 
 sub sophia_user_del {
     my $uid = $_[0];
-    return 0 unless sophia_user_exists($uid) && !sophia_is_master($uid);
+    return unless sophia_user_exists($uid) && !sophia_is_master($uid);
 
     $uid = lc $uid;
 
@@ -382,7 +382,7 @@ sub sophia_uid_from_host {
 
 sub sophia_map_host2uid {
     my ($uid, $host) = @_;
-    return 0 unless sophia_user_exists($uid) && $host;
+    return unless sophia_user_exists($uid) && $host;
 
     ($uid, $host) = (lc $uid, lc $host);
 
@@ -393,7 +393,7 @@ sub sophia_map_host2uid {
 
 sub sophia_unmap_host2uid {
     my $host = $_[0];
-    return 0 unless $host;
+    return unless $host;
 
     $host = lc $host;
 
@@ -405,7 +405,7 @@ sub sophia_unmap_host2uid {
 
 sub sophia_group_exists {
     my $group_name = $_[0];
-    return 0 unless $group_name;
+    return unless $group_name;
 
     $group_name = lc $group_name;
 
@@ -414,7 +414,7 @@ sub sophia_group_exists {
 
 sub sophia_user_exists {
     my $uid = $_[0];
-    return 0 unless $uid;
+    return unless $uid;
 
     $uid = lc $uid;
 

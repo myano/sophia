@@ -20,7 +20,7 @@ sub deinit_cmd_main {
 }
 
 sub sophia_cmd_load {
-    open my $fh, '<', $cmd_db or sophia_log('sophia', "Unable to load $cmd_db file: $!") and return 0;
+    open my $fh, '<', $cmd_db or sophia_log('sophia', "Unable to load $cmd_db file: $!") and return;
 
     my ($idx, $cmd, $content);
 
