@@ -239,6 +239,8 @@ sub common_time {
     my $idx = index $content, ' ';
     return if $idx == -1;
     $content = substr $content, $idx + 1;
+    $content =~ s/\A\s+//;
+    return if !$content;
 
     my $sophia = ${$args->[HEAP]->{sophia}};
 
