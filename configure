@@ -77,7 +77,7 @@ sub main_packages {
         1;
     } or print "not found (install Switch).\n";
 
-    return 0;
+    return;
 }
 
 sub modules_packages {

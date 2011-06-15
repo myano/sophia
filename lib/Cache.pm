@@ -5,7 +5,7 @@ my %CACHE;
 
 sub sophia_cache_store {
     my ($namespace, $key, $val) = @_;
-    return 0 unless $namespace && $key && $val;
+    return unless $namespace && $key && $val;
 
     $key = lc $key;
     $CACHE{$namespace}{$key} = $val;
@@ -42,7 +42,7 @@ sub sophia_cache_del {
 
 sub sophia_cache_key_exists {
     my ($namespace, $key) = @_;
-    return 0 unless $namespace;
+    return unless $namespace;
 
     $key //= '';
 

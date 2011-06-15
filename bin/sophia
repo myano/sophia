@@ -188,7 +188,7 @@ sub _default {
 		}
 	}
 	print join ' ', @output, "\n";
-	return 0;
+	return;
 }
 
 sub _start {
@@ -443,7 +443,7 @@ sub sophia_load_config {
 }
 
 sub sophia_reload_config {
-    return 0 unless -e $CONFIGURATIONS{MAIN_CONFIG} && -r $CONFIGURATIONS{MAIN_CONFIG};
+    return unless -e $CONFIGURATIONS{MAIN_CONFIG} && -r $CONFIGURATIONS{MAIN_CONFIG};
     
     # clear all channels
     $SOPHIA{channels}{$_} = 0 for keys %{$SOPHIA{channels}};
@@ -488,7 +488,7 @@ sub sophia_reload_config {
 }
 
 sub sophia_save_config {
-    return 0 unless -e $CONFIGURATIONS{MAIN_CONFIG} && -w $CONFIGURATIONS{MAIN_CONFIG};
+    return unless -e $CONFIGURATIONS{MAIN_CONFIG} && -w $CONFIGURATIONS{MAIN_CONFIG};
 
     open my $fh, '>', $CONFIGURATIONS{MAIN_CONFIG};
     
@@ -515,10 +515,10 @@ sub sophia_save_config {
 sub sophia_set_config_option {
     my $opts = $_[0];
     my @opts = @{$opts};
-    return 0 if scalar(@opts) < 3;
+    return if scalar(@opts) < 3;
 
     $opts[1] = lc $opts[1];
-    return 0 unless $opts[1] ne 'channel'; # can't add channels
+    return unless $opts[1] ne 'channel'; # can't add channels
 
     given ($opts[1]) {
         when ('port') {
@@ -530,7 +530,7 @@ sub sophia_set_config_option {
         }
 
         default { 
-            return 0 unless exists $SOPHIA{$opts[1]};
+            return unless exists $SOPHIA{$opts[1]};
             $SOPHIA{$opts[1]} = $opts[2];
         }
     }
