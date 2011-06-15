@@ -41,7 +41,7 @@ loadmodule "admin.kick";
 loadmodule "admin.kickban";
 loadmodule "admin.op";
 loadmodule "admin.quiet";
-loadmodule "admin.stopic";
+loadmodule "admin.sedtopic";
 loadmodule "admin.topic";
 loadmodule "admin.topicappend";
 loadmodule "admin.topicprepend";
