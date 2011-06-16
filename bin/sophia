@@ -104,8 +104,8 @@ my %SOPHIA = (
 # store the channels in sophia's cache for listchan command
 sophia_cache_store('sophia_main','channels', $SOPHIA{channels});
 
-# set the master of sophia
-sophia_set_master($SOPHIA{owner_name}, $SOPHIA{owner_host});
+# set the founder of sophia
+sophia_set_founder($SOPHIA{owner_name}, $SOPHIA{owner_host});
 &sophia_acl_db_load;
 
 my $pid;
@@ -459,8 +459,8 @@ sub sophia_reload_config {
         return 1;
     }
 
-    # re-set master
-    sophia_set_master($SOPHIA{owner_name}, $SOPHIA{owner_host});
+    # re-set founder
+    sophia_set_founder($SOPHIA{owner_name}, $SOPHIA{owner_host});
 
     my @part_chans = grep { $SOPHIA{channels}{$_} == 0 } keys %{$SOPHIA{channels}};
 

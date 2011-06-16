@@ -17,13 +17,14 @@ sub deinit_sophia_version {
 }
 
 sub sophia_version {
-    my $args = $_[0];
+    my ($args, $target) = @_;
     my ($where, $content) = ($args->[ARG1], $args->[ARG2]);
+    $target //= $where->[0];
 
     my $commit = `git log -1 --pretty=format:'$sophia::CONFIGURATIONS{VERSION} [%H] %cd'`;
     
     my $sophia = ${$args->[HEAP]->{sophia}};
-    $sophia->yield(privmsg => $where->[0] => $commit);
+    $sophia->yield(privmsg => $target => $commit);
 }
 
 1;

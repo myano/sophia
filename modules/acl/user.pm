@@ -5,8 +5,8 @@ use feature 'switch';
 sophia_module_add('acl.user', '1.0', \&init_acl_user, \&deinit_acl_user);
 
 sub init_acl_user {
-    sophia_command_add('acl.user', \&acl_user, 'Gets the INFO of a USER.', '', SOPHIA_ACL_FOUNDER);
-    sophia_event_privmsg_hook('acl.user', \&acl_user, 'Gets the INFO of a USER.', '', SOPHIA_ACL_FOUNDER);
+    sophia_command_add('acl.user', \&acl_user, 'Gets the INFO of a USER.', '', SOPHIA_ACL_MASTER);
+    sophia_event_privmsg_hook('acl.user', \&acl_user, 'Gets the INFO of a USER.', '', SOPHIA_ACL_MASTER);
 
     return 1;
 }

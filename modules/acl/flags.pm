@@ -5,8 +5,8 @@ use feature 'switch';
 sophia_module_add('acl.flags', '1.0', \&init_acl_flags, \&deinit_acl_flags);
 
 sub init_acl_flags {
-    sophia_command_add('acl.flags', \&acl_flags, 'Modifies the ACL flags for a group or a user.', '', SOPHIA_ACL_FOUNDER);
-    sophia_event_privmsg_hook('acl.flags', \&acl_flags, 'Modifies the ACL flags for a group or a user.', '', SOPHIA_ACL_FOUNDER);
+    sophia_command_add('acl.flags', \&acl_flags, 'Modifies the ACL flags for a group or a user.', '', SOPHIA_ACL_MASTER);
+    sophia_event_privmsg_hook('acl.flags', \&acl_flags, 'Modifies the ACL flags for a group or a user.', '', SOPHIA_ACL_MASTER);
 
     return 1;
 }

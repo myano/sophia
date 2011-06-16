@@ -4,8 +4,8 @@ use warnings;
 sophia_module_add('sophia.listchans', '1.0', \&init_sophia_listchans, \&deinit_sophia_listchans);
 
 sub init_sophia_listchans {
-    sophia_command_add('sophia.listchans', \&sophia_listchans, 'List channels sophia is told to join.', '', SOPHIA_ACL_FOUNDER);
-    sophia_event_privmsg_hook('sophia.listchans', \&sophia_listchans, 'List channels sophia is told to join.', '', SOPHIA_ACL_FOUNDER);
+    sophia_command_add('sophia.listchans', \&sophia_listchans, 'List channels sophia is told to join.', '', SOPHIA_ACL_MASTER);
+    sophia_event_privmsg_hook('sophia.listchans', \&sophia_listchans, 'List channels sophia is told to join.', '', SOPHIA_ACL_MASTER);
 
     return 1;
 }
