@@ -1,2 +1,0 @@
-Syntax: cmd <command>
-If <command> exists, sophia will output the value of it.
