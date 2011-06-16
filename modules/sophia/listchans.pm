@@ -26,7 +26,7 @@ sub sophia_listchans {
     my $chans = sophia_cache_load('sophia_main', 'channels');
     return unless $chans;
 
-    my $result = join ' ', keys %{$chans};
+    my $result = join ' ', sort { uc $a cmp uc $b } keys %{$chans};
     my $messages = irc_split_lines($result);
 
     my $sophia = ${$args->[HEAP]->{sophia}};
