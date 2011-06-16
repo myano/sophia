@@ -28,17 +28,33 @@ sub sophia_modunload {
     my @parts = split ' ', $content;
     shift @parts;
 
+    my @loaded;
+
     for (@parts) {
         if ($_ eq '*') {
             sophia_log('sophia', sprintf('Unloading all modules requested by: %s.', $who));
             &sophia_unload_modules;
             $sophia->yield(privmsg => $target => 'All modules unloaded.');
+            return;
         }
         elsif (sophia_module_del($_)) {
-            $sophia->yield(privmsg => $target => sprintf('Module %s unloaded.', $_));
             sophia_log('sophia', sprintf('Module %s unloaded requested by: %s.', $_, $who));
+            push @loaded, $_;
         }
     }
+
+    my $len = scalar @loaded;
+
+    # if no modules are loaded, then tell the user
+    if ($len == 0) {
+        $sophia->yield(privmsg => $target => 'All modules failed to unload.');
+        return;
+    }
+
+    my $modules = sprintf('Module%s unloaded: %s.', (scalar @loaded > 1 ? 's' : ''), join(', ', @loaded));
+    my $messages = irc_split_lines($modules);
+
+    $sophia->yield(privmsg => $target => $_) for @{$messages};
 }
 
 1;

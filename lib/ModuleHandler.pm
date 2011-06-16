@@ -3,14 +3,21 @@ use warnings;
 
 sub sophia_module_load {
     my $module = $_[0];
+
+    # if the module exists, don't re-load
+    if (exists $sophia::MODULES->{$_[0]}) {
+        sophia_log('sophia', "[MODULE] modules/$module.pm is already loaded.");
+        return;
+    }
+
     $module =~ s/\./\//;
-    return 0 unless -e "$Bin/../modules/$module.pm";
+    return unless -e "$Bin/../modules/$module.pm";
 
     unless (my $fd = do "$Bin/../modules/$module.pm") {
         sophia_log('sophia', "[MODULE] modules/$module.pm cannot be read: $!") unless defined $fd || $!;
         sophia_log('sophia', "[MODULE] modules/$module.pm failed to compile: $@") if $@;
         sophia_log('sophia', "[MODULE] modules/$module.pm read and compiled but failed to run") unless $fd;
-        return 0;
+        return;
     }
     return 1;
 }
@@ -19,7 +26,7 @@ sub sophia_module_add {
     my ($module_name, $version, $command_hook, $die) = @_;
 
     if (sophia_module_exists($module_name)) {
-        sophia_log('sophia', sprintf('[MODULE] %s is already loaded.', $module_name)) and return 0;
+        sophia_log('sophia', sprintf('[MODULE] %s is already loaded.', $module_name)) and return;
     }
 
     # try loading it
@@ -36,11 +43,11 @@ sub sophia_module_add {
         
         &{$die}();
         sophia_log('sophia', "[MODULE] $module_name: $module_name v$version failed to load.");
-        return 0;
+        return;
     }
     # something went wrong
     or sophia_log('sophia', "[MODULE] $module_name: $module_name v$version failed to load.")
-    and return 0;
+    and return;
 }
 
 sub sophia_module_del {
@@ -59,7 +66,7 @@ sub sophia_module_del {
         return 1;
         1;
     } or sophia_log('sophia', "[MODULE] $module_name: $module_name v".$sophia::MODULES->{$module_name}{version}.' failed to unload.')
-      and return 0;
+      and return;
 }
 
 sub sophia_module_exists {
@@ -120,17 +127,17 @@ sub sophia_reload_module {
     my $module = shift;
     unless (sophia_module_exists($module)) {
         sophia_log('sophia', sprintf('Module %s is not loaded.', $module));
-        return 0;
+        return;
     }
 
     unless (sophia_module_del($module)) {
         sophia_log('sophia', sprintf('Module %s failed to unload.', $module));
-        return 0;
+        return;
     }
 
     unless (sophia_module_load($module)) {
         sophia_log('sophia', sprintf('Module %s failed to load.', $module));
-        return 0;
+        return;
     }
     return 1;
 }

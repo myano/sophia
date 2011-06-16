@@ -77,7 +77,7 @@ sub main_packages {
         1;
     } or print "not found (install Switch).\n";
 
-    return 0;
+    return;
 }
 
 sub modules_packages {
@@ -87,6 +87,14 @@ sub modules_packages {
         print "OK!\n";
         1;
     } or print "not found (install HTML::Entities).\n";
+
+    print "Checking for Time::Local ... ";
+    eval {
+        require Time::Local;
+        print "OK!\n";
+        1;
+    } or print "not found (install Time::Local).\n";
+
 
     print "Checking for URI::Escape ... ";
     eval {

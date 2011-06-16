@@ -28,6 +28,8 @@ sub sophia_modreload {
     my @parts = split ' ', $content;
     shift @parts;
 
+    my @loaded;
+
     for (@parts) {
         if ($_ eq '*') {
             sophia_log('sophia', sprintf('Reloading all modules requested by: %s.', $who));
@@ -35,10 +37,23 @@ sub sophia_modreload {
             $sophia->yield(privmsg => $target => 'All autoloaded modules reloaded.');
         }
         elsif (sophia_reload_module($_)) {
-            $sophia->yield(privmsg => $target => sprintf('Module %s reloaded.', $_));
             sophia_log('sophia', sprintf('Module %s reloaded requested by: %s.', $_, $who));
+            push @loaded, $_;
         }
     }
+
+    my $len = scalar @loaded;
+
+    # if no modules are loaded, then tell the user
+    if ($len == 0) {
+        $sophia->yield(privmsg => $target => 'All modules failed to reload.');
+        return;
+    }
+
+    my $modules = sprintf('Module%s reloaded: %s.', ($len > 1 ? 's' : ''), join(', ', @loaded));
+    my $messages = irc_split_lines($modules);
+
+    $sophia->yield(privmsg => $target => $_) for @{$messages};
 }
 
 1;
