@@ -1,0 +1,2 @@
+Syntax: web:weather <location>
+Outputs the weather for the specified location at the time of the call.

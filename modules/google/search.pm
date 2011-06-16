@@ -4,7 +4,7 @@ use warnings;
 sophia_module_add('google.search', '1.0', \&init_google_search, \&deinit_google_search);
 
 sub init_google_search {
-    sophia_command_add('google.google', \&google_search, 'Searches google for results.', '');
+    sophia_command_add('google.search', \&google_search, 'Searches google for results.', '');
 
     return 1;
 }
@@ -13,7 +13,7 @@ sub deinit_google_search {
     delete_sub 'init_google_search';
     delete_sub 'google_search';
     delete_sub 'google_unescape';
-    sophia_command_del 'google.google';
+    sophia_command_del 'google.search';
     delete_sub 'deinit_google_search';
 }
 

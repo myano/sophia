@@ -1,0 +1,2 @@
+Syntax: web:tinyurl <url>
+Produces a tinyurl of the specified URL.

@@ -1,4 +1,0 @@
-Syntax: voice [<nick1> [... <nickN>]]
-This command must be used in a channel.
-If no parameters are given, this command +v the caller.
-Otherwise, it +v all specified nicks.
