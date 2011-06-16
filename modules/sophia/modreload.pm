@@ -4,8 +4,8 @@ use warnings;
 sophia_module_add('sophia.modreload', '2.0', \&init_sophia_modreload, \&deinit_sophia_modreload);
 
 sub init_sophia_modreload {
-    sophia_command_add('sophia.modreload', \&sophia_modreload, 'Reloads all or a specified module.', '', SOPHIA_ACL_FOUNDER);
-    sophia_event_privmsg_hook('sophia.modreload', \&sophia_modreload, 'Reloads all or a specified module.', '', SOPHIA_ACL_FOUNDER);
+    sophia_command_add('sophia.modreload', \&sophia_modreload, 'Reloads all or a specified module.', '', SOPHIA_ACL_MASTER);
+    sophia_event_privmsg_hook('sophia.modreload', \&sophia_modreload, 'Reloads all or a specified module.', '', SOPHIA_ACL_MASTER);
 
     return 1;
 }

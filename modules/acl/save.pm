@@ -4,8 +4,8 @@ use warnings;
 sophia_module_add('acl.save', '1.0', \&init_acl_save, \&deinit_acl_save);
 
 sub init_acl_save {
-    sophia_command_add('acl.save', \&acl_save, 'Saves the ACL to the DB.', '', SOPHIA_ACL_FOUNDER);
-    sophia_event_privmsg_hook('acl.save', \&acl_save, 'Saves the ACL to the DB.', '', SOPHIA_ACL_FOUNDER);
+    sophia_command_add('acl.save', \&acl_save, 'Saves the ACL to the DB.', '', SOPHIA_ACL_MASTER);
+    sophia_event_privmsg_hook('acl.save', \&acl_save, 'Saves the ACL to the DB.', '', SOPHIA_ACL_MASTER);
 
     return 1;
 }

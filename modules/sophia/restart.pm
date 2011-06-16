@@ -4,8 +4,8 @@ use warnings;
 sophia_module_add('sophia.restart', '2.0', \&init_sophia_restart, \&deinit_sophia_restart);
 
 sub init_sophia_restart {
-    sophia_command_add('sophia.restart', \&sophia_restart, 'Restarts sophia.', '', SOPHIA_ACL_FOUNDER);
-    sophia_event_privmsg_hook('sophia.restart', \&sophia_restart, 'Restarts sophia.', '', SOPHIA_ACL_FOUNDER);
+    sophia_command_add('sophia.restart', \&sophia_restart, 'Restarts sophia.', '', SOPHIA_ACL_MASTER);
+    sophia_event_privmsg_hook('sophia.restart', \&sophia_restart, 'Restarts sophia.', '', SOPHIA_ACL_MASTER);
     
     return 1;
 }
