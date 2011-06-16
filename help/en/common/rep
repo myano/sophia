@@ -1,0 +1,6 @@
+Syntax: common:rep
+        common:rep++ <target>
+        common:rep-- <target>
+common:rep lists the top 10 results.
+common:rep++ adds 1 rep point to the specified target. The specified target cannot have a space.
+common:rep-- subtracts 1 rep point to the specified target. The specified target cannot have a space.
