@@ -1,4 +1,4 @@
-Syntax: countdown YYYY MM DD
+Syntax: common:countdown YYYY MM DD
 This command must be used in a channel.
 This commands shows the numbers of days, hours, 
-minutes, and seconds until the specificed date.
+minutes, and seconds until the specified date.

@@ -9,7 +9,7 @@ sub sophia_acl_db_load {
     
     open my $fh, '<', $sophia_acl_db or sophia_log('sophia', "Error opening db file: $!") and return;
     &sophia_acl_clear;
-    &sophia_reload_master;
+    sophia_reload_founder();
 
     my @parts;
 
@@ -56,7 +56,9 @@ sub sophia_acl_db_save {
         }
     }
 
-    for (keys %{$SOPHIA_ACL_USERS}) {
+    USER: for (keys %{$SOPHIA_ACL_USERS}) {
+        next USER if $SOPHIA_ACL_USERS->{$_}{IS_FOUNDER};
+
         print {$fh} sprintf('SU S %s %s%s', $_, sophia_acl_bits2flags($SOPHIA_ACL_USERS->{$_}{FLAGS}), "\n");
 
         for my $group (keys %{$SOPHIA_ACL_USERS->{$_}{GROUPS}}) {

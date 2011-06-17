@@ -1,0 +1,6 @@
+Syntax: games:roulette
+        games:roulette:stop
+        games:roulette:fstop
+games:roulette - starts and plays the roulette game. If the bot has chanop status, the loser gets kicked.
+games:roulette:stop - stops the roulette game.
+games:roulette:fstop - force stop the roulette game.

@@ -1,2 +1,0 @@
-Syntax: ban <nick|hostmask> [... <nick|hostmask>]
-This command must be used in a channel. It bans the all specified nicks or hostmasks.

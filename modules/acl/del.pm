@@ -5,8 +5,8 @@ use feature 'switch';
 sophia_module_add('acl.del', '1.0', \&init_acl_del, \&deinit_acl_del);
 
 sub init_acl_del {
-   sophia_command_add('acl.del', \&acl_del, 'Deletes an entry to sophia\'s ACL.', '', SOPHIA_ACL_FOUNDER);
-   sophia_event_privmsg_hook('acl.del', \&acl_del, 'Deletes an entry to sophia\'s ACL.', '', SOPHIA_ACL_FOUNDER);
+   sophia_command_add('acl.del', \&acl_del, 'Deletes an entry to sophia\'s ACL.', '', SOPHIA_ACL_MASTER);
+   sophia_event_privmsg_hook('acl.del', \&acl_del, 'Deletes an entry to sophia\'s ACL.', '', SOPHIA_ACL_MASTER);
 
    return 1;
 }

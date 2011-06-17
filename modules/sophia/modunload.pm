@@ -4,8 +4,8 @@ use warnings;
 sophia_module_add('sophia.modunload', '2.0', \&init_sophia_modunload, \&deinit_sophia_modunload);
 
 sub init_sophia_modunload {
-    sophia_command_add('sophia.modunload', \&sophia_modunload, 'Unloads all or a specified module.', '', SOPHIA_ACL_FOUNDER);
-    sophia_event_privmsg_hook('sophia.modunload', \&sophia_modunload, 'Unloads all or a specified module.', '', SOPHIA_ACL_FOUNDER);
+    sophia_command_add('sophia.modunload', \&sophia_modunload, 'Unloads all or a specified module.', '', SOPHIA_ACL_MASTER);
+    sophia_event_privmsg_hook('sophia.modunload', \&sophia_modunload, 'Unloads all or a specified module.', '', SOPHIA_ACL_MASTER);
 
     return 1;
 }

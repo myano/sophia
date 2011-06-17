@@ -4,8 +4,8 @@ use warnings;
 sophia_module_add('config.set', '1.0', \&init_config_set, \&deinit_config_set);
 
 sub init_config_set {
-    sophia_command_add('config.set', \&config_set, 'Sets a sophia conf option.', '', SOPHIA_ACL_FOUNDER);
-    sophia_event_privmsg_hook('config.set', \&config_set, 'Sets a sophia conf option.', '', SOPHIA_ACL_FOUNDER);
+    sophia_command_add('config.set', \&config_set, 'Sets a sophia conf option.', '', SOPHIA_ACL_MASTER);
+    sophia_event_privmsg_hook('config.set', \&config_set, 'Sets a sophia conf option.', '', SOPHIA_ACL_MASTER);
 
     return 1;
 }
