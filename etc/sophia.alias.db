@@ -12,13 +12,16 @@ topic admin:topic
 quiet admin:quiet
 restart sophia:restart
 msg sophia:msg
+acronym web:acronym
 version sophia:version
 ban admin:ban
 part sophia:part
+define google:dict
 join sophia:join
 devoice admin:devoice
 deop admin:deop
 voice admin:voice
 mod:unload sophia:modunload
+translate google:translate
 unquiet admin:unquiet
 op admin:op

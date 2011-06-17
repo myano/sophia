@@ -4,7 +4,7 @@ use warnings;
 sophia_module_add('google.dictionary', '2.0', \&init_google_dictionary, \&deinit_google_dictionary);
 
 sub init_google_dictionary {
-    sophia_command_add('google.dict', \&google_dictionary, 'Defines a word.', '');
+    sophia_command_add('google.dictionary', \&google_dictionary, 'Defines a word.', '');
 
     return 1;
 }

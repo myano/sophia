@@ -4,8 +4,8 @@ use warnings;
 sophia_module_add('acl.usergroup', '1.0', \&init_acl_usergroup, \&deinit_acl_usergroup);
 
 sub init_acl_usergroup {
-    sophia_command_add('acl.usergroup', \&acl_usergroup, 'Adds a user to a group.', '', SOPHIA_ACL_FOUNDER);
-    sophia_event_privmsg_hook('acl.usergroup', \&acl_usergroup, 'Adds a user to a group.', '', SOPHIA_ACL_FOUNDER);
+    sophia_command_add('acl.usergroup', \&acl_usergroup, 'Adds a user to a group.', '', SOPHIA_ACL_MASTER);
+    sophia_event_privmsg_hook('acl.usergroup', \&acl_usergroup, 'Adds a user to a group.', '', SOPHIA_ACL_MASTER);
 
     return 1;
 }

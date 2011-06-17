@@ -27,7 +27,7 @@ sub alias_list {
 
     my $sophia = ${$heap->{sophia}};
     
-    my $aliases = join ' ', keys %{$heap->{CMD_ALIASES}};
+    my $aliases = join ' ', sort { uc $a cmp uc $b  } keys %{$heap->{CMD_ALIASES}};
     my $messages = irc_split_lines($aliases);
     
     $sophia->yield(privmsg => $target => $_) for @{$messages};

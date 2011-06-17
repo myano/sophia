@@ -4,8 +4,8 @@ use warnings;
 sophia_module_add('sophia.join', '2.0', \&init_sophia_join, \&deinit_sophia_join);
 
 sub init_sophia_join {
-    sophia_command_add('sophia.join', \&sophia_join, 'Joins one or more channels.', '', SOPHIA_ACL_FOUNDER);
-    sophia_event_privmsg_hook('sophia.join', \&sophia_join, 'Joins one or more channels.', '', SOPHIA_ACL_FOUNDER);
+    sophia_command_add('sophia.join', \&sophia_join, 'Joins one or more channels.', '', SOPHIA_ACL_MASTER);
+    sophia_event_privmsg_hook('sophia.join', \&sophia_join, 'Joins one or more channels.', '', SOPHIA_ACL_MASTER);
 
     return 1;
 }

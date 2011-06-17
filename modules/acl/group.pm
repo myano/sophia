@@ -5,8 +5,8 @@ use feature 'switch';
 sophia_module_add('acl.group', '1.0', \&init_acl_group, \&deinit_acl_group);
 
 sub init_acl_group {
-    sophia_command_add('acl.group', \&acl_group, 'Gets the info of a group or a list of its members.', '', SOPHIA_ACL_FOUNDER);
-    sophia_event_privmsg_hook('acl.group', \&acl_group, 'Gets the info of a group or a list of its members.', '', SOPHIA_ACL_FOUNDER);
+    sophia_command_add('acl.group', \&acl_group, 'Gets the info of a group or a list of its members.', '', SOPHIA_ACL_MASTER);
+    sophia_event_privmsg_hook('acl.group', \&acl_group, 'Gets the info of a group or a list of its members.', '', SOPHIA_ACL_MASTER);
     
     return 1;
 }
