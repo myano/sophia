@@ -1,0 +1,4 @@
+Syntax: acl:group INFO <name>
+        acl:group LIST <name>
+INFO lists both global flags and channel flags for the specified group name. It will also say how many members are in the group.
+LIST will list the names of the members in the specified group name. If * is given as the group name, it will LIST all group names.

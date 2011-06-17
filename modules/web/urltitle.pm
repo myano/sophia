@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-sophia_module_add('web.urltitle', '1.0', \&init_web_urltitle, \&deinit_web_urltitle);
+sophia_module_add('web.urltitle', '2.0', \&init_web_urltitle, \&deinit_web_urltitle);
 
 sub init_web_urltitle {
     sophia_event_public_hook('web.urltitle', \&web_urltitle, 'Displays the title for the posted URL.', '');
@@ -16,40 +16,29 @@ sub deinit_web_urltitle {
     delete_sub 'deinit_web_urltitle';
 }
 
-my $max_redirects = 10;
 sub web_urltitle {
-    my $param = $_[0];
-    my @args = @{$param};
-    my ($where, $content) = ($args[ARG1], $args[ARG2]);
-
-    my $objHTTP = get_http_response(\$content);
-    return unless $objHTTP;
+    my $args = $_[0];
+    my ($who, $where, $content) = ($args->[ARG0], $args->[ARG1], $args->[ARG2]);
     
-    $objHTTP = ${$objHTTP};
+    return if $who =~ /cia\.atheme\.org/;  # ignore CIA bot commit bit.ly lookups.
+    return if $content !~ /\b(https?:\/\/[^ ]+)\b/xsmi;
 
-    REQUEST: for (1 .. $max_redirects) {
-        if ($objHTTP->code =~ /^3/) {
-            $objHTTP = get_http_response(\$objHTTP->header('Location'));
-            $objHTTP = ${$objHTTP};
-        }
-        return if $objHTTP->is_error;
-        last REQUEST if $objHTTP->is_success;
+    my $response = curl_get($1);
+    return unless $response;
+
+    if ($response =~ m#<title[^>]*>(.+?)</title>#xsmi) {
+        my $title = $1;
+
+        $title =~ s/\r\n|\n//g;
+        $title =~ s/^\s+//g;
+        $title =~ s/\s{2,}/ /g;
+
+        $title = '&laquo; ' . $title . ' &raquo;';
+        $title = decode_entities($title);
+        
+        my $sophia = ${$args->[HEAP]->{sophia}};
+        $sophia->yield(privmsg => $where->[0] => $title);
     }
-
-    $objHTTP = $objHTTP->content;
-    $objHTTP =~ s/<(\/?)title[^>]*>/<$1title>/g;
-    $objHTTP =~ s/['"]<title>//g;  # www.thelantern.com sucks!
-
-    my $idx = index $objHTTP, '<title>';
-    return if $idx == -1;
-
-    my $start = $idx + 7;
-    my $end = index($objHTTP, '</title>', $start) - $start;
-    my $title = substr $objHTTP, $start, $end;
-    $title =~ s/^\s+//;
-    $title =~ s/\n//;
-    $title =~ s/\s{2,}/ /;
-    sophia_write( \$where->[0], \$title );
 }
 
 1;

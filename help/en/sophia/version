@@ -1,0 +1,3 @@
+Syntax: version
+This command must be used in a channel.
+It prints out the current version, commit hash, and the time/date of the version.

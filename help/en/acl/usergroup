@@ -1,0 +1,2 @@
+Syntax: acl:usergroup <user> <group>
+Adds the specified user to the specified group.

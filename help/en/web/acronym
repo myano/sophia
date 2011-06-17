@@ -1,0 +1,2 @@
+Syntax: web:acronym <acronym>
+Performs an acronym look up via http://acronyms.thefreedictionary.com.

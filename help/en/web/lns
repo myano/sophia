@@ -1,0 +1,2 @@
+Syntax: web:lns <url>
+Performs a ln-s request to shorten the specified url.

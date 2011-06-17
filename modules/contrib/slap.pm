@@ -17,17 +17,16 @@ sub deinit_contrib_slap {
 }
 
 sub contrib_slap {
-    my $param = $_[0];
-    my @args = @{$param};
-    my ($where, $content) = @args[ARG1 .. ARG2];
-
+    my $args = $_[0];
+    my ($where, $content) = ($args->[ARG1], $args->[ARG2]);
     my $idx = index $content, ' ';
     return unless $idx > -1;
 
+    my $sophia = ${$args->[HEAP]->{sophia}};
     $content = substr $content, $idx + 1;
-    $content =~ s/^\s+//;
+    $content =~ s/\A\s+//;
     $content = substr $content, 0, index($content, ' ') if index($content, ' ') > -1;
-    $sophia::sophia->yield( ctcp => $where->[0] => 'ACTION slaps ' . $content );
+    $sophia->yield( ctcp => $where->[0] => 'ACTION slaps ' . $content );
 }
 
 1;

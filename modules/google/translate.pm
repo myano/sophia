@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-sophia_module_add('google.translate', '1.0', \&init_google_translate, \&deinit_google_translate);
+sophia_module_add('google.translate', '2.0', \&init_google_translate, \&deinit_google_translate);
 
 sub init_google_translate {
     sophia_command_add('google.translate', \&google_translate, 'Utilize Google for translations.', '');
@@ -17,11 +17,12 @@ sub deinit_google_translate {
 }
 
 sub google_translate {
-    my $param = $_[0];
-    my @args = @{$param};
-    my ($where, $content) = @args[ARG1 .. ARG2];
+    my $args = $_[0];
+    my ($where, $content) = ($args->[ARG1], $args->[ARG2]);
     $content = substr $content, index($content, ' ') + 1;
-    $content =~ s/^\s+//;
+    $content =~ s/\A\s+//;
+
+    return unless $content;
 
     my $lang = substr $content, 0, index($content, ' ');
     my $text = substr $content, index($content, ' ') + 1;
@@ -29,17 +30,15 @@ sub google_translate {
     $lang =~ s/ /+/g;
     $text =~ s/ /+/g;
 
-    my $objHTTP = get_file_contents(\sprintf('http://ajax.googleapis.com/ajax/services/language/translate?v=1.0&q=%s&langpair=%s', $text, $lang));
-    $objHTTP = ${$objHTTP};
+    my $response = curl_get(sprintf('http://ajax.googleapis.com/ajax/services/language/translate?v=1.0&q=%s&langpair=%s', $text, $lang));
+    return unless $response;
 
-    if ($objHTTP =~ m/{"translatedText":"([^"]+)"}/) {
+    my $sophia = ${$args->[HEAP]->{sophia}};
+    if ($response =~ m/{"translatedText":"([^"]+)"}/) {
         my $val = $1;
         $val =~ s/\\u0026/&/g;
-        sophia_write( \$where->[0], \$val );
+        $sophia->yield(privmsg => $where->[0] => decode_entities($val));
     }
-
-    ($objHTTP, $content) = undef;
-    @args = undef;
 }
 
 1;

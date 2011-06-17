@@ -20,9 +20,9 @@ TABLE OF CONTENTS
 1. INSTALL
 ----------
 
-Run "./configure" to make sure you have the required packages installed. If you do not have the required packages you can install them through CPAN.
+Run "./configure" to make sure you have the required packages installed. If you do not have the required packages you can install them through your distribution or CPAN.
 
-You need to set a configuration file. Copy etc/sophia.conf.example to etc/sophia.conf. Once you copy this file open it up and change the necessary settings. Also if you want all the modules to load on your first start, copy etc/sophia.modules.conf.example to etc/sophia.modules.conf.
+You need to set a configuration file. Copy etc/sophia.conf.example to etc/sophia.conf. Once you copy this file open it up and change the necessary settings. Also if you want all the modules to load on start, copy etc/sophia.modules.conf.example to etc/sophia.modules.conf.
 
 
 2. RUN
@@ -44,6 +44,8 @@ You can reach the development team on irc.freenode.net/6667 in ##sophia
 
 Kays
 yano
+
+If you have any feature suggestions or if you would like a feature that you wrote to be included in sophia, please get in contact with us.
 
 
 5. LICENSE

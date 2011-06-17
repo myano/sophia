@@ -1,0 +1,4 @@
+Syntax: admin:topic
+        admin:topic <new_topic>
+If called without an argument, sophia reports the channel topic.
+Otherwise, sophia will change the topic to the specified new topic.
