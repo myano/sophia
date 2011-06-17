@@ -4,8 +4,8 @@ use warnings;
 sophia_module_add('config.reload', '1.0', \&init_config_reload, \&deinit_config_reload);
 
 sub init_config_reload {
-    sophia_command_add('config.reload', \&config_reload, 'Reloads sophia.conf.', '', SOPHIA_ACL_FOUNDER);
-    sophia_event_privmsg_hook('config.reload', \&config_reload, 'Reloads sophia.conf.', '', SOPHIA_ACL_FOUNDER);
+    sophia_command_add('config.reload', \&config_reload, 'Reloads sophia.conf.', '', SOPHIA_ACL_MASTER);
+    sophia_event_privmsg_hook('config.reload', \&config_reload, 'Reloads sophia.conf.', '', SOPHIA_ACL_MASTER);
 
     return 1;
 }

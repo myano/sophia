@@ -4,8 +4,8 @@ use warnings;
 sophia_module_add('sophia.shutdown', '2.0', \&init_sophia_shutdown, \&deinit_sophia_shutdown);
 
 sub init_sophia_shutdown {
-    sophia_command_add('sophia.shutdown', \&sophia_shutdown, 'Shutdown sophia.', '', SOPHIA_ACL_FOUNDER);
-    sophia_event_privmsg_hook('sophia.shutdown', \&sophia_shutdown, 'Shutdown sophia.', '', SOPHIA_ACL_FOUNDER);
+    sophia_command_add('sophia.shutdown', \&sophia_shutdown, 'Shutdown sophia.', '', SOPHIA_ACL_MASTER);
+    sophia_event_privmsg_hook('sophia.shutdown', \&sophia_shutdown, 'Shutdown sophia.', '', SOPHIA_ACL_MASTER);
 
     return 1;
 }

@@ -5,8 +5,8 @@ use feature 'switch';
 sophia_module_add('acl.add', '1.0', \&init_acl_add, \&deinit_acl_add);
 
 sub init_acl_add {
-   sophia_command_add('acl.add', \&acl_add, 'Adds an entry to sophia\'s ACL.', '', SOPHIA_ACL_FOUNDER);
-   sophia_event_privmsg_hook('acl.add', \&acl_add, 'Adds an entry to sophia\' ACL.', '', SOPHIA_ACL_FOUNDER);
+   sophia_command_add('acl.add', \&acl_add, 'Adds an entry to sophia\'s ACL.', '', SOPHIA_ACL_MASTER);
+   sophia_event_privmsg_hook('acl.add', \&acl_add, 'Adds an entry to sophia\' ACL.', '', SOPHIA_ACL_MASTER);
 
    return 1;
 }

@@ -5,8 +5,8 @@ use feature 'switch';
 sophia_module_add('acl.chanflags', '1.0', \&init_acl_chanflags, \&deinit_acl_chanflags);
 
 sub init_acl_chanflags {
-    sophia_command_add('acl.chanflags', \&acl_chanflags, 'Modifies the ACL channel flags for a group or a user.', '', SOPHIA_ACL_FOUNDER);
-    sophia_event_privmsg_hook('acl.chanflags', \&acl_chanflags, 'Modifies the ACL channel flags for a group or a user.', '', SOPHIA_ACL_FOUNDER);
+    sophia_command_add('acl.chanflags', \&acl_chanflags, 'Modifies the ACL channel flags for a group or a user.', '', SOPHIA_ACL_MASTER);
+    sophia_event_privmsg_hook('acl.chanflags', \&acl_chanflags, 'Modifies the ACL channel flags for a group or a user.', '', SOPHIA_ACL_MASTER);
 
     return 1;
 }
