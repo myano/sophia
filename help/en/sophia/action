@@ -1,0 +1,2 @@
+Syntax: action <expr>
+sophia will perform an action of the specified <expr> similar to: /me <expr>

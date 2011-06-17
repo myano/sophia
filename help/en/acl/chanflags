@@ -1,0 +1,8 @@
+Syntax: acl:chanflags GROUP <name> <channel> <flags>
+        acl:chanflags USER  <name> <channel> <flags>
+Assigns the specified GROUP or USER with the flags assignment to the specified channel. A list of flags:
++F      sophia founder                          +A      sophia admin
++f      sophia friend                           +s      can grant flags to others (+F can always grant)
++t      can change topic                        +b      banned from using sophia
++o      sophia operator (or channel operator)   +O      auto-operator
++v      sophia voice (or channel voice)         +V      auto-voice

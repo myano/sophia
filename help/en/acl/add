@@ -1,0 +1,6 @@
+Syntax: acl:add GROUP <name> [<flags>]
+        acl:add USER  <name> [<flags>]
+        acl:add HOST  <name> <hostmask>
+Add the GROUP or USER with the specified name and assign them any global flags provided.
+If the GROUP or USER already exist under the specified name, acl:add will do nothing.
+If add is adding a HOST, the specified hostmask is added to the USER with the specified name.

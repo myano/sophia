@@ -1,0 +1,3 @@
+Syntax: part [<chan1> [... <chanN>]]
+If no parameters are given and the command is used in a channel, sophia will part that channel.
+Otherwise, sophia will part all specified channels.

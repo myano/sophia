@@ -1,0 +1,2 @@
+Syntax: cmd:set <command> <value>
+Sets the specified <command> trigger to the specified <value>.

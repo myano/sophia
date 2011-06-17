@@ -1,0 +1,4 @@
+Syntax: google:weather <location>
+This command must be used in a channel.
+It performs a Google look up of the weather in the specified location.
+<location> can be an address, city name, postal code, country name, etc. Not all <location> are available.

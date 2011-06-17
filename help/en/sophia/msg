@@ -1,0 +1,4 @@
+Syntax: msg <nick|chan> <message>
+        say <message>
+msg will send the specified <message> to <nick> or <chan>. This command must be used via privmsg.
+say will tell sophia to say the specified <message> to the channel. This command must be used in a channel.

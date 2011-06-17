@@ -1,0 +1,2 @@
+Syntax: notice <nick|chan> <message>
+sophia will perform a /notice of the specified message to the nick or channel.

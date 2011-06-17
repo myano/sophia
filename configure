@@ -3,71 +3,117 @@
 # This configure file checks to see if required packages are installed on the system
 
 main_packages();
+print "\n", 'The following packages are - NOT - required to run sophia.', "\n", 'They are required for the default modules that sophia comes with.', "\n\n";
+modules_packages();
 
 sub main_packages {
-    print "Checking for Perl 5.10.0 ..... ";
+    print "Checking for Perl 5.10.0 ... ";
     eval {
         require 5.10.0;
         print "OK!\n";
         1;
     } or print "not found (install Perl 5.10.0).\n";
 
-    print "Checking for Carp ..... ";
+    print "Checking for Carp ... ";
     eval {
-        use Carp qw(carp croak);
+        require Carp;
         print "OK!\n";
         1;
     } or print "not found (install Carp).\n";
 
-    print "Checking for FindBin ..... ";
+    print "Checking for FindBin ... ";
     eval {
         require FindBin;
         print "OK!\n";
         1;
     } or print "not found (install FindBin).\n";
 
-    print "Checking for POE ..... ";
+    print "Checking for Getopt::Long ... ";
     eval {
-        use POE qw(Component::IRC);
-        print "OK!\n";
-        1;
-    } or print "not found (install POE).\n";
-
-    print "Checking for POSIX ..... ";
-    eval {
-        use POSIX qw(setsid);
-        print "OK!\n";
-        1;
-    } or print "not found (install POSIX).\n";
-
-    print "Checking for Sub::Delete ..... ";
-    eval {
-        use Sub::Delete;
-        print "OK!\n";
-        1;
-    } or print "not found (install Sub::Delete).\n";
-
-    print "Checking for Getopt::Long ..... ";
-    eval {
-        use Getopt::Long;
+        require Getopt::Long;
         print "OK!\n";
         1;
     } or print "not found (install Getopt:Long).\n";
 
-    print "Checking for Switch ..... ";
+    print "Checking for POD::Usage ... ";
     eval {
-        use Switch;
+        require POD::Usage;
+        print "OK!\n";
+        1;
+    } or print "not found (install POD::Usage).\n";
+
+    print "Checking for POE ... ";
+    eval {
+        require POE;
+        print "OK!\n";
+        1;
+    } or print "not found (install POE).\n";
+
+    print "Checking for POE::Component::IRC ... ";
+    eval {
+        require POE::Component::IRC;
+        print "OK!\n";
+        1;
+    } or print "not found (install POE::Component::IRC).\n";
+
+    print "Checking for POSIX ... ";
+    eval {
+        require POSIX;
+        print "OK!\n";
+        1;
+    } or print "not found (install POSIX).\n";
+
+    print "Checking for Sub::Delete ,,, ";
+    eval {
+        require Sub::Delete;
+        print "OK!\n";
+        1;
+    } or print "not found (install Sub::Delete).\n";
+
+    print "Checking for Switch ... ";
+    eval {
+        require Switch;
         print "OK!\n";
         1;
     } or print "not found (install Switch).\n";
 
-    print "Checking for HTML::Entities ..... ";
+    return;
+}
+
+sub modules_packages {
+    print "Checking for HTML::Entities ... ";
     eval {
-        use HTML::Entities;
+        require HTML::Entities;
         print "OK!\n";
         1;
     } or print "not found (install HTML::Entities).\n";
 
-    return 0;
-}
+    print "Checking for Time::Local ... ";
+    eval {
+        require Time::Local;
+        print "OK!\n";
+        1;
+    } or print "not found (install Time::Local).\n";
 
+
+    print "Checking for URI::Escape ... ";
+    eval {
+        require URI::Escape;
+        print "OK!\n";
+        1;
+    } or print "not found (install URI::Escape).\n";
+
+    print "Checking for WWW::Curl::Easy version 4.15 ... ";
+    eval {
+        require WWW::Curl::Easy 4.15;
+        print "OK!\n";
+        1;
+    } or print "not found (install WWW::Curl::Easy, version 4.15).\n";
+
+    print "Checking for XML::LibXML ... ";
+    eval {
+        require XML::LibXML;
+        print "OK!\n";
+        1;
+    } or print "not found (install XML::LibXML).\n";
+}

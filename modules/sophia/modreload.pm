@@ -1,10 +1,11 @@
 use strict;
 use warnings;
 
-sophia_module_add('sophia.modreload', '1.0', \&init_sophia_modreload, \&deinit_sophia_modreload);
+sophia_module_add('sophia.modreload', '2.0', \&init_sophia_modreload, \&deinit_sophia_modreload);
 
 sub init_sophia_modreload {
-    sophia_global_command_add('mod:reload', \&sophia_modreload, 'Reloads all or a specified module.', '');
+    sophia_command_add('sophia.modreload', \&sophia_modreload, 'Reloads all or a specified module.', '', SOPHIA_ACL_MASTER);
+    sophia_event_privmsg_hook('sophia.modreload', \&sophia_modreload, 'Reloads all or a specified module.', '', SOPHIA_ACL_MASTER);
 
     return 1;
 }
@@ -12,38 +13,47 @@ sub init_sophia_modreload {
 sub deinit_sophia_modreload {
     delete_sub 'init_sophia_modreload';
     delete_sub 'sophia_modreload';
-    sophia_global_command_del 'mod:reload';
+    sophia_command_del 'sophia.mod:reload';
+    sophia_event_privmsg_dehook 'sophia.mod:reload';
     delete_sub 'deinit_sophia_modreload';
 }
 
 sub sophia_modreload {
-    my $param = $_[0];
-    my @args = @{$param};
-    my ($who, $where, $content) = @args[ARG0 .. ARG2];
-    return unless is_owner($who);
+    my ($args, $target) = @_;
+    my ($who, $where, $content) = ($args->[ARG0], $args->[ARG1], $args->[ARG2]);
+    $target //= $where->[0];
 
-    my @parts = split / /, $content;
+    my $sophia = ${$args->[HEAP]->{sophia}};
+
+    my @parts = split ' ', $content;
     shift @parts;
+
+    my @loaded;
 
     for (@parts) {
         if ($_ eq '*') {
             sophia_log('sophia', sprintf('Reloading all modules requested by: %s.', $who));
             &sophia_reload_modules;
-            sophia_write( \$where->[0],
-                \sprintf('%s: All autoload modules reloaded.',
-                    substr($who, 0, index($who, '!')),
-                    $_)
-            );
+            $sophia->yield(privmsg => $target => 'All autoloaded modules reloaded.');
         }
         elsif (sophia_reload_module($_)) {
-            sophia_write( \$where->[0],
-                \sprintf('%s: Module %s reloaded.',
-                    substr($who, 0, index($who, '!')),
-                    $_)
-            );
             sophia_log('sophia', sprintf('Module %s reloaded requested by: %s.', $_, $who));
+            push @loaded, $_;
         }
     }
+
+    my $len = scalar @loaded;
+
+    # if no modules are loaded, then tell the user
+    if ($len == 0) {
+        $sophia->yield(privmsg => $target => 'All modules failed to reload.');
+        return;
+    }
+
+    my $modules = sprintf('Module%s reloaded: %s.', ($len > 1 ? 's' : ''), join(', ', @loaded));
+    my $messages = irc_split_lines($modules);
+
+    $sophia->yield(privmsg => $target => $_) for @{$messages};
 }
 
 1;

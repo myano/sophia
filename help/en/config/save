@@ -1,0 +1,2 @@
+Syntax: config:save
+Saves any configuration changes made by config:set to sophia.conf.

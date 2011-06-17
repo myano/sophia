@@ -1,0 +1,2 @@
+Syntax: mod:load <module1> [... <moduleN>]
+sophia will load the specified modules.
