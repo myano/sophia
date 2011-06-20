@@ -24,7 +24,7 @@ use feature 'switch';
 
 our %CONFIGURATIONS;
 %CONFIGURATIONS = (
-    VERSION         => 'sophia-2.1.0-dev',
+    VERSION         => ['sophia-2.1.0-dev', ''],
     BASE_DIR        => "$Bin/..",
     MAIN_CONFIG     => "$Bin/../etc/sophia.conf",
     MODULES_CONFIG  => "$Bin/../etc/sophia.modules.conf",
@@ -34,6 +34,10 @@ our %CONFIGURATIONS;
     IN_DEBUG_MODE   => 0,
     DO_RESTART      => 0,
 );
+
+my $full_version = `git log -1 --pretty=format:'${CONFIGURATIONS{VERSION}->[0]} [%H] %cd'`;
+chomp $full_version;
+$CONFIGURATIONS{VERSION}->[1] = $full_version;
 
 require Main;
 
