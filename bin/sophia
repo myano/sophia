@@ -24,11 +24,15 @@ use feature 'switch';
 
 our %CONFIGURATIONS;
 %CONFIGURATIONS = (
+<<<<<<< .merge_file_YompjB
 <<<<<<< .merge_file_8Mknjc
     VERSION         => 'sophia-2.1.0-dev',
 =======
     VERSION         => 'sophia-2.0.0',
 >>>>>>> .merge_file_ZLFhJ9
+=======
+    VERSION         => ['sophia-2.1.0-dev', ''],
+>>>>>>> .merge_file_TNXYPx
     BASE_DIR        => "$Bin/..",
     MAIN_CONFIG     => "$Bin/../etc/sophia.conf",
     MODULES_CONFIG  => "$Bin/../etc/sophia.modules.conf",
@@ -38,6 +42,10 @@ our %CONFIGURATIONS;
     IN_DEBUG_MODE   => 0,
     DO_RESTART      => 0,
 );
+
+my $full_version = `git log -1 --pretty=format:'${CONFIGURATIONS{VERSION}->[0]} [%H] %cd'`;
+chomp $full_version;
+$CONFIGURATIONS{VERSION}->[1] = $full_version;
 
 require Main;
 
