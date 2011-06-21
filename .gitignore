@@ -4,3 +4,4 @@ sophia.modules.conf
 *.db
 var/*
 *.pid
+*.db

@@ -4,7 +4,7 @@ use warnings;
 sophia_module_add('web.wikipedia', '2.0', \&init_web_wikipedia, \&deinit_web_wikipedia);
 
 sub init_web_wikipedia {
-    sophia_command_add('web.wiki', \&web_wikipedia, 'Provides wikipedia searching.', '');
+    sophia_command_add('web.wikipedia', \&web_wikipedia, 'Provides wikipedia searching.', '');
 
     return 1;
 }
@@ -12,7 +12,7 @@ sub init_web_wikipedia {
 sub deinit_web_wikipedia {
     delete_sub 'init_web_wikipedia';
     delete_sub 'web_wikipedia';
-    sophia_command_del 'web.wiki';
+    sophia_command_del 'web.wikipedia';
     delete_sub 'deinit_web_wikipedia';
 }
 
