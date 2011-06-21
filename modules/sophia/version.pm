@@ -21,7 +21,7 @@ sub sophia_version {
     my ($where, $content) = ($args->[ARG1], $args->[ARG2]);
     $target //= $where->[0];
 
-    my $commit = $sophia::CONFIGURATIONS{VERSION}->[1];
+    my $commit = $sophia::CONFIGURATIONS{VERSION}->[1] || $sophia::CONFIGURATIONS{VERSION}->[0];
     
     my $sophia = ${$args->[HEAP]->{sophia}};
     $sophia->yield(privmsg => $target => $commit);

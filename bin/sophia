@@ -35,9 +35,11 @@ our %CONFIGURATIONS;
     DO_RESTART      => 0,
 );
 
-my $full_version = `git log -1 --pretty=format:'${CONFIGURATIONS{VERSION}->[0]} [%H] %cd'`;
-chomp $full_version;
-$CONFIGURATIONS{VERSION}->[1] = $full_version;
+my $full_version = `cd $Bin/.. && git log -1 --pretty=format:'${CONFIGURATIONS{VERSION}->[0]} [%H] %cd'`;
+if ($full_version) {
+    chomp $full_version;
+    $CONFIGURATIONS{VERSION}->[1] = $full_version;
+}
 
 require Main;
 
