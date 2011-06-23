@@ -32,8 +32,3 @@ trigger !
 # to add more, just add on more channel lines
 channel #sophia
 channel #sophia-dev
-
-
-# command aliases
-# it works similar to bash aliases
-alias translate google:translate
