@@ -30,6 +30,7 @@ our %CONFIGURATIONS;
     MODULES_CONFIG  => "$Bin/../etc/sophia.modules.conf",
     ACL_DB          => "$Bin/../etc/sophia.acl.db",
     ALIAS_DB        => "$Bin/../etc/sophia.alias.db",
+    PERL_LIB        => '',
     LOAD_ALIASES    => 0,
     IN_DEBUG_MODE   => 0,
     DO_RESTART      => 0,
@@ -432,7 +433,8 @@ sub sophia_load_config {
         $opts[0] = lc $opts[0];
 
         given ($opts[0]) {
-            when ('channel')          { $SOPHIA{channels}{$opts[1]} = 1; }
+            when ('channel')        { $SOPHIA{channels}{$opts[1]} = 1; }
+            when ('perllib')        { $CONFIGURATIONS{PERL_LIB} = $opts[1]; }
             when ('port')          {
                 if (index($opts[1], '+') == 0) {
                     $SOPHIA{usessl} = 1;
@@ -446,10 +448,15 @@ sub sophia_load_config {
         }
     }
     close $fh;
+
+    unshift @INC, $_ for split ':', $CONFIGURATIONS{PERL_LIB};
 }
 
 sub sophia_reload_config {
     return unless -e $CONFIGURATIONS{MAIN_CONFIG} && -r $CONFIGURATIONS{MAIN_CONFIG};
+
+    # clear all @INC paths
+    shift @INC, $_ for split ':', $CONFIGURATIONS{PERL_LIB};
     
     # clear all channels
     $SOPHIA{channels}{$_} = 0 for keys %{$SOPHIA{channels}};
@@ -499,6 +506,7 @@ sub sophia_save_config {
     open my $fh, '>', $CONFIGURATIONS{MAIN_CONFIG};
     
     print {$fh} '# indicates a comment line', "\n\n";
+    print {$fh} 'perllib ', $CONFIGURATIONS{PERL_LIB}, "\n\n";
     print {$fh} 'nick ', $SOPHIA{nick}, "\n";
     print {$fh} 'username ', $SOPHIA{username}, "\n";
     print {$fh} 'realname ', $SOPHIA{realname}, "\n";

@@ -1,5 +1,10 @@
-
 # indicates a comment line
+
+# contains additional path(s) to perl modules if they are installed elsewhere on your system
+# if you don't understand what this means, feel free to leave it uncommented
+# The path(s) cannot contain spaces and it is delimited by a colon.
+# Example: perllib /home/user/perl/lib/:/home/user/.perl/lib/
+# perllib
 
 nick sophia
 username sophia
