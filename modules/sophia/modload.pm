@@ -23,7 +23,7 @@ sub sophia_modload {
     my ($who, $where, $content) = ($args->[ARG0], $args->[ARG1], $args->[ARG2]);
     $target //= $where->[0];
 
-    my $sophia = ${$args->[HEAP]->{sophia}};
+    my $sophia = $args->[HEAP]->{sophia};
 
     my @parts = split ' ', $content;
     shift @parts;

@@ -21,7 +21,7 @@ sub cmd_list {
     my $where = $args->[ARG1];
     $target //= $where->[0];
 
-    my $sophia = ${$args->[HEAP]->{sophia}};
+    my $sophia = $args->[HEAP]->{sophia};
 
     # get all user-defined commands
     my $cache_commands = sophia_cache_load('mod:cmd', 'commands');

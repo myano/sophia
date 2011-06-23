@@ -44,7 +44,7 @@ sub web_weather {
 
     my $result = sprintf('%s (%s)  --  %s, %s.  Humidity: %s.  Wind: %s, %s degrees at %s mph.  Dewpoint: %s.  Air pressure: %s.  Visibility: %s miles.', @{$dataset});
     
-    my $sophia = ${$args->[HEAP]->{sophia}};
+    my $sophia = $args->[HEAP]->{sophia};
     $sophia->yield(privmsg => $where->[0] => $result);
 }
 

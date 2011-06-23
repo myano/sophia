@@ -25,7 +25,7 @@ sub acl_save {
 
     &sophia_acl_db_save;
 
-    my $sophia = ${$args->[HEAP]->{sophia}};
+    my $sophia = $args->[HEAP]->{sophia};
 
     $sophia->yield(privmsg => $target => 'ACL saved to DB.');
 }

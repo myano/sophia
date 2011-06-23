@@ -21,7 +21,7 @@ sub deinit_sophia_shutdown {
 sub sophia_shutdown {
     my $args = $_[0];
     my $who = $args->[ARG0];
-    my $sophia = ${$args->[HEAP]->{sophia}};
+    my $sophia = $args->[HEAP]->{sophia};
 
     sophia_log('sophia', sprintf('Shutting down sophia requested by: %s.', $who));
     $sophia->yield(quit => 'Shutting down ... ');

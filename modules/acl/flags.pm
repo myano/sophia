@@ -42,7 +42,6 @@ sub acl_flags {
 
 sub acl_flags_group {
     my ($sophia, $target, $opts) = @_;
-    $sophia = ${$sophia};
 
     ($opts->[2], $opts->[3]) = (lc $opts->[2], $opts->[3]);
 
@@ -61,7 +60,6 @@ sub acl_flags_group {
 
 sub acl_flags_user {
     my ($sophia, $target, $opts) = @_;
-    $sophia = ${$sophia};
 
     $opts->[2] = lc $opts->[2];
 

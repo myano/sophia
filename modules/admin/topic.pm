@@ -22,7 +22,7 @@ sub admin_topic {
     my ($args, $target) = @_;
     my ($where, $content, $heap) = ($args->[ARG1], $args->[ARG2], $args->[HEAP]);
     my $target_chan = lc $where->[0];
-    my $sophia = ${$heap->{sophia}};
+    my $sophia = $heap->{sophia};
 
     my $idx = index $content, ' ';
 

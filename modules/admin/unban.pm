@@ -34,7 +34,7 @@ sub admin_unban {
 
     return if !$parts[0];
 
-    my $sophia = ${$args->[HEAP]->{sophia}};
+    my $sophia = $args->[HEAP]->{sophia};
     $sophia->yield( mode => $target_chan => sprintf('-%s', 'b' x ($#parts + 1)) => join ' ', @parts );
 }
 

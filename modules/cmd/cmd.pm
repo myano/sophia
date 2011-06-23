@@ -34,7 +34,7 @@ sub cmd_cmd {
     my $cache_commands = sophia_cache_load('mod:cmd', 'commands');
     return unless $cache_commands && $cache_commands->{$content};
 
-    my $sophia = ${$args->[HEAP]->{sophia}};
+    my $sophia = $args->[HEAP]->{sophia};
     $sophia->yield(privmsg => $target => $cache_commands->{$content});
 }
 

@@ -242,7 +242,7 @@ sub common_time {
     $content =~ s/\A\s+//;
     return if !$content;
 
-    my $sophia = ${$args->[HEAP]->{sophia}};
+    my $sophia = $args->[HEAP]->{sophia};
 
     # if we have this timezone, show the time
     if (defined(my $offset = $timezones{uc $content})) {

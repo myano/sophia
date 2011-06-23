@@ -42,7 +42,7 @@ sub google_dictionary {
     my $response = curl_get(sprintf('http://www.google.com/dictionary/json?callback=dict_api.callbacks.id100&sl=en&tl=en&restrict=pr%sde&client=te&q=%s', '%2C', $content));
     return unless $response;
 
-    my $sophia = ${$args->[HEAP]->{sophia}};
+    my $sophia = $args->[HEAP]->{sophia};
 
     $idx = index $response, '"query":"';
     unless ($idx > -1) {

@@ -31,7 +31,7 @@ sub alias_save {
     print {$fh} sprintf('%s %s%s', $_, $heap->{CMD_ALIASES}{$_}, "\n") for keys %{$heap->{CMD_ALIASES}};
     close $fh;
 
-    my $sophia = ${$heap->{sophia}};
+    my $sophia = $heap->{sophia};
     $sophia->yield(privmsg => $target => 'Aliases saved to DB.');
 }
 

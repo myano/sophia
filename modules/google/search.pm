@@ -72,7 +72,7 @@ sub google_search {
 
     return unless $#results + 1;
 
-    my $sophia = ${$args->[HEAP]->{sophia}};
+    my $sophia = $args->[HEAP]->{sophia};
     $sophia->yield(privmsg => $where->[0] => $_) for @results;
 }
 

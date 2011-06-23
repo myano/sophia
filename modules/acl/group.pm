@@ -40,7 +40,6 @@ sub acl_group {
 
 sub acl_group_info {
     my ($sophia, $target, $opts) = @_;
-    $sophia = ${$sophia};
 
     $opts->[2] = lc $opts->[2];
 
@@ -77,8 +76,6 @@ sub acl_group_list {
         return;
     }
 
-    $sophia = ${$sophia};
-
     $opts->[2] = lc $opts->[2];
 
     unless (sophia_group_exists($opts->[2])) {
@@ -109,7 +106,6 @@ sub acl_group_list {
 
 sub acl_group_list_all {
     my ($sophia, $target) = @_;
-    $sophia = ${$sophia};
 
     my $groups = &sophia_acl_groups;
 

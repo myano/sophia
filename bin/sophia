@@ -178,7 +178,7 @@ POE::Session->create(
         sig_int     => \&sig_int,
         load_timers => \&load_timers,
     },
-    heap => { sophia => \$sophia },
+    heap => { sophia => $sophia },
 );
 
 sub _default {
@@ -202,7 +202,7 @@ sub _start {
     $_[KERNEL]->sig( INT => 'sig_int' );
 
     trigger_error('sophia', "Unable to get the sophia instance from heap (start): $!\n")
-        unless $sophia;
+        unless $heap->{sophia};
 
     $sophia->yield( register =>  'all' );
     $sophia->yield( connect => { } );

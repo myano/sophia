@@ -26,7 +26,7 @@ sub google_calc {
 
     return unless $response =~ /error:\s*"0?"/;
 
-    my $sophia = ${$args->[HEAP]->{sophia}};
+    my $sophia = $args->[HEAP]->{sophia};
     my $reply = '';
 
     my $idx = index($response, 'lhs: "') + 6;

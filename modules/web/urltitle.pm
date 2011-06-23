@@ -36,7 +36,7 @@ sub web_urltitle {
         $title = '&laquo; ' . $title . ' &raquo;';
         $title = decode_entities($title);
         
-        my $sophia = ${$args->[HEAP]->{sophia}};
+        my $sophia = $args->[HEAP]->{sophia};
         $sophia->yield(privmsg => $where->[0] => $title);
     }
 }

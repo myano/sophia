@@ -29,7 +29,7 @@ sub cmd_del {
 
     delete $cache_commands->{$_} for @parts;
 
-    my $sophia = ${$args->[HEAP]->{sophia}};
+    my $sophia = $args->[HEAP]->{sophia};
     $sophia->yield(privmsg => $target => sprintf('%1$s%2$s%1$s deleted.', "\x02", join ', ', @parts));
 }
 

@@ -50,7 +50,7 @@ sub save_rep {
 sub common_rep_add {
     my $args = $_[0];
     my ($where, $content) = ($args->[ARG1], $args->[ARG2]);
-    my $sophia = ${$args->[HEAP]->{sophia}};
+    my $sophia = $args->[HEAP]->{sophia};
     
     my @opts = split ' ', $content;
     return if scalar @opts < 2;
@@ -64,7 +64,7 @@ sub common_rep_add {
 sub common_rep_rm {
     my $args = $_[0];
     my ($where, $content) = ($args->[ARG1], $args->[ARG2]);
-    my $sophia = ${$args->[HEAP]->{sophia}};
+    my $sophia = $args->[HEAP]->{sophia};
 
     my @opts = split ' ', $content;
     return if scalar @opts < 2;
@@ -78,7 +78,7 @@ sub common_rep_rm {
 sub common_rep {
     my $args = $_[0];
     my ($where, $content) = ($args->[ARG1], $args->[ARG2]);
-    my $sophia = ${$args->[HEAP]->{sophia}};
+    my $sophia = $args->[HEAP]->{sophia};
 
     my $result =
         join ' | ',

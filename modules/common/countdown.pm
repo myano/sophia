@@ -20,7 +20,7 @@ sub deinit_common_countdown {
 sub common_countdown {
     my $args = $_[0];
     my ($where, $content) = ($args->[ARG1], $args->[ARG2]);
-    my $sophia = ${$args->[HEAP]->{sophia}};
+    my $sophia = $args->[HEAP]->{sophia};
 
     my @opts = split ' ', $content;
     shift @opts;

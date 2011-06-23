@@ -22,7 +22,7 @@ sub common_ping {
     my ($args, $target) = @_;
     $target //= $args->[ARG1]->[0];
 
-    my $sophia = ${$args->[HEAP]->{sophia}};
+    my $sophia = $args->[HEAP]->{sophia};
     $sophia->yield(privmsg => $target => 'pong');
 }
 

@@ -79,7 +79,7 @@ sub admin_sedtopic {
     my $topic = $heap->{TOPICS}{$target_chan};
     eval sprintf('$topic =~ s%1$s%2$s%1$s%3$s%1$s%4$s', $delimiter, $part1, $part2, $part3);
     
-    my $sophia = ${$heap->{sophia}};
+    my $sophia = $heap->{sophia};
     $sophia->yield( topic => $target_chan => $topic );
 }
 

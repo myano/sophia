@@ -45,7 +45,7 @@ sub admin_topicprepend {
     $topic = ' | ' . $topic if length $topic;
     $topic = $content . $topic;
 
-    my $sophia = ${$heap->{sophia}};
+    my $sophia = $heap->{sophia};
     $sophia->yield( topic => $target_chan => $topic );
 }
 

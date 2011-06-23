@@ -42,7 +42,6 @@ sub acl_chanflags {
 
 sub acl_chanflags_group {
     my ($sophia, $target, $opts) = @_;
-    $sophia = ${$sophia};
 
     ($opts->[2], $opts->[3]) = (lc $opts->[2], lc $opts->[3]);
 
@@ -61,7 +60,6 @@ sub acl_chanflags_group {
 
 sub acl_chanflags_user {
     my ($sophia, $target, $opts) = @_;
-    $sophia = ${$sophia};
 
     ($opts->[2], $opts->[3]) = (lc $opts->[2], lc $opts->[3]);
 

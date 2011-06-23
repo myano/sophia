@@ -26,7 +26,7 @@ sub acl_autoop {
 
     $who = substr $who, 0, index($who, '!');
 
-    my $sophia = ${$args->[HEAP]->{sophia}};
+    my $sophia = $args->[HEAP]->{sophia};
     $sophia->yield(mode => $chan => '+o' => $who);
 }
 

@@ -30,7 +30,7 @@ sub help_main {
 
     my %commands = %{ $sophia::COMMANDS };
     
-    my $sophia = ${$args->[HEAP]->{sophia}};
+    my $sophia = $args->[HEAP]->{sophia};
     my $cmds = '';
 
     for my $module (keys %commands) {
@@ -75,7 +75,7 @@ sub help_main_cmd {
     my $help = "$sophia::CONFIGURATIONS{BASE_DIR}/help/en/$module/$cmd";
     return unless -e $help;
 
-    my $sophia = ${$args->[HEAP]->{sophia}};
+    my $sophia = $args->[HEAP]->{sophia};
     open my $fh, '<', $help or sophia_log('sophia', "Unable to open help file ($module/$cmd) for reading.") and return;
     $sophia->yield(notice => $who => $_) while <$fh>;
     close $fh;
