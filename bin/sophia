@@ -61,7 +61,13 @@ GetOptions(
     'help|?'    => \$opts{help},
     'man'       => \$opts{man},
     'modconf=s' => \$opts{modconf},
+    'version'   => \$opts{version},
 );
+
+if ($opts{version}) {
+    print $CONFIGURATIONS{VERSION}->[1] || $CONFIGURATIONS{VERSION}->[0];
+    exit;
+}
 
 pod2usage(1) if $opts{help};
 pod2usage(-exitstatus => 0, -verbose => 2) if $opts{man};
@@ -456,7 +462,7 @@ sub sophia_reload_config {
     return unless -e $CONFIGURATIONS{MAIN_CONFIG} && -r $CONFIGURATIONS{MAIN_CONFIG};
 
     # clear all @INC paths
-    shift @INC, $_ for split ':', $CONFIGURATIONS{PERL_LIB};
+    @INC = @lib::ORIG_INC;
     
     # clear all channels
     $SOPHIA{channels}{$_} = 0 for keys %{$SOPHIA{channels}};
@@ -612,6 +618,10 @@ Prints a help message.
 =item B<--man>
 
 Prints a full menual page documentation.
+
+=item B<--version>
+
+Prints the version of sophia.
 
 =back
 
