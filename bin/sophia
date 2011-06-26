@@ -22,6 +22,7 @@ use POSIX qw(setsid);
 use Sub::Delete;
 use feature 'switch';
 
+our (@INC, $VERSION);
 our %CONFIGURATIONS;
 %CONFIGURATIONS = (
     VERSION         => ['sophia-2.1.0', ''],
@@ -456,7 +457,7 @@ sub sophia_reload_config {
     return unless -e $CONFIGURATIONS{MAIN_CONFIG} && -r $CONFIGURATIONS{MAIN_CONFIG};
 
     # clear all @INC paths
-    shift @INC, $_ for split ':', $CONFIGURATIONS{PERL_LIB};
+    @INC = @lib::ORIG_INC;
     
     # clear all channels
     $SOPHIA{channels}{$_} = 0 for keys %{$SOPHIA{channels}};
