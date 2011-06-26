@@ -43,7 +43,7 @@ sub cmd_set {
     # set it
     $cache_commands->{$command} = $content;
 
-    my $sophia = ${$args->[HEAP]->{sophia}};
+    my $sophia = $args->[HEAP]->{sophia};
     $sophia->yield(privmsg => $target => sprintf('%1$s%2$s%1$s set.', "\x02", $command));
 }
 

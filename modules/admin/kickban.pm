@@ -46,7 +46,7 @@ sub admin_kickban {
     my $kick_msg = substr $content, $idx + 1;
 
     # do the ban and the kick
-    my $sophia = ${$args->[HEAP]->{sophia}};
+    my $sophia = $args->[HEAP]->{sophia};
     $sophia->yield( mode => $target_chan => '+b' => $kickee );
     $sophia->yield( kick => $target_chan => $kickee => $kick_msg );
 }

@@ -29,7 +29,7 @@ sub sophia_listchans {
     my $result = join ' ', sort { uc $a cmp uc $b } keys %{$chans};
     my $messages = irc_split_lines($result);
 
-    my $sophia = ${$args->[HEAP]->{sophia}};
+    my $sophia = $args->[HEAP]->{sophia};
     $sophia->yield(notice => $target => $_) for @{$messages};
 }
 

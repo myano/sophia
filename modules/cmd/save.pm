@@ -31,7 +31,7 @@ sub cmd_save {
     print {$fh} $_, ' ', $cmds->{$_} for keys %{$cmds};
     close $fh;
 
-    my $sophia = ${$args->[HEAP]->{sophia}};
+    my $sophia = $args->[HEAP]->{sophia};
     $sophia->yield(privmsg => $target => 'User-defined commands saved to DB.');
 }
 

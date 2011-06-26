@@ -25,7 +25,7 @@ sub alias_list {
 
     return if !exists $heap->{CMD_ALIASES};
 
-    my $sophia = ${$heap->{sophia}};
+    my $sophia = $heap->{sophia};
     
     my $aliases = join ' ', sort { uc $a cmp uc $b  } keys %{$heap->{CMD_ALIASES}};
     my $messages = irc_split_lines($aliases);

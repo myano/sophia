@@ -237,44 +237,38 @@ sub common_time {
 
 
     my $idx = index $content, ' ';
-    $content = $idx > -1 ? substr($content, $idx + 1) : '';
+    return if $idx == -1;
+    $content = substr $content, $idx + 1;
+    $content =~ s/\A\s+//;
+    return if !$content;
 
-    my $sophia = ${$args->[HEAP]->{sophia}};
-    # !time EDT +3
-    if ( $content =~ /\w+\s?[+-]\s?\d+/ )
-    {
-        my @tzoffset = split(/ /, $content);
-        if (defined $timezones{$tzoffset[0]}) {
-            my $offset = $timezones{$tzoffset[0]};
-            my $arraylen = @tzoffset;
-            if ($arraylen == 2) { $offset = ($offset * 3600) + (3600 * $tzoffset[1]); }
-            elsif ($arraylen == 3) { $offset = ($offset * 3600) + (3600 * $tzoffset[2]); }
-            $sophia->yield(privmsg => $where->[0] => sprintf('%s %s', scalar(gmtime(time() + $offset)), $content));
-        }
+    my $sophia = $args->[HEAP]->{sophia};
+
+    # if we have this timezone, show the time
+    if (defined(my $offset = $timezones{uc $content})) {
+        $sophia->yield(privmsg => $where->[0] => sprintf('%s %s', scalar(gmtime(time() + $offset * 3600)), $content));
+        return;
     }
-    # !time +3
-    elsif ( $content =~ /[+-]?\d+/ )
-    {
-        my $offset = $content;
-        return if abs($offset) > 100000;
-            my $offsetsec = $offset * 3600;
-        $sophia->yield(privmsg => $where->[0] => sprintf('%s %s', scalar(gmtime(time() + $offsetsec)), $offset));
-    }
-    # !time EDT
-    elsif ( $content =~ /\w+$/ )
-    {
-        if (defined $timezones{$content}) {
-            my $offset = $timezones{$content};
-            $offset = $offset * 3600;
-            $sophia->yield(privmsg => $where->[0] => sprintf('%s %s', scalar(gmtime(time() + $offset)), $content));
-        }
-    }
-    # !time -- default to GMT time
-    else
-    {
+
+    # try to perform a Google search of the data then
+    $content =~ s/ /+/g;
+
+    my $response = curl_get(sprintf('http://www.google.com/search?q=time+%s', $content));
+
+    if (!$response || $response !~ /(<b>\d{1,2}:\d{1,2}(a|p)m<\/b>.*?<\/table>)/xsmi) {
         $sophia->yield(privmsg => $where->[0] => sprintf('%s GMT', scalar(gmtime(time()))));
+        return;
     }
 
+    my $result = $1;
+
+    # strip new lines
+    $result =~ s/\r\n|\n//xsmg;
+
+    # strip html tags
+    $result =~ s/<\/?[^>]+>//xsmg;
+
+    $sophia->yield(privmsg => $where->[0] => $result);
 }
 
 1;

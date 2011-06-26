@@ -34,7 +34,7 @@ sub admin_op {
     # if this command is not ran in a channel, store the target chan
     $target_chan = $parts[0] and shift @parts if $target;
 
-    my $sophia = ${$args->[HEAP]->{sophia}};
+    my $sophia = $args->[HEAP]->{sophia};
 
     # if there are no params, op the caller
     if (!$parts[0]) {

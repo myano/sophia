@@ -36,7 +36,7 @@ sub games_roulette {
     my $args = $_[0];
     my ($who, $where, $content) = ($args->[ARG0], $args->[ARG1], $args->[ARG2]);
 
-    my $sophia = ${$args->[HEAP]->{sophia}};
+    my $sophia = $args->[HEAP]->{sophia};
 
     return if $who eq $roulette_settings{LAST_PLAYER};
 
@@ -63,7 +63,7 @@ sub games_roulette {
 sub games_roulette_stop {
     my $args = $_[0];
     my ($where, $content) = ($args->[ARG1], $args->[ARG2]);
-    my $sophia = ${$args->[HEAP]->{sophia}};
+    my $sophia = $args->[HEAP]->{sophia};
 
     return unless $roulette_settings{GAME_STARTED};
 
@@ -79,7 +79,7 @@ sub games_roulette_stop {
 sub games_roulette_fstop {
     my $args = $_[0];
     my $where = $args->[ARG1];
-    my $sophia = ${$args->[HEAP]->{sophia}};
+    my $sophia = $args->[HEAP]->{sophia};
     
     return unless $roulette_settings{GAME_STARTED};
     &games_roulette_end;

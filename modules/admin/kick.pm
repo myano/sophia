@@ -46,7 +46,7 @@ sub admin_kick {
     my $kick_msg = substr $content, $idx + 1;
 
     # do the kick
-    my $sophia = ${$args->[HEAP]->{sophia}};
+    my $sophia = $args->[HEAP]->{sophia};
     $sophia->yield( kick => $target_chan => $kickee => $kick_msg );
 }
 

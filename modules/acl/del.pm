@@ -53,7 +53,6 @@ sub acl_del {
 
 sub acl_del_group {
     my ($sophia, $target, $opts) = @_;
-    $sophia = ${$sophia};
 
     $opts->[2] = lc $opts->[2];
 
@@ -68,7 +67,6 @@ sub acl_del_group {
 
 sub acl_del_host {
     my ($sophia, $target, $opts) = @_;
-    $sophia = ${$sophia};
 
     ($opts->[2], $opts->[3]) = (lc $opts->[2], $opts->[3]);
 
@@ -83,7 +81,6 @@ sub acl_del_host {
 
 sub acl_del_user {
     my ($sophia, $target, $opts) = @_;
-    $sophia = ${$sophia};
 
     $opts->[2] = lc $opts->[2];
 

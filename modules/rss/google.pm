@@ -49,7 +49,7 @@ sub rss_google_reltime_seconds {
 sub rss_google {
     my ($args, $target) = @_;
     my $content = $args->[ARG2];
-    my $sophia = ${$args->[HEAP]->{sophia}};
+    my $sophia = $args->[HEAP]->{sophia};
 
     my @opts = split /\s+/, $content;
     return if $#opts < 1;
@@ -148,7 +148,7 @@ sub rss_google_main {
     $Google_LastDate = $sorted_news[0]->{date};
 
     # print the top 3 results
-    my $sophia = ${$_[0]->[HEAP]->{sophia}};
+    my $sophia = $_[0]->[HEAP]->{sophia};
     my $count = $#sorted_news;
     $count = $Google_MAXCOUNT if $count > $Google_MAXCOUNT;
 

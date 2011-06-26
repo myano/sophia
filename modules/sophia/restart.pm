@@ -21,7 +21,7 @@ sub deinit_sophia_restart {
 sub sophia_restart {
     my $args = $_[0];
     my $who = $args->[ARG0];
-    my $sophia = ${$args->[HEAP]->{sophia}};
+    my $sophia = $args->[HEAP]->{sophia};
 
     sophia_log('sophia', sprintf('Restarting sophia requested by: %s', $who));
     $sophia::CONFIGURATIONS{DO_RESTART} = 1;

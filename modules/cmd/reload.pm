@@ -21,7 +21,7 @@ sub cmd_reload {
     my $where = $args->[ARG1];
     $target //= $where->[0];
 
-    my $sophia = ${$args->[HEAP]->{sophia}};
+    my $sophia = $args->[HEAP]->{sophia};
 
     # reloading is easy, just reload cmd.main
     if (sophia_reload_module('cmd.main')) {
