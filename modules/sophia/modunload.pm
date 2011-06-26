@@ -29,14 +29,13 @@ sub sophia_modunload {
     shift @parts;
 
     my @loaded;
-    my $modall = 0;
 
     for (@parts) {
         if ($_ eq '*') {
             sophia_log('sophia', sprintf('Unloading all modules requested by: %s.', $who));
             &sophia_unload_modules;
             $sophia->yield(privmsg => $target => 'All modules unloaded.');
-            $modall = 1;
+            return;
         }
         elsif (sophia_module_del($_)) {
             sophia_log('sophia', sprintf('Module %s unloaded requested by: %s.', $_, $who));
@@ -47,7 +46,7 @@ sub sophia_modunload {
     my $len = scalar @loaded;
 
     # if no modules are loaded, then tell the user
-    if ($len == 0 && !$modall) {
+    if ($len == 0) {
         $sophia->yield(privmsg => $target => 'All modules failed to unload.');
         return;
     }
