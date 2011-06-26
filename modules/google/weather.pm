@@ -12,6 +12,7 @@ sub init_google_weather {
 sub deinit_google_weather {
     delete_sub 'init_google_weather';
     delete_sub 'google_weather';
+    delete_sub 'google_weather_getData';
     sophia_command_del 'google.weather';
     delete_sub 'deinit_google_weather';
 }
