@@ -29,12 +29,14 @@ sub sophia_modreload {
     shift @parts;
 
     my @loaded;
+    my $modall = 0;
 
     for (@parts) {
         if ($_ eq '*') {
             sophia_log('sophia', sprintf('Reloading all modules requested by: %s.', $who));
             &sophia_reload_modules;
             $sophia->yield(privmsg => $target => 'All autoloaded modules reloaded.');
+            $modall = 1;
         }
         elsif (sophia_reload_module($_)) {
             sophia_log('sophia', sprintf('Module %s reloaded requested by: %s.', $_, $who));
@@ -43,6 +45,9 @@ sub sophia_modreload {
     }
 
     my $len = scalar @loaded;
+
+    # if we are only reloading all modules, do nothing
+    return if $len == 0 && !$modall;
 
     # if no modules are loaded, then tell the user
     if ($len == 0) {
