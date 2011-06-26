@@ -13,18 +13,21 @@ require 5.10.0;
 use strict;
 use warnings;
 use Carp qw(carp croak);
+use Class::Unload;
 use FindBin qw($Bin);
 use Getopt::Long;
-use lib "$Bin/../lib";
+use lib qq($Bin/../lib);
 use Pod::Usage;
 use POE qw(Component::IRC);
 use POSIX qw(setsid);
+use Protocol::IRC;
 use Sub::Delete;
 use feature 'switch';
 
+our (@INC, $VERSION);
 our %CONFIGURATIONS;
 %CONFIGURATIONS = (
-    VERSION         => ['sophia-2.1.0', ''],
+    VERSION         => ['sophia-3.0.0', ''],
     BASE_DIR        => "$Bin/..",
     MAIN_CONFIG     => "$Bin/../etc/sophia.conf",
     MODULES_CONFIG  => "$Bin/../etc/sophia.modules.conf",
@@ -60,7 +63,13 @@ GetOptions(
     'help|?'    => \$opts{help},
     'man'       => \$opts{man},
     'modconf=s' => \$opts{modconf},
+    'version'   => \$opts{version},
 );
+
+if ($opts{version}) {
+    print $CONFIGURATIONS{VERSION}->[1] || $CONFIGURATIONS{VERSION}->[0];
+    exit;
+}
 
 pod2usage(1) if $opts{help};
 pod2usage(-exitstatus => 0, -verbose => 2) if $opts{man};
@@ -158,7 +167,7 @@ my $sophia = POE::Component::IRC->spawn(
 
 POE::Session->create(
     inline_states => {
-        _default    => \&_default,
+        _default    => $Protocol::IRC::rawcodes{_default},
         _start      => \&_start,
         _stop       => \&_stop,
         irc_001     => \&irc_001,
@@ -180,22 +189,6 @@ POE::Session->create(
     },
     heap => { sophia => \$sophia },
 );
-
-sub _default {
-	my ($event, $args) = @_[ARG0 .. $#_];
-	my @output = ( "$event: " );
-
-	for my $arg (@$args) {
-		if ( ref $arg eq 'ARRAY' ) {
-			push( @output, '[' . join(', ', @$arg ) . ']' );
-		}
-		else {
-			push ( @output, "'$arg'" );
-		}
-	}
-	print join ' ', @output, "\n";
-	return;
-}
 
 sub _start {
     my $heap = $_[HEAP];
@@ -450,6 +443,9 @@ sub sophia_load_config {
 
 sub sophia_reload_config {
     return unless -e $CONFIGURATIONS{MAIN_CONFIG} && -r $CONFIGURATIONS{MAIN_CONFIG};
+
+    # clear all @INC paths
+    @INC = @lib::ORIG_INC;
     
     # clear all channels
     $SOPHIA{channels}{$_} = 0 for keys %{$SOPHIA{channels}};
@@ -604,6 +600,10 @@ Prints a help message.
 =item B<--man>
 
 Prints a full menual page documentation.
+
+=item B<--version>
+
+Prints out sophia's current version.
 
 =back
 
