@@ -12,7 +12,7 @@ sub init_google_dictionary {
 sub deinit_google_dictionary {
     delete_sub 'init_google_dictionary';
     delete_sub 'google_dictionary';
-    delete_sub 'google_unescape';
+    delete_sub 'google_dictionary_unescape';
     sophia_command_del 'google.dict';
     delete_sub 'deinit_google_dictionary';
 }

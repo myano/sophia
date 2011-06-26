@@ -25,6 +25,9 @@ sub init_games_roulette {
 sub deinit_games_roulette {
     delete_sub 'init_games_roulette';
     delete_sub 'games_roulette';
+    delete_sub 'games_roulette_stop';
+    delete_sub 'games_roulette_fstop';
+    delete_sub 'games_roulette_end';
     sophia_command_del 'games.roulette';
     sophia_command_del 'games.roulette:stop';
     sophia_command_del 'games.roulette:fstop';

@@ -12,7 +12,7 @@ sub init_google_search {
 sub deinit_google_search {
     delete_sub 'init_google_search';
     delete_sub 'google_search';
-    delete_sub 'google_unescape';
+    delete_sub 'google_search_unescape';
     sophia_command_del 'google.search';
     delete_sub 'deinit_google_search';
 }
