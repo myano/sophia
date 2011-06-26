@@ -22,7 +22,6 @@ use POSIX qw(setsid);
 use Sub::Delete;
 use feature 'switch';
 
-our (@INC, $VERSION);
 our %CONFIGURATIONS;
 %CONFIGURATIONS = (
     VERSION         => ['sophia-2.1.0', ''],
@@ -62,7 +61,13 @@ GetOptions(
     'help|?'    => \$opts{help},
     'man'       => \$opts{man},
     'modconf=s' => \$opts{modconf},
+    'version'   => \$opts{version},
 );
+
+if ($opts{version}) {
+    print $CONFIGURATIONS{VERSION}->[1] || $CONFIGURATIONS{VERSION}->[0];
+    exit;
+}
 
 pod2usage(1) if $opts{help};
 pod2usage(-exitstatus => 0, -verbose => 2) if $opts{man};
@@ -613,6 +618,10 @@ Prints a help message.
 =item B<--man>
 
 Prints a full menual page documentation.
+
+=item B<--version>
+
+Prints the version of sophia.
 
 =back
 
