@@ -46,8 +46,11 @@ sub sophia_modreload {
 
     my $len = scalar @loaded;
 
+    # if only autoloaded modules were reloaded, then stop
+    return if $len == 0 && $modall;
+
     # if no modules are loaded, then tell the user
-    if ($len == 0 && !$modall) {
+    if ($len == 0) {
         $sophia->yield(privmsg => $target => 'All modules failed to reload.');
         return;
     }
