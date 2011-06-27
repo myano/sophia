@@ -72,7 +72,7 @@ sub help_main_cmd {
         return unless $perms & $obj->{access};
     }
 
-    my $help = "$sophia::CONFIGURATIONS{BASE_DIR}/help/en/$module/$cmd";
+    my $help = "$sophia::BASE{HELP}/en/$module/$cmd";
     return unless -e $help;
 
     my $sophia = ${$args->[HEAP]->{sophia}};
