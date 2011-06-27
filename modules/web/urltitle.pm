@@ -31,6 +31,7 @@ sub web_urltitle {
 
         $title =~ s/\r\n|\n//g;
         $title =~ s/^\s+//g;
+        $title =~ s/\s+$//g;
         $title =~ s/\s{2,}/ /g;
 
         $title = '&laquo; ' . $title . ' &raquo;';
