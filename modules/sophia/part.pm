@@ -22,7 +22,7 @@ sub sophia_part {
     my ($args, $target) = @_;
     my ($who, $where, $content) = ($args->[ARG0], $args->[ARG1], $args->[ARG2]);
 
-    my $sophia = ${$args->[HEAP]->{sophia}};
+    my $sophia = $args->[HEAP]->{sophia};
     my @parts = split / /, $content;
     shift @parts;
 

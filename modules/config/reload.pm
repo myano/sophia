@@ -23,7 +23,7 @@ sub config_reload {
     my $where = $args->[ARG1];
     $target //= $where->[0];
 
-    my $sophia = ${$args->[HEAP]->{sophia}};
+    my $sophia = $args->[HEAP]->{sophia};
     my $message = &sophia_reload_config ? 'Config reloaded.' : 'Config failed to reload.';
 
     $sophia->yield(privmsg => $target => $message);

@@ -29,7 +29,7 @@ sub acl_user {
 
     $opts[2] = lc $opts[2];
 
-    my $sophia = ${$args->[HEAP]->{sophia}};
+    my $sophia = $args->[HEAP]->{sophia};
     unless (sophia_user_exists($opts[2])) {
         $sophia->yield(privmsg => $target => sprintf('User %1$s%2$s%1$s does not exist.', "\x02", $opts[2]));
         return;

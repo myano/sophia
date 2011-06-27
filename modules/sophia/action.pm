@@ -37,7 +37,7 @@ sub sophia_action {
         $content = substr $content, $idx + 1;
     }
 
-    my $sophia = ${$args->[HEAP]->{sophia}};
+    my $sophia = $args->[HEAP]->{sophia};
     $sophia->yield(ctcp => $recipient => sprintf('ACTION %s', $content));
 }
 

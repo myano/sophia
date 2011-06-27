@@ -22,7 +22,7 @@ sub contrib_slap {
     my $idx = index $content, ' ';
     return unless $idx > -1;
 
-    my $sophia = ${$args->[HEAP]->{sophia}};
+    my $sophia = $args->[HEAP]->{sophia};
     $content = substr $content, $idx + 1;
     $content =~ s/\A\s+//;
     $content = substr $content, 0, index($content, ' ') if index($content, ' ') > -1;

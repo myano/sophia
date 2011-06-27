@@ -1,20 +1,6 @@
 use strict;
 use warnings;
 
-sub trigger_error {
-    my ($log, $err_msg) = @_;
-    $log = lc $log;
-    sophia_log($log, '[ERROR] ' . $err_msg);
-    croak '[ERROR] ' . $err_msg;
-}
-
-sub trigger_warning {
-    my ($log, $warn_msg) = @_;
-    $log = lc $log;
-    sophia_log($log, '[WARNING] ' . $warn_msg);
-    carp '[WARNING] ' . $warn_msg;
-}
-
 sub sophia_log {
     my ($log, $err_msg) = @_;
     return unless $err_msg;

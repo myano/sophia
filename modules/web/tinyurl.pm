@@ -27,7 +27,7 @@ sub web_tinyurl {
     my $response = curl_get($uri);
     return unless $response;
 
-    my $sophia = ${$args->[HEAP]->{sophia}};
+    my $sophia = $args->[HEAP]->{sophia};
     $sophia->yield(privmsg => $where->[0] => $response );
 }
 

@@ -19,7 +19,7 @@ sub deinit_alias_reload {
 sub alias_reload {
     my ($args, $target) = @_;
     $target //= $args->[ARG1]->[0];
-    my $sophia = ${$args->[HEAP]->{sophia}};
+    my $sophia = $args->[HEAP]->{sophia};
 
     my $ret = sophia_aliases_load(\$args->[HEAP]);
 

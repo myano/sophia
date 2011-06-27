@@ -26,7 +26,7 @@ sub acl_usergroup {
     my @opts = split ' ', $content;
     return unless scalar(@opts) == 3;
 
-    my $sophia = ${$args->[HEAP]->{sophia}};
+    my $sophia = $args->[HEAP]->{sophia};
 
     ($opts[1], $opts[2]) = (lc $opts[1], lc $opts[2]);
 

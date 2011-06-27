@@ -40,7 +40,7 @@ sub sophia_notice {
         $content = substr $content, $idx + 1;
     }
 
-    my $sophia = ${$args->[HEAP]->{sophia}};
+    my $sophia = $args->[HEAP]->{sophia};
     $sophia->yield(notice => $target => $content);
 }
 

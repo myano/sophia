@@ -23,7 +23,7 @@ sub config_save {
     my $where = $args->[ARG1];
     $target //= $where->[0];
 
-    my $sophia = ${$args->[HEAP]->{sophia}};
+    my $sophia = $args->[HEAP]->{sophia};
     my $message = &sophia_save_config ? 'Config saved.' : 'Config failed to save.';
 
     $sophia->yield(privmsg => $target => $message);

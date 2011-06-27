@@ -23,7 +23,7 @@ sub sophia_version {
 
     my $commit = $sophia::CONFIGURATIONS{VERSION}->[1] || $sophia::CONFIGURATIONS{VERSION}->[0];
     
-    my $sophia = ${$args->[HEAP]->{sophia}};
+    my $sophia = $args->[HEAP]->{sophia};
     $sophia->yield(privmsg => $target => $commit);
 }
 

@@ -44,7 +44,6 @@ sub acl_add {
 
 sub acl_add_group {
     my ($sophia, $target, $opts) = @_;
-    $sophia = ${$sophia};
 
     $opts->[2] = lc $opts->[2];
 
@@ -59,7 +58,6 @@ sub acl_add_group {
 
 sub acl_add_host {
     my ($sophia, $target, $opts) = @_;
-    $sophia = ${$sophia};
 
     ($opts->[2], $opts->[3]) = (lc $opts->[2], lc $opts->[3]);
 
@@ -79,7 +77,6 @@ sub acl_add_host {
 
 sub acl_add_user {
     my ($sophia, $target, $opts) = @_;
-    $sophia = ${$sophia};
 
     $opts->[2] = lc $opts->[2];
 

@@ -51,7 +51,7 @@ sub google_weather {
     }
     push @messages, $line;
 
-    my $sophia = ${$args->[HEAP]->{sophia}};
+    my $sophia = $args->[HEAP]->{sophia};
     $sophia->yield(privmsg => $where->[0] => $_) for @messages;
 }
 

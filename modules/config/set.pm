@@ -24,7 +24,7 @@ sub config_set {
     $target //= $where->[0];
 
     my @opts = split ' ', $content;
-    my $sophia = ${$args->[HEAP]->{sophia}};
+    my $sophia = $args->[HEAP]->{sophia};
 
     my $message = sophia_set_config_option(\@opts) ?
                     sprintf('%s = %s', $opts[1], $opts[2]) :

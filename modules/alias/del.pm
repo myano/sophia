@@ -28,7 +28,7 @@ sub alias_del {
 
     return if !exists $heap->{CMD_ALIASES};
 
-    my $sophia = ${$heap->{sophia}};
+    my $sophia = $heap->{sophia};
     
     if (!exists $heap->{CMD_ALIASES}{lc $opts[1]}) {
         $sophia->yield(privmsg => $target => sprintf('Alias %s does not exist.', $opts[1]));

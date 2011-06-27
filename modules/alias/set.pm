@@ -28,7 +28,7 @@ sub alias_set {
 
     return if !exists $heap->{CMD_ALIASES};
 
-    my $sophia = ${$heap->{sophia}};
+    my $sophia = $heap->{sophia};
     
     $heap->{CMD_ALIASES}{lc $opts[1]} = lc $opts[2];
 

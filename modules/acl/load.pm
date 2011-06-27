@@ -25,6 +25,6 @@ sub acl_load {
 
     sophia_acl_db_load();
 
-    my $sophia = ${$args->[HEAP]->{sophia}};
+    my $sophia = $args->[HEAP]->{sophia};
     $sophia->yield(privmsg => $target => 'ACL reloaded from DB file.');
 }
