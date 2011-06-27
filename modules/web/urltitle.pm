@@ -1,6 +1,10 @@
 use strict;
 use warnings;
 
+my @web_urltitle_ignore = (
+    'cia.atheme.org',
+);
+
 sophia_module_add('web.urltitle', '2.0', \&init_web_urltitle, \&deinit_web_urltitle);
 
 sub init_web_urltitle {
@@ -19,9 +23,16 @@ sub deinit_web_urltitle {
 sub web_urltitle {
     my $args = $_[0];
     my ($who, $where, $content) = ($args->[ARG0], $args->[ARG1], $args->[ARG2]);
-    
-    return if $who =~ /cia\.atheme\.org/;  # ignore CIA bot commit bit.ly lookups.
+
+    # return if this is not a valid url
     return if $content !~ /\b(https?:\/\/[^ ]+)\b/xsmi;
+    
+    # if this user is on ignore, don't process this request
+    for my $ignore (@web_urltitle_ignore) {
+        if ($who =~ /$ignore/xsmi) {
+            return;
+        }
+    }
 
     my $response = curl_get($1);
     return unless $response;
@@ -29,10 +40,9 @@ sub web_urltitle {
     if ($response =~ m#<title[^>]*>(.+?)</title>#xsmi) {
         my $title = $1;
 
-        $title =~ s/\r\n|\n//g;
-        $title =~ s/^\s+//g;
-        $title =~ s/\s+$//g;
-        $title =~ s/\s{2,}/ /g;
+        $title =~ s/\r\n|\n//xsmg;
+        $title =~ s/\A\s+|\s+\z//xsmg;
+        $title =~ s/\s{2,}/ /xsmg;
 
         $title = '&laquo; ' . $title . ' &raquo;';
         $title = decode_entities($title);
