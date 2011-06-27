@@ -12,27 +12,35 @@ package sophia;
 require 5.10.0;
 use strict;
 use warnings;
-use Carp qw(carp croak);
-use Class::Unload;
 use FindBin qw($Bin);
-use Getopt::Long;
 use lib qq($Bin/../lib);
+use feature 'switch';
+
+use API::Core qw(error_log);
+# use Class::Unload;
+use Getopt::Long;
 use Pod::Usage;
 use POE qw(Component::IRC);
 use POSIX qw(setsid);
 use Protocol::IRC;
 use Sub::Delete;
-use feature 'switch';
 
-our (@INC, $VERSION);
-our %CONFIGURATIONS;
+our (%BASE, %CONFIGURATIONS);
+%BASE = (
+    ROOT    => "$Bin/..",
+    ETC     => "$Bin/../etc",
+    HELP    => "$Bin/../help",
+    LIB     => "$Bin/../lib",
+    MODULES => "$Bin/../modules",
+    VAR     => "$Bin/../var",
+);
+
 %CONFIGURATIONS = (
     VERSION         => ['sophia-3.0.0', ''],
-    BASE_DIR        => "$Bin/..",
-    MAIN_CONFIG     => "$Bin/../etc/sophia.conf",
-    MODULES_CONFIG  => "$Bin/../etc/sophia.modules.conf",
-    ACL_DB          => "$Bin/../etc/sophia.acl.db",
-    ALIAS_DB        => "$Bin/../etc/sophia.alias.db",
+    MAIN_CONFIG     => "$BASE{ETC}/sophia.conf",
+    MODULES_CONFIG  => "$BASE{ETC}/sophia.modules.conf",
+    ACL_DB          => "$BASE{ETC}/sophia.acl.db",
+    ALIAS_DB        => "$BASE{ETC}/sophia.alias.db",
     PERL_LIB        => '',
     LOAD_ALIASES    => 0,
     IN_DEBUG_MODE   => 0,
@@ -48,14 +56,14 @@ if ($full_version) {
 require Main;
 
 # don't run sophia as root idiot!
-trigger_error('sophia', 'Do not run sophia as root!') if  $> == 0;
+error_log('sophia', 'Do not run sophia as root!') if  $> == 0;
 
 # due to lack of expertise, sophia currently does not support Windows
-trigger_error('sophia', 'Currently, sophia is not supporting Windows.') if  $^O =~ /win/i;
+error_log('sophia', 'Currently, sophia is not supporting Windows.') if  $^O =~ /win/i;
 
 # load configuration values
 # ... and if it doesn't exist?
-trigger_error('sophia', 'Missing config file.') unless -e $CONFIGURATIONS{MAIN_CONFIG};
+error_log('sophia', 'Missing config file.') unless -e $CONFIGURATIONS{MAIN_CONFIG};
 
 my %opts;
 GetOptions(
@@ -132,28 +140,28 @@ unless ($CONFIGURATIONS{IN_DEBUG_MODE}) {
         print "sophia forked into the background with pid: $pid\n";
         sophia_log('sophia',"sophia forked into the background with pid: $pid");
 
-        open my $fh, '>', "$Bin/../etc/sophia.pid" or trigger_error('sophia', 'Missing etc directory.');
+        open my $fh, '>', "$Bin/../etc/sophia.pid" or error_log('sophia', 'Missing etc directory.');
         print {$fh} "$pid";
         close $fh;
 
         exit;
     }
-    setsid or trigger_error('sophia', "sophia cannot start a new session: $!");
+    setsid or error_log('sophia', "sophia cannot start a new session: $!");
 }
 else {
     $pid = $$;
 }
 
 unless ($CONFIGURATIONS{IN_DEBUG_MODE}) {
-    open STDIN, '<', '/dev/null' or trigger_error('sophia', "sophia cannot read /dev/null: $!\n");
-    open STDOUT, '>>', '/dev/null' or trigger_error('sophia', "sophia cannot write to /dev/null: $!\n");
+    open STDIN, '<', '/dev/null' or error_log('sophia', "sophia cannot read /dev/null: $!\n");
+    open STDOUT, '>>', '/dev/null' or error_log('sophia', "sophia cannot write to /dev/null: $!\n");
 
     # if var/sophia.err doesn't exist, create it
     if (! -e "$Bin/../var/sophia.err") {
-        open my $fh, '>', "$Bin/../var/sophia.err" or trigger_error('sophia', "Unable to create var/sophia.err: $!\n");
+        open my $fh, '>', "$Bin/../var/sophia.err" or error_log('sophia', "Unable to create var/sophia.err: $!\n");
         close $fh;
     }
-    open STDERR, '>>', "$Bin/../var/sophia.err" or trigger_error('sophia', "sophia cannot write to var/sophia.err: $!\n");
+    open STDERR, '>>', "$Bin/../var/sophia.err" or error_log('sophia', "sophia cannot write to var/sophia.err: $!\n");
 }
 
 my $sophia = POE::Component::IRC->spawn(
@@ -164,7 +172,7 @@ my $sophia = POE::Component::IRC->spawn(
     Server      => $SOPHIA{server},
     Port        => $SOPHIA{port},
     UseSSL      => $SOPHIA{usessl},
-) or trigger_error('sophia', "Unable to spawn POE::Component::IRC: $!\n");
+) or error_log('sophia', "Unable to spawn POE::Component::IRC: $!\n");
 
 POE::Session->create(
     inline_states => {
@@ -195,7 +203,7 @@ sub _start {
     my $heap = $_[HEAP];
     $_[KERNEL]->sig( INT => 'sig_int' );
 
-    trigger_error('sophia', "Unable to get the sophia instance from heap (start): $!\n")
+    error_log('sophia', "Unable to get the sophia instance from heap (start): $!\n")
         unless $sophia;
 
     $sophia->yield( register =>  'all' );
@@ -210,7 +218,7 @@ sub _stop {
 sub irc_001 {
     my $sender = $_[SENDER];
     
-    trigger_error('sophia', "Unable to get a sophia instance from heap (001): $!\n")
+    error_log('sophia', "Unable to get a sophia instance from heap (001): $!\n")
         unless $sophia;
 
     # identify to NickServ (if need be)
@@ -413,7 +421,7 @@ sub sophia_load_config {
     my $len;
 
     open my $fh, '<', $CONFIGURATIONS{MAIN_CONFIG}
-        or trigger_error('sophia', "Error opening config file: $!");
+        or error_log('sophia', "Error opening config file: $!");
 
     LINE: while (<$fh>) {
         chomp;
