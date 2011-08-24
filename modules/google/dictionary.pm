@@ -53,7 +53,6 @@ sub google_dictionary {
     return unless $response;
 
     my $sophia = $args->[HEAP]->{sophia};
-    $sophia->yield(privmsg => 'Kays' => sprintf('%s ! %s ! %s ! %s !', $lang, $source, $target, $content));
 
     $idx = index $response, '"query":"';
     unless ($idx > -1) {
