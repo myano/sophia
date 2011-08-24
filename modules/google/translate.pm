@@ -29,6 +29,7 @@ sub google_translate {
 
     $lang =~ s/ /+/g;
     $text =~ s/ /+/g;
+    $text =~ s/&/%26/g;
 
     my $response = curl_get(sprintf('http://ajax.googleapis.com/ajax/services/language/translate?v=1.0&q=%s&langpair=%s', $text, $lang));
     return unless $response;
