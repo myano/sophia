@@ -1,3 +1,4 @@
-Syntax: google:dict <entry>
+Syntax: google:dict [<langpair>] <entry>
 This command must be used in a channel.
 It performs a Google Dictionary look up of the specified entry and outputs the top 3 results (if any).
+The langpair is a language pair in the form of: <source_language>|<target_language>. Refer to the bottom of: http://code.google.com/apis/language/translate/v1/getting_started.html

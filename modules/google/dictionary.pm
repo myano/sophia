@@ -36,13 +36,24 @@ sub google_dictionary {
     return unless $idx > -1;
 
     $content = substr $content, $idx + 1;
+    
+    # check if the first arg is the language pair
+    # if not, default it to en|en
+    my $source = my $target = 'en';
+    my ($lang, @rest) = split ' ', $content;
+    if ($lang =~ /.{2,5}\|.{2,5}/) {
+        ($source, $target) = split /\|/, $lang;
+        $content = join ' ', @rest;
+    }
+
     $content =~ s/ /+/g;
     $content =~ s/&/%26/g;
 
-    my $response = curl_get(sprintf('http://www.google.com/dictionary/json?callback=dict_api.callbacks.id100&sl=en&tl=en&restrict=pr%sde&client=te&q=%s', '%2C', $content));
+    my $response = curl_get(sprintf('http://www.google.com/dictionary/json?callback=dict_api.callbacks.id100&sl=%s&tl=%s&restrict=pr%sde&client=te&q=%s', $source, $target, '%2C', $content));
     return unless $response;
 
     my $sophia = $args->[HEAP]->{sophia};
+    $sophia->yield(privmsg => 'Kays' => sprintf('%s ! %s ! %s ! %s !', $lang, $source, $target, $content));
 
     $idx = index $response, '"query":"';
     unless ($idx > -1) {
