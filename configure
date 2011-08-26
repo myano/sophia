@@ -63,7 +63,7 @@ sub main_packages {
         1;
     } or print "not found (install POSIX).\n";
 
-    print "Checking for Sub::Delete ,,, ";
+    print "Checking for Sub::Delete ... ";
     eval {
         require Sub::Delete;
         print "OK!\n";
