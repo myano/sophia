@@ -76,7 +76,11 @@ sub help_main_cmd {
     return unless -e $help;
 
     my $sophia = $args->[HEAP]->{sophia};
+<<<<<<< HEAD
     open my $fh, '<', $help or slog('sophia', "Unable to open help file ($module/$cmd) for reading.") and return;
+=======
+    open my $fh, '<', $help or sophia_log('sophia', "Unable to open help file ($module/$cmd) for reading.") and return;
+>>>>>>> origin/master
     $sophia->yield(notice => $who => $_) while <$fh>;
     close $fh;
 }
