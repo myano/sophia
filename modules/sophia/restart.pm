@@ -20,13 +20,8 @@ sub deinit_sophia_restart {
 
 sub sophia_restart {
     my $args = $_[0];
-<<<<<<< HEAD
     my ($heap, $who) = ($args->[HEAP], $args->[ARG0]);
     my $sophia = $heap->{sophia};
-=======
-    my $who = $args->[ARG0];
-    my $sophia = $args->[HEAP]->{sophia};
->>>>>>> origin/master
 
     slog('sophia', sprintf('Restarting sophia requested by: %s', $who));
     $heap->{SYSTEM}{RESTART} = 1;

@@ -46,13 +46,8 @@ sub sophia_modreload {
 
     my $len = scalar @loaded;
 
-<<<<<<< HEAD
     # if we are only reloading all modules, do nothing
     return if $len == 0 && !$modall;
-=======
-    # if only autoloaded modules were reloaded, then stop
-    return if $len == 0 && $modall;
->>>>>>> origin/master
 
     # if no modules are loaded, then tell the user
     if ($len == 0) {

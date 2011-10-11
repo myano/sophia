@@ -38,20 +38,11 @@ our (%BASE, %CONFIGURATIONS);
 );
 
 %CONFIGURATIONS = (
-<<<<<<< HEAD
     VERSION         => ['sophia-3.0.0', ''],
     MAIN_CONFIG     => "$BASE{ETC}/sophia.conf",
     MODULES_CONFIG  => "$BASE{ETC}/sophia.modules.conf",
     ACL_DB          => "$BASE{ETC}/sophia.acl.db",
     ALIAS_DB        => "$BASE{ETC}/sophia.alias.db",
-=======
-    VERSION         => ['sophia-2.1.0', ''],
-    BASE_DIR        => "$Bin/..",
-    MAIN_CONFIG     => "$Bin/../etc/sophia.conf",
-    MODULES_CONFIG  => "$Bin/../etc/sophia.modules.conf",
-    ACL_DB          => "$Bin/../etc/sophia.acl.db",
-    ALIAS_DB        => "$Bin/../etc/sophia.alias.db",
->>>>>>> origin/master
     PERL_LIB        => '',
     LOAD_ALIASES    => 0,
     IN_DEBUG_MODE   => 0,
@@ -207,41 +198,6 @@ POE::Session->create(
     heap => { sophia => $sophia },
 );
 
-<<<<<<< HEAD
-=======
-sub _default {
-	my ($event, $args) = @_[ARG0 .. $#_];
-	my @output = ( "$event: " );
-
-	for my $arg (@$args) {
-		if ( ref $arg eq 'ARRAY' ) {
-			push( @output, '[' . join(', ', @$arg ) . ']' );
-		}
-		else {
-			push ( @output, "'$arg'" );
-		}
-	}
-	print join ' ', @output, "\n";
-	return;
-}
-
-sub _start {
-    my $heap = $_[HEAP];
-    $_[KERNEL]->sig( INT => 'sig_int' );
-
-    trigger_error('sophia', "Unable to get the sophia instance from heap (start): $!\n")
-        unless $heap->{sophia};
-
-    $sophia->yield( register =>  'all' );
-    $sophia->yield( connect => { } );
-
-    return;
-}
-
-sub _stop {
-}
-
->>>>>>> origin/master
 sub irc_001 {
     my $sender = $_[SENDER];
     
