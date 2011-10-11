@@ -27,7 +27,7 @@ sub cmd_save {
 
     my $cmds = &sophia_cache_load('mod:cmd', 'commands');
 
-    open my $fh, '>', $cmd_db or sophia_log('sophia', "Unable to open $cmd_db file for saving: $!") and return;
+    open my $fh, '>', $cmd_db or slog('sophia', "Unable to open $cmd_db file for saving: $!") and return;
     print {$fh} $_, ' ', $cmds->{$_} for keys %{$cmds};
     close $fh;
 

@@ -27,7 +27,7 @@ sub alias_save {
 
     my $alias_db = $sophia::CONFIGURATIONS{ALIAS_DB};
 
-    open my $fh, '>', $alias_db or sophia_log('sophia', "Unable to open $alias_db for writing: $!") and return;
+    open my $fh, '>', $alias_db or slog('sophia', "Unable to open $alias_db for writing: $!") and return;
     print {$fh} sprintf('%s %s%s', $_, $heap->{CMD_ALIASES}{$_}, "\n") for keys %{$heap->{CMD_ALIASES}};
     close $fh;
 

@@ -20,11 +20,11 @@ sub deinit_sophia_restart {
 
 sub sophia_restart {
     my $args = $_[0];
-    my $who = $args->[ARG0];
-    my $sophia = $args->[HEAP]->{sophia};
+    my ($heap, $who) = ($args->[HEAP], $args->[ARG0]);
+    my $sophia = $heap->{sophia};
 
-    sophia_log('sophia', sprintf('Restarting sophia requested by: %s', $who));
-    $sophia::CONFIGURATIONS{DO_RESTART} = 1;
+    slog('sophia', sprintf('Restarting sophia requested by: %s', $who));
+    $heap->{SYSTEM}{RESTART} = 1;
     $sophia->yield(quit => 'Restarting ... ');
 }
 

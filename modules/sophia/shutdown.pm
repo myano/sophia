@@ -23,7 +23,7 @@ sub sophia_shutdown {
     my $who = $args->[ARG0];
     my $sophia = $args->[HEAP]->{sophia};
 
-    sophia_log('sophia', sprintf('Shutting down sophia requested by: %s.', $who));
+    slog('sophia', sprintf('Shutting down sophia requested by: %s.', $who));
     $sophia->yield(quit => 'Shutting down ... ');
 }
 

@@ -32,13 +32,13 @@ sub sophia_modunload {
 
     for (@parts) {
         if ($_ eq '*') {
-            sophia_log('sophia', sprintf('Unloading all modules requested by: %s.', $who));
+            slog('sophia', sprintf('Unloading all modules requested by: %s.', $who));
             &sophia_unload_modules;
             $sophia->yield(privmsg => $target => 'All modules unloaded.');
             return;
         }
         elsif (sophia_module_del($_)) {
-            sophia_log('sophia', sprintf('Module %s unloaded requested by: %s.', $_, $who));
+            slog('sophia', sprintf('Module %s unloaded requested by: %s.', $_, $who));
             push @loaded, $_;
         }
     }

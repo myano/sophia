@@ -12,11 +12,11 @@ package sophia;
 require 5.10.0;
 use strict;
 use warnings;
+
 use FindBin qw($Bin);
 use lib qq($Bin/../lib);
-use feature 'switch';
 
-use API::Core qw(error_log);
+use API::Log qw(error_log slog);
 # use Class::Unload;
 use Getopt::Long;
 use Pod::Usage;
@@ -24,10 +24,12 @@ use POE qw(Component::IRC);
 use POSIX qw(setsid);
 use Protocol::IRC;
 use Sub::Delete;
+use feature 'switch';
 
 our (%BASE, %CONFIGURATIONS);
 %BASE = (
     ROOT    => "$Bin/..",
+    BIN     => $Bin,
     ETC     => "$Bin/../etc",
     HELP    => "$Bin/../help",
     LIB     => "$Bin/../lib",
@@ -44,7 +46,6 @@ our (%BASE, %CONFIGURATIONS);
     PERL_LIB        => '',
     LOAD_ALIASES    => 0,
     IN_DEBUG_MODE   => 0,
-    DO_RESTART      => 0,
 );
 
 my $full_version = `cd $Bin/.. && git log -1 --pretty=format:'${CONFIGURATIONS{VERSION}->[0]} [%H] %cd'`;
@@ -52,8 +53,6 @@ if ($full_version) {
     chomp $full_version;
     $CONFIGURATIONS{VERSION}->[1] = $full_version;
 }
-
-require Main;
 
 # don't run sophia as root idiot!
 error_log('sophia', 'Do not run sophia as root!') if  $> == 0;
@@ -63,7 +62,7 @@ error_log('sophia', 'Currently, sophia is not supporting Windows.') if  $^O =~ /
 
 # load configuration values
 # ... and if it doesn't exist?
-error_log('sophia', 'Missing config file.') unless -e $CONFIGURATIONS{MAIN_CONFIG};
+error_log('sophia', 'Missing config file.') if ! -e $CONFIGURATIONS{MAIN_CONFIG};
 
 my %opts;
 GetOptions(
@@ -138,7 +137,7 @@ unless ($CONFIGURATIONS{IN_DEBUG_MODE}) {
 
     unless ($pid == 0) {
         print "sophia forked into the background with pid: $pid\n";
-        sophia_log('sophia',"sophia forked into the background with pid: $pid");
+        slog('sophia',"sophia forked into the background with pid: $pid");
 
         open my $fh, '>', "$Bin/../etc/sophia.pid" or error_log('sophia', 'Missing etc directory.');
         print {$fh} "$pid";
@@ -176,44 +175,28 @@ my $sophia = POE::Component::IRC->spawn(
 
 POE::Session->create(
     inline_states => {
-        _default    => $Protocol::IRC::rawcodes{_default},
-        _start      => \&_start,
-        _stop       => \&_stop,
-        irc_001     => \&irc_001,
-        irc_332     => \&irc_332,
-        irc_disconnected    => \&irc_disconnected,
-        irc_error   => \&irc_error,
-        irc_join    => \&irc_join,
-        irc_kick    => \&irc_kick,
-        irc_msg     => \&irc_msg,
-        irc_nick    => \&irc_nick,
-        irc_notice  => \&irc_notice,
-        irc_part    => \&irc_part,
-        irc_public  => \&irc_public,
-        irc_quit    => \&irc_quit,
-        irc_shutdown    => \&irc_shutdown,
-        irc_topic   => \&irc_topic,
-        sig_int     => \&sig_int,
-        load_timers => \&load_timers,
+        _default            => $Protocol::IRC::rawcodes{_default},
+        _start              => $Protocol::IRC::rawcodes{_start},
+        _stop               => $Protocol::IRC::rawcodes{_stop},
+        irc_001             => \&irc_001,
+        irc_332             => $Protocol::IRC::rawcodes{_332},
+        irc_disconnected    => $Protocol::IRC::rawcodes{_disconnected},
+        irc_error           => $Protocol::IRC::rawcodes{_error},
+        irc_join            => \&irc_join,
+        irc_kick            => \&irc_kick,
+        irc_msg             => \&irc_msg,
+        irc_nick            => \&irc_nick,
+        irc_notice          => \&irc_notice,
+        irc_part            => \&irc_part,
+        irc_public          => \&irc_public,
+        irc_quit            => \&irc_quit,
+        irc_shutdown        => $Protocol::IRC::rawcodes{_shutdown},
+        irc_topic           => $Protocol::IRC::rawcodes{_topic},
+        sig_int             => $Protocol::IRC::rawcodes{_sigint},
+        load_timers         => \&load_timers,
     },
     heap => { sophia => $sophia },
 );
-
-sub _start {
-    my $heap = $_[HEAP];
-    $_[KERNEL]->sig( INT => 'sig_int' );
-
-    error_log('sophia', "Unable to get the sophia instance from heap (start): $!\n")
-        unless $sophia;
-
-    $sophia->yield( register =>  'all' );
-    $sophia->yield( connect => { } );
-
-    return;
-}
-
-sub _stop {
-}
 
 sub irc_001 {
     my $sender = $_[SENDER];
@@ -239,19 +222,6 @@ sub irc_001 {
 
     # hook up timers
     $_[KERNEL]->alarm( 'load_timers' => time() + 1 );
-}
-
-sub irc_332 {
-    my ($heap, $arr_ref) = @_[HEAP, ARG2];
-    $heap->{TOPICS}{lc $arr_ref->[0]} = $arr_ref->[1];
-}
-
-sub irc_disconnected {
-    $sophia->yield('shutdown');
-}
-
-sub irc_error {
-    sophia_log('sophia', $_[ARG0]);
 }
 
 sub irc_join {
@@ -287,29 +257,6 @@ sub irc_quit {
     exec_events($EVENTSCONF{quit}, \@_);
 }
 
-sub irc_shutdown {
-    &sophia_acl_db_save;
-    if ($CONFIGURATIONS{DO_RESTART}) {
-        if ($CONFIGURATIONS{IN_DEBUG_MODE}) {
-            `$Bin/sophia --debug`;
-        }
-        else {
-            `$Bin/sophia`;
-        }
-    }
-    exit;
-}
-
-sub irc_topic {
-    my ($heap, $chan, $topic) = @_[HEAP, ARG1, ARG2];
-    $heap->{TOPICS}{lc $chan} = $topic;
-}
-
-sub sig_int {
-    $sophia->yield( quit => 'Shutting down ... ' );
-    $_[KERNEL]->sig_handled();
-}
-
 sub load_timers {
     sophia_load_timers(\$_[KERNEL]);
     $_[KERNEL]->alarm( 'load_timers' => time() + 60 );
@@ -325,7 +272,7 @@ sub exec_events {
             eval {
                 &{$sophia::EVENTS->{$namespace}{$module}{$command}{init}}($args);
                 1;
-            } or sophia_log('sophia', '[ERROR] ' . $!) and sophia_log('sophia', '[ERROR] '. $@);
+            } or slog('sophia', '[ERROR] ' . $!) and slog('sophia', '[ERROR] '. $@);
         }
     }
 }
@@ -364,7 +311,7 @@ sub exec_events_trigger {
             eval {
                 $x = &{$sophia::EVENTS->{$namespace}{$module}{$command}{init}}($args, $target);
                 1;
-            } or sophia_log('sophia', '[ERROR] '. $!) and sophia_log('sophia', '[ERROR] ' . $@);
+            } or slog('sophia', '[ERROR] '. $!) and slog('sophia', '[ERROR] ' . $@);
         }
     }
 }
@@ -411,7 +358,7 @@ sub exec_triggers {
             eval {
                 $x = &{$sophia::COMMANDS->{$module}{$command}{init}}($args);
                 1;
-            } or sophia_log('sophia', '[ERROR] ' . $!) and sophia_log('sophia', '[ERROR] '. $@);
+            } or slog('sophia', '[ERROR] ' . $!) and slog('sophia', '[ERROR] '. $@);
         }
     }
 }
@@ -570,7 +517,7 @@ sub sophia_aliases_load {
     return unless $heap;
     $heap = ${$heap};
 
-    open my $fh, '<', $CONFIGURATIONS{ALIAS_DB} or sophia_log('sophia', sprintf('Unable to open %s for reading: %s', $CONFIGURATIONS{ALIAS_DB}, $!)) and return;
+    open my $fh, '<', $CONFIGURATIONS{ALIAS_DB} or slog('sophia', sprintf('Unable to open %s for reading: %s', $CONFIGURATIONS{ALIAS_DB}, $!)) and return;
 
     LINE: while (<$fh>) {
         chomp;

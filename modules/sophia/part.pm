@@ -30,7 +30,7 @@ sub sophia_part {
     my $chans = sophia_cache_load('sophia_main', 'channels');
     for (@parts) {
         if (length) {
-            sophia_log('sophia', sprintf('Parting (%s) requested by: %s.', $_, $who));
+            slog('sophia', sprintf('Parting (%s) requested by: %s.', $_, $who));
             # remove this from listchans
             delete $chans->{$_};
             $sophia->yield( part => $_ );
@@ -39,7 +39,7 @@ sub sophia_part {
     }
 
     unless ($parted || $target) {   # in case of privmsg, don't part
-        sophia_log('sophia', sprintf('Parting (%s) requested by: %s.', $where->[0], $who));
+        slog('sophia', sprintf('Parting (%s) requested by: %s.', $where->[0], $who));
         delete $chans->{$where->[0]};
         $sophia->yield( part => $where->[0] );
     }

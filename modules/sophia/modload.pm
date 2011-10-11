@@ -32,7 +32,7 @@ sub sophia_modload {
 
     for (@parts) {
         if (sophia_module_load($_)) {
-            sophia_log('sophia', sprintf('Module %s loaded by: %s.', $_, $who));
+            slog('sophia', sprintf('Module %s loaded by: %s.', $_, $who));
             push @loaded, $_;
         }
     }

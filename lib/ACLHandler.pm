@@ -7,7 +7,7 @@ my $sophia_acl_db = $sophia::CONFIGURATIONS{ACL_DB};
 sub sophia_acl_db_load {
     return unless -e $sophia_acl_db;
     
-    open my $fh, '<', $sophia_acl_db or sophia_log('sophia', "Error opening db file: $!") and return;
+    open my $fh, '<', $sophia_acl_db or slog('sophia', "Error opening db file: $!") and return;
     &sophia_acl_clear;
     sophia_reload_founder();
 
@@ -40,7 +40,7 @@ sub sophia_acl_db_load {
 }
 
 sub sophia_acl_db_save {
-    open my $fh, '>', $sophia_acl_db or sophia_log('sophia', 'Unable to open ACL DB file for writing.');
+    open my $fh, '>', $sophia_acl_db or slog('sophia', 'Unable to open ACL DB file for writing.');
 
     my ($SOPHIA_ACL_GROUPS, $SOPHIA_ACL_USERS, $SOPHIA_ACL_HOST2UID);
 

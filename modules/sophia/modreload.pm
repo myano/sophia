@@ -33,13 +33,13 @@ sub sophia_modreload {
 
     for (@parts) {
         if ($_ eq '*') {
-            sophia_log('sophia', sprintf('Reloading all modules requested by: %s.', $who));
+            slog('sophia', sprintf('Reloading all modules requested by: %s.', $who));
             &sophia_reload_modules;
             $sophia->yield(privmsg => $target => 'All autoloaded modules reloaded.');
             $modall = 1;
         }
         elsif (sophia_reload_module($_)) {
-            sophia_log('sophia', sprintf('Module %s reloaded requested by: %s.', $_, $who));
+            slog('sophia', sprintf('Module %s reloaded requested by: %s.', $_, $who));
             push @loaded, $_;
         }
     }
