@@ -29,7 +29,7 @@ You need to set a configuration file. Copy ``etc/sophia.conf.example`` to ``etc/
 Run
 ---
 
-To launch `sophia` run ``./bin/`sophia```
+To launch `sophia` run ``./bin/sophia``
 
 
 Trouble / Help
