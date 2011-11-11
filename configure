@@ -33,7 +33,7 @@ sub main_packages {
         require Getopt::Long;
         print "OK!\n";
         1;
-    } or print "not found (install Getopt:Long).\n";
+    } or print "not found (install Getopt::Long).\n";
 
     print "Checking for POD::Usage ... ";
     eval {
