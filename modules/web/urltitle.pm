@@ -23,7 +23,8 @@ sub web_urltitle {
     return if $who =~ /cia\.atheme\.org/;  # ignore CIA bot commit bit.ly lookups.
     return if $content !~ /\b(https?:\/\/[^ ]+)\b/xsmi;
 
-    my $response = curl_get($1);
+    my $uri = $1;
+    my $response = curl_get($uri);
     return unless $response;
 
     if ($response =~ m#<title[^>]*>(.+?)</title>#xsmi) {
@@ -35,9 +36,12 @@ sub web_urltitle {
 
         $title = '&laquo; ' . $title . ' &raquo;';
         $title = decode_entities($title);
+
+        my $wot = wot($uri);
         
         my $sophia = $args->[HEAP]->{sophia};
         $sophia->yield(privmsg => $where->[0] => $title);
+        $sophia->yield(privmsg => $where->[0] => 'WOT Reputation: ' . $wot->{'Reputation'} . '    WOT Confidence: ' . $wot->{'Confidence'});
     }
 }
 
