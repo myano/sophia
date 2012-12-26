@@ -2902,3 +2902,267 @@ C<EXE_FILES: >
 
 =back
 
+=head2 Tue Dec 25 22:49:23 2012: C<Module> L<B::Hooks::OP::Check|B::Hooks::OP::Check>
+
+=over 4
+
+=item *
+
+C<installed into: /home/kays/github/sophia/cpan/lib/perl5>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: 0.19>
+
+=item *
+
+C<EXE_FILES: >
+
+=back
+
+=head2 Tue Dec 25 22:49:26 2012: C<Module> L<Devel::Declare|Devel::Declare>
+
+=over 4
+
+=item *
+
+C<installed into: /home/kays/github/sophia/cpan/lib/perl5>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: 0.006011>
+
+=item *
+
+C<EXE_FILES: >
+
+=back
+
+=head2 Tue Dec 25 22:50:02 2012: C<Module> L<MooseX::Method::Signatures|MooseX::Method::Signatures>
+
+=over 4
+
+=item *
+
+C<installed into: /home/kays/github/sophia/cpan/lib/perl5>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: 0.44>
+
+=item *
+
+C<EXE_FILES: >
+
+=back
+
+=head2 Tue Dec 25 22:51:37 2012: C<Module> L<POE::Component::Syndicator|POE::Component::Syndicator>
+
+=over 4
+
+=item *
+
+C<installed into: /home/kays/github/sophia/cpan/lib/perl5>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: 0.06>
+
+=item *
+
+C<EXE_FILES: >
+
+=back
+
+=head2 Tue Dec 25 22:59:21 2012: C<Module> L<MooseX::Declare|MooseX::Declare>
+
+=over 4
+
+=item *
+
+C<installed into: /home/kays/github/sophia/cpan/lib/perl5>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: 0.35>
+
+=item *
+
+C<EXE_FILES: >
+
+=back
+
+=head2 Tue Dec 25 23:28:44 2012: C<Module> L<Data::Alias|Data::Alias>
+
+=over 4
+
+=item *
+
+C<installed into: /home/kays/github/sophia/cpan/lib/perl5>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: 1.16>
+
+=item *
+
+C<EXE_FILES: >
+
+=back
+
+=head2 Tue Dec 25 23:28:47 2012: C<Module> L<B::Hooks::OP::Annotation|B::Hooks::OP::Annotation>
+
+=over 4
+
+=item *
+
+C<installed into: /home/kays/github/sophia/cpan/lib/perl5>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: 0.44>
+
+=item *
+
+C<EXE_FILES: >
+
+=back
+
+=head2 Tue Dec 25 23:28:49 2012: C<Module> L<Devel::Pragma|Devel::Pragma>
+
+=over 4
+
+=item *
+
+C<installed into: /home/kays/github/sophia/cpan/lib/perl5>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: 0.54>
+
+=item *
+
+C<EXE_FILES: >
+
+=back
+
+=head2 Tue Dec 25 23:29:21 2012: C<Module> L<Const::Fast|Const::Fast>
+
+=over 4
+
+=item *
+
+C<installed into: /home/kays/github/sophia/cpan/lib/perl5>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: 0.013>
+
+=item *
+
+C<EXE_FILES: >
+
+=back
+
+=head2 Tue Dec 25 23:29:26 2012: C<Module> L<Any::Moose|Any::Moose>
+
+=over 4
+
+=item *
+
+C<installed into: /home/kays/github/sophia/cpan/lib/perl5>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: 0.18>
+
+=item *
+
+C<EXE_FILES: >
+
+=back
+
+=head2 Tue Dec 25 23:29:44 2012: C<Module> L<Mouse|Mouse>
+
+=over 4
+
+=item *
+
+C<installed into: /home/kays/github/sophia/cpan/lib/perl5>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: 1.02>
+
+=item *
+
+C<EXE_FILES: >
+
+=back
+
+=head2 Wed Dec 26 12:36:07 2012: C<Module> L<POE::Component::IRC|POE::Component::IRC>
+
+=over 4
+
+=item *
+
+C<installed into: /home/kays/github/sophia/cpan/lib/perl5>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: 6.81>
+
+=item *
+
+C<EXE_FILES: >
+
+=back
+
