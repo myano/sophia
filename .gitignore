@@ -5,3 +5,6 @@ sophia.modules.conf
 var/*
 *.pid
 *.db
+cpan/lib
+cpan/man
+cpan/bin
