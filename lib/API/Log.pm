@@ -1,59 +1,65 @@
-package API::Log;
-use strict;
-use warnings;
-use Carp qw(carp croak);
-use Exporter;
-use base qw(Exporter);
+use MooseX::Declare;
+use Method::Signatures::Modifiers;
 
-our @EXPORT_OK = qw(slog error_log warn_log);
+class API::Log
+{
+    use Carp qw(carp croak);
+    use Exporter;
+    use base qw(Exporter);
 
-sub slog {
-    my ($logfile, $msg) = @_;
+    our @EXPORT_OK = qw(_log error_log warn_log);
+    our %EXPORT_TAGS = (
+        ALL     => \@EXPORT_OK,
+    );
 
-    # if $msg is empty, don't log
-    if ($msg eq '') {
+    method _log
+    {
+        my ($logfile, $msg) = @_;
+
+        # if $msg is empty, don't log
+        if ($msg eq '') {
+            return;
+        }
+
+        $logfile = lc $logfile;
+
+        # if the var directory doesn't exist, create it
+        if (!-d $sophia::BASE{VAR}) {
+            mkdir $sophia::BASE{VAR}, 0644 or return;
+        }
+
+        my $direction = '>>';
+
+        # if the log file doesn't exist, create it.
+        if (!-e "$sophia::BASE{VAR}/$logfile.log") {
+            $direction = '>';
+        }
+
+        open my $fh, $direction, "$sophia::BASE{VAR}/$logfile.log" or return;
+        print {$fh} '(', scalar localtime time, ') ', $msg, "\n";
+        close $fh;
+
         return;
     }
 
-    $logfile = lc $logfile;
+    method error_log
+    {
+        my ($logfile, $msg) = @_;
+        $msg = '[ERROR] ' . $msg;
+        
+        $self->_log($logfile, $msg);
+        croak $msg;
 
-    # if the var directory doesn't exist, create it
-    if (!-d $sophia::BASE{VAR}) {
-        mkdir $sophia::BASE{VAR}, 0644 or return;
+        return;
     }
 
-    my $direction = '>>';
+    method warn_log {
+        my ($logfile, $msg) = @_;
+        $msg = '[WARNING] ' . $msg;
 
-    # if the log file doesn't exist, create it.
-    if (!-e "$sophia::BASE{VAR}/$logfile.log") {
-        $direction = '>';
+        $self->_log($logfile, $msg);
+        carp $msg;
+
+        return;
     }
-
-    open my $fh, '>>', "$sophia::BASE{VAR}/$logfile.log" or return;
-    print {$fh} '(', scalar localtime time, ') ', $msg, "\n";
-    close $fh;
-
-    return 1;
 }
-
-sub error_log {
-    my ($logfile, $msg) = @_;
-    $msg = '[ERROR] ' . $msg;
-    
-    slog($logfile, $msg);
-    croak $msg;
-
-    return;
-}
-
-sub warn_log {
-    my ($logfile, $msg) = @_;
-    $msg = '[WARNING] ' . $msg;
-
-    slog($logfile, $msg);
-    carp $msg;
-
-    return;
-}
-
-1;
