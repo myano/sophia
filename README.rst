@@ -21,7 +21,9 @@ Table of Contents
 Install
 -------
 
-Run ``./configure`` to make sure you have the required packages installed. If you do not have the required packages you can install them through your distribution's repositories or `CPAN <http://www.cpan.org/>`_.
+sophia should work out of the box. sophia does use quite a bit of CPAN modules. An archive of CPAN modules is included with sophia in the cpan directory. Just extract that tarball into the cpan directory. Make sure that the extracted files are in the cpan directory.
+cd cpan
+tar -jxf cpan.tar.bz2
 
 You need to set a configuration file. Copy ``etc/sophia.conf.example`` to ``etc/sophia.conf``. Once you copy this file, open it up and change the necessary settings. Also if you want all the modules to load on start, copy ``etc/sophia.modules.conf.example`` to ``etc/sophia.modules.conf``.
 
