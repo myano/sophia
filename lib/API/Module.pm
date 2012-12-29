@@ -1,5 +1,5 @@
 # API::Module - The basic core structure of a Module
-# Copyright (C) 2011 Kenneth K. Sham 
+# Copyright (C) 2012 Kenneth K. Sham 
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -14,97 +14,26 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-package API::Module;
-use strict;
-use warnings;
+use MooseX::Declare;
+use Method::Signatures::Modifiers;
 
-# fields for a Module
-# a value of 1 means a required field
-my %fields = (
-    _commands   => {
-    }
-    _init       => {
-        required        => 1,
-    },
-    _name       => {
-        required        => 1,
-    },
-    _void       => {
-        required        => 1,
-    },
-);
+class API::Module
+{
+    has 'name',     is => 'ro', isa => 'Str';
+    has 'version',  is => 'ro', isa => 'Str',   default => '1.0';
 
-sub new {
-    my ($class, %args) = @_;
-    my $self = {};
-    bless $self, $class;
-
-    # set the defaults and args
-    $self->_default();
-    $self->set(%args);
-
-    return $self;
-}
-
-sub _default {
-    my ($self) = @_;
-
-    # set all the default values in %fields
-    FIELD: for my $key (keys %fields) {
-        # if this field has a default value, set it
-        if (defined $fields{$key}{default}) {
-            $self->{$key} = $fields{$key}{default};
-        }
-    }
-
-    return 1;
-}
-
-sub get {
-    my ($self, $key) = @_;
-    
-    # if the key value doesn't exist
-    # or isn't defined, return nothing
-    if (!defined $self->{$key}) {
+    method init
+    {
         return;
     }
 
-    return $self->{$key};
-}
-
-sub set {
-    my ($self, %args) = @_;
-
-    # set the fields if they're in %fields
-    ARG: for my $key (keys %args) {
-        # if the key exists in args
-        if (defined $args{$key}) {
-            $self->{$key} = $args{$key};
-        }
+    method run
+    {
+        return;
     }
 
-    return 1;
-}
-
-sub is_valid {
-    my ($self) = @_;
-
-    # this module is valid if all
-    # required fields are defined
-    FIELD: for my $key (keys %fields) {
-        # if this field is not required, skip it
-        if (!$fields{$key}{required}) {
-            next FIELD;
-        }
-
-        # if this module doesn't have this field,
-        # return false
-        if (!defined $self->get($key)) {
-            return;
-        }
+    method destroy
+    {
+        return;
     }
-
-    return 1;
 }
-
-1;

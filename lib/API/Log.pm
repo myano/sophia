@@ -12,26 +12,29 @@ class API::Log
         ALL     => \@EXPORT_OK,
     );
 
-    method _log
+    method _log (@args)
     {
-        my ($logfile, $msg) = @_;
+        my ($logfile, $msg) = ($self, shift);
 
         # if $msg is empty, don't log
-        if ($msg eq '') {
+        if ($msg eq '')
+        {
             return;
         }
 
         $logfile = lc $logfile;
 
         # if the var directory doesn't exist, create it
-        if (!-d $sophia::BASE{VAR}) {
+        if (!-d $sophia::BASE{VAR})
+        {
             mkdir $sophia::BASE{VAR}, 0644 or return;
         }
 
         my $direction = '>>';
 
         # if the log file doesn't exist, create it.
-        if (!-e "$sophia::BASE{VAR}/$logfile.log") {
+        if (!-e "$sophia::BASE{VAR}/$logfile.log")
+        {
             $direction = '>';
         }
 
@@ -42,9 +45,10 @@ class API::Log
         return;
     }
 
-    method error_log
+    method error_log (@args)
     {
-        my ($logfile, $msg) = @_;
+        my ($logfile, $msg) = ($self, shift);
+
         $msg = '[ERROR] ' . $msg;
         
         $self->_log($logfile, $msg);
@@ -53,8 +57,10 @@ class API::Log
         return;
     }
 
-    method warn_log {
-        my ($logfile, $msg) = @_;
+    method warn_log (@args)
+    {
+        my ($logfile, $msg) = ($self, shift);
+
         $msg = '[WARNING] ' . $msg;
 
         $self->_log($logfile, $msg);

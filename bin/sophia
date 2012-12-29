@@ -4,7 +4,7 @@
 #  / __|/ _ \| '_ \| '_ \| |/ _` |
 #  \__ \ (_) | |_) | | | | | (_| |
 #  |___/\___/| .__/|_| |_|_|\__,_|
-#  =========~|_|~=================
+#  ----------|_|------------------
 #
 #       sophia Perl IRC bot
 
@@ -25,6 +25,7 @@ use Pod::Usage;
 use POE qw(Component::IRC);
 use POSIX qw(setsid);
 use Protocol::IRC;
+use Protocol::IRC::Session;
 
 use feature qw(switch);
 
@@ -93,23 +94,6 @@ $CONFIGURATIONS{MAIN_CONFIG} = $opts{config}        if $opts{config} && -e $opts
 $CONFIGURATIONS{MODULES_CONFIG} = $opts{modconf}    if $opts{modconf} && -e $opts{modconf};
 $CONFIGURATIONS{IN_DEBUG_MODE} = TRUE               if $opts{debug};
 
-our %SOPHIA = (
-    channels        => {},
-    realname        => 'sophia',
-    nick            => 'sophia',
-    owner_name      => '',
-    owner_host      => '',
-    password        => '',
-    port            => 6667,
-    server          => 'irc.server.net',
-    trigger         => '!',
-    usermode        => '+i',
-    username        => 'sophia',
-    usessl          => FALSE,
-);
-
-API::Config::load_main_config();
-
 my $pid;
 unless ($CONFIGURATIONS{IN_DEBUG_MODE})
 {
@@ -151,44 +135,12 @@ else
     $pid = $$;
 }
 
-our $sophia = POE::Component::IRC->spawn(
-    Nick        => $SOPHIA{nick},
-    Username    => $SOPHIA{username},
-    Password    => $SOPHIA{password},
-    Ircname     => $SOPHIA{realname},
-    Server      => $SOPHIA{server},
-    Port        => $SOPHIA{port},
-    UseSSL      => $SOPHIA{usessl},
-) or error_log('sophia', "Unable to spawn POE::Component::IRC: $!\n");
+my $configs = API::Config::parse_main_config;
 
-POE::Session->create(
-    inline_states => {
-        _default            => \&Protocol::IRC::_default,
-        _start              => \&Protocol::IRC::_start,
-        _stop               => \&Protocol::IRC::_stop,
-        irc_001             => \&Protocol::IRC::_001,
-        irc_332             => \&Protocol::IRC::_332,
-        irc_disconnected    => \&Protocol::IRC::_disconnected,
-        irc_error           => \&Protocol::IRC::_error,
-        #irc_join            => \&irc_join,
-        #irc_kick            => \&irc_kick,
-        #irc_msg             => \&irc_msg,
-        #irc_nick            => \&irc_nick,
-        #irc_notice          => \&irc_notice,
-        #irc_part            => \&irc_part,
-        #irc_public          => \&irc_public,
-        #irc_quit            => \&irc_quit,
-        irc_shutdown        => \&Protocol::IRC::_shutdown,
-        irc_topic           => \&Protocol::IRC::_topic,
-        sig_int             => \&Protocol::IRC::_sigint,
-        #load_timers         => \&load_timers,
-    },
-    heap => {
-        channels            => $SOPHIA{channels},
-        sophia              => $sophia,
-        channel_topics      => {},
-        usermodes           => $SOPHIA{usermodes},
-    },
-);
+for my $config (@$configs)
+{
+    my $session = Protocol::IRC::Session->new(%{$config});
+    $session->spawn;
+}
 
-POE::Kernel->run();
+POE::Kernel->run;

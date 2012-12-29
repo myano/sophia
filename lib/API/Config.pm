@@ -6,54 +6,65 @@ class API::Config
     use API::Log qw(error_log);
     use Constants;
     use Exporter;
+    use YAML::Tiny;
     use base qw(Exporter);
     use feature qw(switch);
 
-    our @EXPORT_OK = qw(load_main_config reload_main_config);
+    our @EXPORT_OK = qw(parse_main_config reload_main_config);
     our %EXPORT_TAGS = (
         ALL        => \@EXPORT_OK,
     );
 
-    method load_main_config
+    method parse_main_config
     {
-        open my $fh, '<', $sophia::CONFIGURATIONS{MAIN_CONFIG}
-            or error_log('sophia', "Unable to open config file: $!");
+        my %global;
+        my @configs;
 
-        LINE: while (<$fh>)
+        my $yaml = YAML::Tiny->read($sophia::CONFIGURATIONS{MAIN_CONFIG});
+
+        error_log('sophia', 'Unable to parse config file.')     if (!$yaml);
+
+        for my $block (@$yaml)
         {
-            chomp;
-            s/\A\s+//;
-            next LINE if /\A#/ || /\A\s*\z/;  # ignoring comments and lame lines
 
-            my @opts = split(' ');
-            next LINE if scalar @opts != 2;
-
-            $opts[0] = lc $opts[0];
-
-            given ($opts[0])
+            if (exists $block->{global})
             {
-                when ('channel')
+                while (my ($key, $value) = each %{$block->{global}})
                 {
-                    $sophia::SOPHIA{channels}{$opts[1]} = 1;
+                    $global{$key} = $value;
                 }
-                when ('port')
-                {
-                    if (index($opts[1], '+') == 0)
-                    {
-                        $sophia::SOPHIA{usessl} = TRUE;
-                        $opts[1] = substr($opts[1], 1);
-                    }
+            }
+            elsif (exists $block->{server})
+            {
+                my %config = %global;
 
-                    $sophia::SOPHIA{port} = $opts[1];
-                }
-                default
+                while (my ($key, $value) = each %{$block->{server}})
                 {
-                    $sophia::SOPHIA{$opts[0]} = $opts[1] if exists $sophia::SOPHIA{$opts[0]};
+                    $config{$key} = $value;
                 }
+
+                # channels is supposed to be a hash, but YAML processes it as an array
+                if (exists $config{channels})
+                {
+                    my %channels = map { $_ => 1 } @{$config{channels}};
+                    $config{channels} = \%channels;
+                }
+
+                # ports starting with + indicates ssl
+                if (exists $config{port})
+                {
+                    if (index($config{port}, '+') == 0)
+                    {
+                        $config{port}   = substr $config{port}, 1;
+                        $config{usessl} = TRUE;
+                    }
+                }
+
+                push @configs, \%config;
             }
         }
 
-        close $fh;
+        return \@configs;
     }
 
     method reload_main_config

@@ -16,12 +16,12 @@ class Protocol::IRC
             $sophia->yield(privmsg => 'NickServ' => sprintf('identify %s %s', $sophia->{nick}, $sophia->{password}));
         }
 
-        if ($heap->{usermodes})
+        if ($sophia->{usermode})
         {
-            $sophia->yield(mode => sprintf('%s %s', $sophia->{nick}, $heap->{usermodes}));
+            $sophia->yield(mode => sprintf('%s %s', $sophia->{nick}, $sophia->{usermode}));
         }
 
-        for my $chan (keys %{$heap->{channels}})
+        for my $chan (keys %{$sophia->{channels}})
         {
             $sophia->yield(join => $chan);
         }
@@ -30,11 +30,13 @@ class Protocol::IRC
     method _332 (@args)
     {
         my $heap = $args[HEAP - 1];
+        my $sophia = $heap->{sophia};
+
         my $channel_data = $args[ARG2 - 1];
         my $channel = lc $channel_data->[0];
         my $topic   = $channel_data->[1];
 
-        $heap->{channel_topics}{$channel} = $topic;
+        $sophia->{channel_topics}{$channel} = $topic;
         return;
     }
 
@@ -121,7 +123,8 @@ class Protocol::IRC
         my ($heap, $chan, $topic) = @args[HEAP - 1, ARG1 - 1, ARG2 - 1];
         $chan = lc $chan;
 
-        $heap->{channel_topics}{$chan} = $topic;
+        my $sophia = $heap->{sophia};
+        $sophia->{channel_topics}{$chan} = $topic;
         return;
     }
 }
