@@ -39,7 +39,7 @@ Trouble / Help
 
 If you need to re-generate a configuration file run ``./bin/genconfig``.
 
-You can reach the development team on `Freenode <http://freenode.net/>`_ in `##sophia <http://webchat.freenode.net/?channels=##sophia>`_
+You can reach the development team on `freenode <http://freenode.net/>`_ in `##sophia <http://webchat.freenode.net/?channels=##sophia>`_
 
 
 Contributions
