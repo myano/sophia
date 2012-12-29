@@ -1,33 +1,91 @@
-# indicates a comment line
+# this is a comment
 
-nick sophia
-username sophia
-realname sophia
+# these are the *ONLY* list of options that you can set:
+#   - nick
+#   - realname
+#   - username
+#   - owner_nick
+#   - owner_host
+#   - trigger
+#   - host
+#   - password
+#   - port
+#   - usermode
+#   - channels
+#
+# IMPORTANT: While it is not always required to put quotes
+# in option values, sometimes you will require it so that
+# the YAML parser won't misread it. Most notably, the option
+# values that should almost always be in quotes are:
+#   - owner_host
+#   - trigger
+#   - password
 
-# comment out the next line if the server does not use NickServ
-password NickServPassword
+# these are considered to be global settings
+# any values defined here are used as default values
+# you can overwrite any of these values in the server blocks
+# you are free to remove any or add any of the options listed
+# above into this global block. Just think of it as a way
+# to set default values. Please note that even if you set
+# all options to a default value, it will not result in
+# an irc connection. That is controlled by server block(s).
+global:
+    nick:       sophia
 
-# sophia's user mode
-usermode +i
+    # realname of the bot, aka gecos
+    realname:   sophia
+    username:   sophia
 
-# irc server to connect to
-server irc.domain.net
+    # the nick to whom sophia will consider to be its owner
+    # an owner has all privileges
+    owner_nick: Kays
 
-# for SSL, add a + before the port number
-port 6667
+    # the hostmask to whom sophia will consider to be its owner
+    # if you use this, you need not set owner_nick
+    owner_host: '*!*@just.do.it'
 
-# your name should not have a space
-owner_name owner
-
-# must be of a hostmask form: nick!user@host
-owner_host *!*@domain.net
-
-
-# this is the trigger for commands
-trigger !
+    # the default trigger that sophia commands will use
+    # again, it can be overwritten in server blocks
+    # that is, if you wish to have different triggers for
+    # different connections
+    trigger:    ':'
 
 
-# join the following channels
-# to add more, just add on more channel lines
-channel #sophia
-channel #sophia-dev
+# this is a divider. 3 hyphens.
+# a divider is required after each block to separate them
+# if you add another server block for another irc connection,
+# make sure you include this divider
+---
+
+# a server block
+# this specifies the information required to connect to an
+# irc server. You can use any and all options in this server
+# block. Any options set here will overwrite any global value
+# for this connection. Do note that overwriting global values
+# for this server has no effect on any subsequent server connections.
+server:
+    host:       irc.domain.tld
+
+    # if the server does not use NickServ authentication, just
+    # leave this value as '' (empty). Yes, you will need to put
+    # 2 quotes to represent this empty value.
+    password:   'NickServ Password'
+
+    # if you want to connect via SSL, use a '+' in front of the
+    # number to indicate SSL.
+    port:       +9999
+    usermode:   +QRi
+
+    # a list of channels to join upon connecting
+    channels:
+        - #sophia
+        - #sophia-dev
+
+
+# to add another server:
+# don't forget the --- divider!
+# ---
+# 
+# server:
+#   host:   irc.domain.tld
+#   ...
