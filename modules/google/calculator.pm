@@ -20,16 +20,28 @@ class google::calculator with API::Module
 
     method run ($event)
     {
-        my $response = Util::Curl->get(sprintf('http://www.google.com/ig/calculator?q=%s', uri_escape($event->content)));
+        my $result = $self->calculate($event->content);
+        return  unless ($result->{lhs} && $result->{rhs});
+
+        $event->reply( sprintf('%s = %s', $result->{lhs}, $result->{rhs}) );
+    }
+
+    method calculate ($expr)
+    {
+        my $response = Util::Curl->get(sprintf('http://www.google.com/ig/calculator?q=%s', uri_escape($expr)));
         return unless ($response || $response =~ /error:\s*"0?"/);
 
-        my $reply = '';
+        my %result = (
+            lhs     => '',
+            rhs     => '',
+        );
+
         my $idx = index($response, 'lhs: "') + 6;
-        $reply .= substr($response, $idx, index($response, '",', $idx) - $idx);
+        $result{lhs} = substr($response, $idx, index($response, '",', $idx) - $idx);
 
         $idx = index($response, 'rhs: "') + 6;
-        $reply .= sprintf(' = %s', substr($response, $idx, index($response, '",', $idx) - $idx));
+        $result{rhs} = substr($response, $idx, index($response, '",', $idx) - $idx);
 
-        $event->reply($reply);
+        return \%result;
     }
 }
