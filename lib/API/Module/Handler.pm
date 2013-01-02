@@ -33,7 +33,7 @@ class API::Module::Handler
         LINE: while (my $line = <$fh>)
         {
             chomp($line);
-            next LINE   if (Util::String->is_empty($line));   # skip empty lines
+            next LINE   if ($line =~ /\A\s*\z/);   # skip empty lines
 
             my ($key, $value) = split(' ', $line);
 

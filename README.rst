@@ -5,7 +5,7 @@
 #  / __|/ _ \| '_ \| '_ \| |/ _` |
 #  \__ \ (_) | |_) | | | | | (_| |
 #  |___/\___/| .__/|_| |_|_|\__,_|
-#  =========~|_|~=================
+#  ----------|_|------------------
 #
 #       sophia Perl IRC bot
 
@@ -36,8 +36,6 @@ To launch `sophia` run ``./bin/sophia``
 
 Trouble / Help
 --------------
-
-If you need to re-generate a configuration file run ``./bin/genconfig``.
 
 You can reach the development team on `freenode <http://freenode.net/>`_ in `##sophia <http://webchat.freenode.net/?channels=##sophia>`_
 

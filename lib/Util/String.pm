@@ -3,16 +3,6 @@ use Method::Signatures::Modifiers;
 
 class Util::String
 {
-    method is_empty ($string)
-    {
-        if (ref $string ne 'Str')
-        {
-            return;
-        }
-
-        return $string eq '';
-    }
-
     method ltrim ($string)
     {
         $string =~ s/\A\s+//;

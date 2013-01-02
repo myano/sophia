@@ -35,8 +35,6 @@ To launch sophia run ./bin/sophia
 Trouble / Help
 --------------
 
-If you need to re-generate a configuration file run ./bin/genconfig.
-
 You can reach the development team on freenode in ##sophia <http://webchat.freenode.net/?channels=##sophia>
 
 

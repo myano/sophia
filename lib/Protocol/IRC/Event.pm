@@ -1,7 +1,7 @@
 use MooseX::Declare;
 use Method::Signatures::Modifiers;
 
-class Protocol::IRC::Event
+role Protocol::IRC::Event
 {
     use Constants;
 

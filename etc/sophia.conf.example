@@ -12,6 +12,7 @@
 #   - port
 #   - usermode
 #   - channels
+#   - uid
 #
 # IMPORTANT: While it is not always required to put quotes
 # in option values, sometimes you will require it so that
@@ -24,12 +25,16 @@
 
 # these are considered to be global settings
 # any values defined here are used as default values
-# you can overwrite any of these values in the server blocks
+# you can override any of these values in the server blocks
 # you are free to remove any or add any of the options listed
 # above into this global block. Just think of it as a way
 # to set default values. Please note that even if you set
 # all options to a default value, it will not result in
 # an irc connection. That is controlled by server block(s).
+#
+# IMPORTANT: while it is possible to set a uid in this
+# global block, it would be utterly useless unless you only
+# have one server connection block.
 global:
     nick:       sophia
 
@@ -39,11 +44,11 @@ global:
 
     # the nick to whom sophia will consider to be its owner
     # an owner has all privileges
-    owner_nick: Kays
+    owner_nick: nick
 
     # the hostmask to whom sophia will consider to be its owner
     # if you use this, you need not set owner_nick
-    owner_host: '*!*@just.do.it'
+    owner_host: 'nick!username@hostmask'
 
     # the default trigger that sophia commands will use
     # again, it can be overwritten in server blocks
@@ -61,9 +66,11 @@ global:
 # a server block
 # this specifies the information required to connect to an
 # irc server. You can use any and all options in this server
-# block. Any options set here will overwrite any global value
-# for this connection. Do note that overwriting global values
-# for this server has no effect on any subsequent server connections.
+# block. Any options set here will override any global value
+# for this connection.
+#
+# IMPORTANT: overriding any global values for this server
+# has no effect on any subsequent server connections.
 server:
     # this is a unique identifier for this server
     # you can name it whatever you want, but it must be

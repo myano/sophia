@@ -1,7 +1,7 @@
 use MooseX::Declare;
 use Method::Signatures::Modifiers;
 
-class Protocol::IRC::Event::Public extends Protocol::IRC::Event
+class Protocol::IRC::Event::Public with Protocol::IRC::Event
 {
     use Constants;
     use Protocol::IRC::Constants;
@@ -75,7 +75,7 @@ class Protocol::IRC::Event::Public extends Protocol::IRC::Event
     method reply ($string)
     {
         $string = Util::String->trim($string);
-        return if (Util::String->is_empty($string));
+        return unless $string;
 
         my $sophia = $self->sophia;
 
@@ -87,7 +87,7 @@ class Protocol::IRC::Event::Public extends Protocol::IRC::Event
         {
             MESSAGE: for my $message (@messages)
             {
-                if (Util::String->is_empty($message))
+                if (!$message)
                 {
                     next MESSAGE;
                 }
