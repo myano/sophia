@@ -15,50 +15,20 @@ class API::Config
         ALL        => \@EXPORT_OK,
     );
 
-    method parse_main_config
+    method parse_yaml_config ($config_path)
     {
-        my %global;
         my @configs;
 
-        my $yaml = YAML::Tiny->read($sophia::CONFIGURATIONS{MAIN_CONFIG});
-
-        error_log('sophia', 'Unable to parse config file.')     if (!$yaml);
+        my $yaml = YAML::Tiny->read($config_path);
+        error_log('sophia', "Unable to parse config file: $config_path")    unless ($yaml);
 
         for my $block (@$yaml)
         {
-
-            if (exists $block->{global})
+            while (my ($key, $value) = each %$block)
             {
-                while (my ($key, $value) = each %{$block->{global}})
-                {
-                    $global{$key} = $value;
-                }
-            }
-            elsif (exists $block->{server})
-            {
-                my %config = %global;
-
-                while (my ($key, $value) = each %{$block->{server}})
-                {
-                    $config{$key} = $value;
-                }
-
-                # channels is supposed to be a hash, but YAML processes it as an array
-                if (exists $config{channels})
-                {
-                    my %channels = map { $_ => 1 } @{$config{channels}};
-                    $config{channels} = \%channels;
-                }
-
-                # ports starting with + indicates ssl
-                if (exists $config{port})
-                {
-                    if (index($config{port}, '+') == 0)
-                    {
-                        $config{port}   = substr $config{port}, 1;
-                        $config{usessl} = TRUE;
-                    }
-                }
+                my %config = (
+                    $key    => $value,
+                );
 
                 push @configs, \%config;
             }
@@ -74,7 +44,7 @@ class API::Config
 
         my %OLD_SOPHIA = %sophia::SOPHIA;
 
-        $self->load_main_config();
+        #$self->load_main_config();
 
         # if the config changed port, server, ircname, or username, restart sophia
         my @settings = qw(port server realname username);

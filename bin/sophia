@@ -16,16 +16,14 @@ require 5.10.0;
 use FindBin qw($Bin);
 use lib qq($Bin/../cpan/lib/perl5);
 use lib qq($Bin/../lib);
+use lib qq($Bin/../modules);
 
-use API::Config;
 use API::Log qw(:ALL);
 use Constants;
 use Getopt::Long;
 use Pod::Usage;
-use POE qw(Component::IRC);
 use POSIX qw(setsid);
 use Protocol::IRC;
-use Protocol::IRC::Session;
 
 use feature qw(switch);
 
@@ -135,12 +133,56 @@ else
     $pid = $$;
 }
 
-my $configs = API::Config::parse_main_config;
-
-for my $config (@$configs)
-{
-    my $session = Protocol::IRC::Session->new(%{$config});
-    $session->spawn;
-}
+our $instances = Protocol::IRC->new;
+$instances->autoload_connections;
 
 POE::Kernel->run;
+
+__END__
+=head1 NAME
+
+sophia - An IRC bot written in Perl.
+
+=head1 SYNOPSIS
+
+sophia [options]
+
+=head1 OPTIONS
+
+=over 8
+
+=item B<--debug>
+
+Enables debug mode.
+
+=item B<--config=<PATH>>
+
+Specify a custom config file.
+
+=item B<--modconf=<PATH>>
+
+Specify a modules config file. 
+
+=item B<--help>
+
+Prints a help message.
+
+=item B<--man>
+
+Prints a full manual page documentation. Alternatively, you can always run: perldoc bin/sophia.
+
+=item B<--version>
+
+Prints sophia's current version.
+
+=back
+
+=head1 DESCRIPTION
+
+sophia is an IRC bot written in Perl. Source code is on github: https://www.github.com/myano/sophia
+
+For more questions or suggestions: ##sophia-dev@chat.freenode.net
+
+sophia is licensed under the Eiffel Forum License, version 2.
+
+=cut

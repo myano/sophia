@@ -3,128 +3,50 @@ use Method::Signatures::Modifiers;
 
 class Protocol::IRC
 {
-    use API::Log qw(:ALL);
-    use POE qw(Component::IRC);
+    use API::Config;
+    use Constants;
+    use Protocol::IRC::Session;
 
-    method _001 (@args)
+    # list of connections by uid
+    # maps: uid => Protocol::IRC::Session
+    has 'connections'   => (
+        default     => sub { {} },
+        is          => 'rw',
+        isa         => 'HashRef',
+    );
+
+    method add_connection ($config)
     {
-        my $heap = $args[HEAP - 1];
-        my $sophia = $heap->{sophia};
+        # no uid? do nothing
+        return FALSE    unless (exists $config->{uid});
 
-        if ($sophia->{password})
+        my $session = Protocol::IRC::Session->new(%{$config});
+        $session->spawn;
+
+        $self->connections->{ $config->{uid} } = $session;
+
+        return TRUE;
+    }
+
+    method remove_connection ($uid)
+    {
+        return      unless (exists $self->connections->{$uid});
+        
+        my $session = $self->connections->{$uid};
+        $session->yield(quit => 'Shutting down ... ');
+
+        delete $self->connections->{$uid};
+    }
+
+    method autoload_connections
+    {
+        my $configs = Protocol::IRC::Session->autoload_main_config;
+
+        for my $config (@$configs)
         {
-            $sophia->yield(privmsg => 'NickServ' => sprintf('identify %s %s', $sophia->{nick}, $sophia->{password}));
+            $self->add_connection($config);
         }
 
-        if ($sophia->{usermode})
-        {
-            $sophia->yield(mode => sprintf('%s %s', $sophia->{nick}, $sophia->{usermode}));
-        }
-
-        for my $chan (keys %{$sophia->{channels}})
-        {
-            $sophia->yield(join => $chan);
-        }
-    }
-
-    method _332 (@args)
-    {
-        my $heap = $args[HEAP - 1];
-        my $sophia = $heap->{sophia};
-
-        my $channel_data = $args[ARG2 - 1];
-        my $channel = lc $channel_data->[0];
-        my $topic   = $channel_data->[1];
-
-        $sophia->{channel_topics}{$channel} = $topic;
-        return;
-    }
-
-    method _default (@args)
-    {
-        my ($event, $args) = @args[ARG0 - 1 .. $#args];
-        my @output = ( "$event: " );
-
-        ARG: for my $arg (@$args)
-        {
-            if (ref $arg eq 'ARRAY')
-            {
-                push @output, '[' . join(',', @$arg) . ']';
-                next ARG;
-            }
-
-            push @output, "'$arg'";
-        }
-
-        print join ' ', @output, "\n";
-        return;
-    }
-
-    method _disconnected (@args)
-    {
-        my $heap = $args[HEAP - 1];
-        my $sophia = $heap->{sophia};
-        $sophia->yield('shutdown');
-        return;
-    }
-
-    method _error (@args)
-    {
-        _log('sophia', $args[ARG0 - 1]);
-        return;
-    }
-
-    method _shutdown (@args)
-    {
-        my $heap = $args[HEAP - 1];
-
-        if ($heap->{SYSTEM}{RESTART})
-        {
-            do "$sophia::BASE{BIN}/sophia";
-        }
-
-        exit;
-    }
-
-    method _sigint (@args)
-    {
-        my $heap = $args[HEAP - 1];
-        my $sophia = $heap->{sophia};
-        $sophia->yield(quit => 'Shutting down ... ');
-
-        $args[KERNEL - 1]->sig_handled();
-        return;
-    }
-
-    method _start (@args)
-    {
-        my $kernel = $args[KERNEL - 1];
-        $kernel->sig(INT => 'sig_int');
-
-        my $heap = $args[HEAP - 1];
-        my $sophia = $heap->{sophia};
-        if (!$sophia)
-        {
-            error_log('sophia', "Unable to get sophia instance from heap (start): $!\n");
-        }
-
-        $sophia->yield(register => 'all');
-        $sophia->yield(connect  => { });
-
-        return;
-    }
-
-    method _stop (@args)
-    {
-    }
-
-    method _topic (@args)
-    {
-        my ($heap, $chan, $topic) = @args[HEAP - 1, ARG1 - 1, ARG2 - 1];
-        $chan = lc $chan;
-
-        my $sophia = $heap->{sophia};
-        $sophia->{channel_topics}{$chan} = $topic;
         return;
     }
 }

@@ -20,6 +20,7 @@
 #   - owner_host
 #   - trigger
 #   - password
+#   - uid
 
 # these are considered to be global settings
 # any values defined here are used as default values
@@ -64,6 +65,24 @@ global:
 # for this connection. Do note that overwriting global values
 # for this server has no effect on any subsequent server connections.
 server:
+    # this is a unique identifier for this server
+    # you can name it whatever you want, but it must be
+    # unique -- in other words, no 2 server blocks can have
+    # the same uid.
+    # this value is only used when sophia needs to
+    # uniquely identify this server. Such as when you
+    # want to reload this config file while sophia is
+    # running so that sophia can update the correct
+    # instance corresponding to this server and not another.
+    # 
+    # IMPORTANT: there is no real benefit in changing
+    # this value while sophia is running and you wish to
+    # reload this config file. Doing so will result in
+    # sophia creating a new server connection using this
+    # this server configuration, and the old one will
+    # be automatically disconnected.
+    uid:        server1
+
     host:       irc.domain.tld
 
     # if the server does not use NickServ authentication, just
@@ -87,5 +106,6 @@ server:
 # ---
 # 
 # server:
+#   uid:    server2
 #   host:   irc.domain.tld
 #   ...

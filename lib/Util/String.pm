@@ -1,38 +1,46 @@
-package Util::String;
-use strict;
-use warnings;
-use Exporter;
-use base qw(Exporter);
+use MooseX::Declare;
+use Method::Signatures::Modifiers;
 
-our @EXPORT_OK = qw(empty ltrim rtrim trim);
+class Util::String
+{
+    method is_empty ($string)
+    {
+        if (ref $string ne 'Str')
+        {
+            return;
+        }
 
-sub empty {
-    my ($str) = @_;
-
-    # in case it's not a string
-    if (!$str) {
-        return;
+        return $string eq '';
     }
 
-    return $str eq '';
-}
+    method ltrim ($string)
+    {
+        $string =~ s/\A\s+//;
+        return $string;
+    }
 
-sub ltrim {
-    my ($str) = @_;
-    $str =~ s/^\s+//;
-    return $str;
-}
+    method rtrim ($string)
+    {
+        $string =~ s/\s+\z//;
+        return $string;
+    }
 
-sub rtrim {
-    my ($str) = @_;
-    $str =~ s/\s+$//;
-    return $str;
-}
+    method chunk_split ($string, $chunk_length)
+    {
+        my @chunks = ($string =~ /.{0,$chunk_length}[^ ]* ?/g);
+        return \@chunks;
+    }
 
-sub trim {
-    my ($str) = @_;
-    $str =~ s/^\s+|\s+$//;
-    return $str;
-}
+    method trim ($string)
+    {
+        $string = $self->ltrim($string);
+        $string = $self->rtrim($string);
+        return $string;
+    }
 
-1;
+    method trim_all ($string_arr)
+    {
+        map { $_ = $self->trim($_) } @$string_arr;
+        return $string_arr;
+    }
+}

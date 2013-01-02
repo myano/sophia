@@ -30,15 +30,8 @@ class API::Log
             mkdir $sophia::BASE{VAR}, 0644 or return;
         }
 
-        my $direction = '>>';
-
-        # if the log file doesn't exist, create it.
-        if (!-e "$sophia::BASE{VAR}/$logfile.log")
-        {
-            $direction = '>';
-        }
-
-        open my $fh, $direction, "$sophia::BASE{VAR}/$logfile.log" or return;
+        open my $fh, '>>', "$sophia::BASE{VAR}/$logfile.log"
+            or croak "Cannot write to $sophia::BASE{VAR}/$logfile.log: $!";
         print {$fh} '(', scalar localtime time, ') ', $msg, "\n";
         close $fh;
 
