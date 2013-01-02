@@ -21,11 +21,16 @@ Table of Contents
 Install
 -------
 
-sophia should work out of the box. sophia does use quite a bit of CPAN modules. An archive of CPAN modules is included with sophia in the cpan directory. Just extract that tarball into the cpan directory. Make sure that the extracted files are in the cpan directory.
+sophia should work out of the box. sophia does use quite a bit of CPAN modules.
+An archive of CPAN modules is included with sophia in the cpan directory.
+Just extract that tarball into the cpan directory.
+Make sure that the extracted files are in the cpan directory.
 cd cpan
 tar -jxf cpan.tar.bz2
 
-You need to set a configuration file. Copy ``etc/sophia.conf.example`` to ``etc/sophia.conf``. Once you copy this file, open it up and change the necessary settings. Also if you want all the modules to load on start, copy ``etc/sophia.modules.conf.example`` to ``etc/sophia.modules.conf``.
+You need to set a configuration file. Copy ``etc/sophia.conf.example`` to ``etc/sophia.conf``.
+Once you copy this file, open it up and change the necessary settings.
+Also if you want all the modules to load on start, copy ``etc/sophia.modules.conf.example`` to ``etc/sophia.modules.conf``.
 
 
 Run
@@ -46,10 +51,9 @@ Contributions
 - Kays
 - yano
 
-If you have any feature suggestions or if you would like a feature that you wrote to be included in `sophia`, please contact us.
-
 
 License
 -------
 
-`sophia` is licensed under the `Eiffel Forum License version 2 <https://www.gnu.org/licenses/eiffel-forum-license-2.html>`_. A fully copy of the license can be found in the LICENSE file.
+`sophia` is licensed under the `Eiffel Forum License version 2 <https://www.gnu.org/licenses/eiffel-forum-license-2.html>`_.
+A fully copy of the license can be found in the LICENSE file.
