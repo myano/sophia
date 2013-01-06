@@ -22,7 +22,7 @@ class google::dictionary with API::Module
     has 'max_entries'   => (
         default         => 3,
         is              => 'rw',
-        isa              => 'Int',
+        isa             => 'Int',
     );
 
     method run ($event)
