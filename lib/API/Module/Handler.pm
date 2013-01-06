@@ -95,17 +95,12 @@ class API::Module::Handler
 
     method process_command ($event)
     {
-        use Data::Dumper;
         my $command = $self->resolve_command($event->command);
 
         if (!$command)
         {
             return;
         }
-
-        my $i = $command->new;
-        $i->run($event);
-        return;
 
         try
         {
