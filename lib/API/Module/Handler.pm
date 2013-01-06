@@ -118,7 +118,7 @@ class API::Module::Handler
         }
         catch
         {
-            _log('sophia', "[MODULE] modules/$command.pm failed to instantiate: $_");
+            _log('sophia', "[MODULE] modules/$command.pm failed to run: $@");
         }
 
         return;

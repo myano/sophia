@@ -1,79 +1,101 @@
-use strict;
-use warnings;
+use MooseX::Declare;
+use Method::Signatures::Modifiers;
 
-sophia_module_add('google.dictionary', '2.0', \&init_google_dictionary, \&deinit_google_dictionary);
+class google::dictionary with API::Module
+{
+    use HTML::Entities;
+    use Protocol::IRC::Constants;
+    use Util::Curl;
 
-sub init_google_dictionary {
-    sophia_command_add('google.dictionary', \&google_dictionary, 'Defines a word.', '');
+    has 'name'  => (
+        default => 'google::dictionary',
+        is      => 'ro',
+        isa     => 'Str',
+    );
 
-    return 1;
-}
+    has 'version'   => (
+        default     => '1.0',
+        is          => 'ro',
+        isa         => 'Str',
+    );
 
-sub deinit_google_dictionary {
-    delete_sub 'init_google_dictionary';
-    delete_sub 'google_dictionary';
-    delete_sub 'google_dictionary_unescape';
-    sophia_command_del 'google.dict';
-    delete_sub 'deinit_google_dictionary';
-}
+    has 'max_entries'   => (
+        default         => 3,
+        is              => 'rw',
+        isa              => 'Int',
+    );
 
-my $max_entries = 3;
+    method run ($event)
+    {
+        my $results = $self->define($event->content);
 
-sub google_dictionary_unescape {
-    my $str = $_[0];
-    $str =~ s/\\x3c/</g;
-    $str =~ s/\\x3e/>/g;
-    $str =~ s/<[^>]+>//g;
-    $str =~ s/\\x(\d{2})/chr(hex($1))/eg;
-    return $str;
-}
+        unless ($results)
+        {
+            $event->reply('No definition available for term "' . $event->content . '".');
+            return;
+        }
 
-sub google_dictionary {
-    my $args = $_[0];
-    my ($where, $content) = ($args->[ARG1], $args->[ARG2]);
-    
-    my $idx = index $content, ' ';
-    return unless $idx > -1;
+        my $term = $results->{term};
+        my $definitions = $results->{definitions};
 
-    $content = substr $content, $idx + 1;
-    $content =~ s/ /+/g;
-    $content =~ s/&/%26/g;
-
-    my $response = curl_get(sprintf('http://www.google.com/dictionary/json?callback=dict_api.callbacks.id100&sl=en&tl=en&restrict=pr%sde&client=te&q=%s', '%2C', $content));
-    return unless $response;
-
-    my $sophia = $args->[HEAP]->{sophia};
-
-    $idx = index $response, '"query":"';
-    unless ($idx > -1) {
-        $sophia->yield(privmsg => $where->[0] => 'Term not found.');
-        return;
+        for my $result (@$definitions)
+        {
+            $event->reply( sprintf('%1$s%2$s:%1$s %3$s', IRC_TEXT_FORMAT_BOLD, $term, $result) );
+        }
     }
-    $idx += 9;
-    my $term = substr $response, $idx, index($response, '"', $idx) - $idx;
 
-    my @results;
-    my $result;
-    $idx = 0;
-    
-    ENTRY: for (1 .. $max_entries) {
-        $idx = index $response, '"type":"meaning"', $idx;
-        last ENTRY unless $idx > -1;
+    method define ($expr)
+    {
+        $expr =~ s/ /+/g;
+        $expr =~ s/&/%26/g;
 
-        $idx = index $response, '"text":"', $idx + 1;
-        last ENTRY unless $idx > -1;
+        my $response = Util::Curl->get(sprintf('http://www.google.com/dictionary/json?callback=dict_api.callbacks.id100&sl=en&tl=en&restrict=pr%sde&client=te&q=%s', '%2C', $expr));
+        return unless $response;
 
-        $idx += 8;
+        my @results;
+
+        my $idx = index($response, '"query":"');
+        unless ($idx > -1)
+        {
+            return;
+        }
+        $idx += 9;
+
+        my $term = substr($response, $idx, index($response, '"', $idx) - $idx);
+
+        $idx = 0;
+        ENTRY: for (1 .. $self->max_entries)
+        {
+            $idx = index($response, '"type":"meaning"', $idx);
+            last ENTRY unless $idx > -1;
+
+            $idx = index($response, '"text":"', $idx + 1);
+            last ENTRY unless $idx > -1;
+
+            $idx += 8;
+
+            my $entry = substr($response, $idx, index($response, '"', $idx) - $idx);
+            $entry = $self->escape($entry);
+            $entry =~ s/\[\d+\]//g;
+
+            push @results, decode_entities($entry);
+        }
+
+        my %definitions = (
+            definitions => \@results,
+            term        => $term,
+        );
+
+        return \%definitions;
+    }
+
+    method escape ($str)
+    {
+        $str =~ s/\\x3c/</g;
+        $str =~ s/\\x3e/>/g;
+        $str =~ s/<[^>]+>//g;
+        $str =~ s/\\x(\d{2})/chr(hex($!))/eg;
         
-        $result = substr($response, $idx, index($response, '"', $idx) - $idx);
-        $result = google_dictionary_unescape($result);
-        $result =~ s/\[\d+\]//g;
-        push @results, sprintf('%1$s%2$s:%1$s %3$s', "\x02", $term, decode_entities($result));
+        return $str;
     }
-
-    return unless $#results + 1;
-
-    $sophia->yield(privmsg => $where->[0] => $_) for @results;
 }
-
-1;

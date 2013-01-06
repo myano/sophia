@@ -100,6 +100,8 @@ class Protocol::IRC::Response
         $sophia->process_input($event);
     }
 
+    # NOTE: Do not restart like this because it's really
+    # instance based.
     method _shutdown (@args)
     {
         my $heap = $args[HEAP - 1];

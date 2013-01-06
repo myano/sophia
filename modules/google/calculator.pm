@@ -13,15 +13,20 @@ class google::calculator with API::Module
     );
 
     has 'version'   => (
-        default => '1.0',
-        is      => 'ro',
-        isa     => 'Str',
+        default     => '1.0',
+        is          => 'ro',
+        isa         => 'Str',
     );
 
     method run ($event)
     {
         my $result = $self->calculate($event->content);
-        return  unless ($result->{lhs} && $result->{rhs});
+        
+        unless ($result && $result->{lhs} && $result->{rhs})
+        {
+            $event->reply('Unable to compute "' . $event->content . '".');
+            return;
+        }
 
         $event->reply( sprintf('%s = %s', $result->{lhs}, $result->{rhs}) );
     }
