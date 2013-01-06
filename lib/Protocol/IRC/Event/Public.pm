@@ -87,7 +87,7 @@ class Protocol::IRC::Event::Public with Protocol::IRC::Event
         {
             MESSAGE: for my $message (@messages)
             {
-                if (!$message)
+                unless ($message)
                 {
                     next MESSAGE;
                 }
