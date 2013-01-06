@@ -97,7 +97,7 @@ class API::Module::Handler
     {
         my $command = $self->resolve_command($event->command);
 
-        if (!$command)
+        unless ($command)
         {
             return;
         }
