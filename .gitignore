@@ -1,7 +1,7 @@
 .*.sw*
 sophia.conf
 sophia.modules.conf
-*.db
+sophia.modules.autoload.conf
 var/*
 *.pid
 *.db
