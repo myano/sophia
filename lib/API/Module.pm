@@ -71,15 +71,48 @@ role API::Module
 
     # action methods
     # these are methods that will be called upon an IRC event
-    # such as: public, privmsg, kick, part, etc.
-    #
-    # naming conventions should follow the ones in Protocol::IRC::Response
-    # without leading _
-    #
-    # For example: if you are writing a game that wants to keep
-    # track of active players, then you can store active players
-    # into this cache. But then if you want to remove active
-    # players when someone quits or parts, then you will create
-    # two methods 'quit' and 'part' that will remove them from
-    # the cache.
+    method join ($event)
+    {
+        return;
+    }
+
+    method kick ($event)
+    {
+        return;
+    }
+
+    method nick ($event)
+    {
+        return;
+    }
+
+    method notice ($event)
+    {
+        return;
+    }
+
+    method part ($event)
+    {
+        return;
+    }
+
+    method privmsg ($event)
+    {
+        return;
+    }
+
+    method public ($event)
+    {
+        return;
+    }
+
+    method quit ($event)
+    {
+        return;
+    }
+
+    method topic ($event)
+    {
+        return;
+    }
 }
