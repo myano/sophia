@@ -48,6 +48,7 @@ our %CONFIGURATIONS = (
     VERSION         => ['sophia-3.0.0', ''],
     MAIN_CONFIG     => "$BASE{ETC}/sophia.conf",
     MODULES_CONFIG  => "$BASE{ETC}/sophia.modules.conf",
+    MODULES_AUTOCONF=> "$BASE{ETC}/sophia.modules.autoload.conf",
     ACL_DB          => "$BASE{ETC}/sophia.acl.db",
     ALIAS_DB        => "$BASE{ETC}/sophia.alias.db",
     PID             => "$BASE{ETC}/sophia.pid",

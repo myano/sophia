@@ -41,6 +41,13 @@ role API::Module
         required    => FALSE,
     );
 
+    has 'settings'  => (
+        default     => sub { {} },
+        is          => 'rw',
+        isa         => 'HashRef',
+        required    => FALSE,
+    );
+
     method access ($event)
     {
         return TRUE;

@@ -19,12 +19,6 @@ class google::dictionary with API::Module
         isa         => 'Str',
     );
 
-    has 'max_entries'   => (
-        default         => 3,
-        is              => 'rw',
-        isa             => 'Int',
-    );
-
     method run ($event)
     {
         my $results = $self->define($event->content);
@@ -46,6 +40,7 @@ class google::dictionary with API::Module
 
     method define ($expr)
     {
+        print 'a';
         $expr =~ s/ /+/g;
         $expr =~ s/&/%26/g;
 
@@ -63,8 +58,11 @@ class google::dictionary with API::Module
 
         my $term = substr($response, $idx, index($response, '"', $idx) - $idx);
 
+        my $max_entries = 3;
+        $max_entries = $self->settings->{max_entries}    if (exists $self->settings->{max_entries});
+
         $idx = 0;
-        ENTRY: for (1 .. $self->max_entries)
+        ENTRY: for (1 .. $max_entries)
         {
             $idx = index($response, '"type":"meaning"', $idx);
             last ENTRY unless $idx > -1;
@@ -94,7 +92,7 @@ class google::dictionary with API::Module
         $str =~ s/\\x3c/</g;
         $str =~ s/\\x3e/>/g;
         $str =~ s/<[^>]+>//g;
-        $str =~ s/\\x(\d{2})/chr(hex($!))/eg;
+        $str =~ s/\\x(\d{2})/chr(hex($1))/eg;
         
         return $str;
     }
