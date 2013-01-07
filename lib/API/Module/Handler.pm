@@ -139,7 +139,7 @@ class API::Module::Handler
         }
         catch
         {
-            _log('sophia', "[MODULE] modules/$command.pm failed to run: $@");
+            _log('sophia', "[MODULE] modules/$command.pm failed to run: $_");
         };
 
         return;
