@@ -59,7 +59,10 @@ class google::dictionary with API::Module
         my $term = substr($response, $idx, index($response, '"', $idx) - $idx);
 
         my $max_entries = 3;
-        $max_entries = $self->settings->{max_entries}    if (exists $self->settings->{max_entries});
+        if (exists $self->settings->{max_entries} && $self->settings->{max_entries})
+        {
+            $max_entries = $self->settings->{max_entries};
+        }
 
         $idx = 0;
         ENTRY: for (1 .. $max_entries)
@@ -73,7 +76,7 @@ class google::dictionary with API::Module
             $idx += 8;
 
             my $entry = substr($response, $idx, index($response, '"', $idx) - $idx);
-            $entry = $self->escape($entry);
+            $entry = $self->unescape($entry);
             $entry =~ s/\[\d+\]//g;
 
             push @results, decode_entities($entry);
@@ -87,7 +90,7 @@ class google::dictionary with API::Module
         return \%definitions;
     }
 
-    method escape ($str)
+    method unescape ($str)
     {
         $str =~ s/\\x3c/</g;
         $str =~ s/\\x3e/>/g;
