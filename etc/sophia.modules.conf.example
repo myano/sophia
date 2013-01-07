@@ -34,12 +34,16 @@
 # You can enter WHATEVER settings you want; however, it's really
 # only useful if the modules use them.
 #
-# Though, any user-settable settings will be defined below. Albeit,
-# its value may be empty and you may be required to set it if you wish
+# We know that we cannot assume that you will know what settings are
+# available. Therefore, any user-settable settings will be defined below.
+# Its value may be empty and you may be required to set it if you wish
 # to use those modules.
 
 google/*:
     api_key: '',
 
 google/dictionary:
-    max_entries: 4
+    max_entries: 3
+
+google/search:
+    max_entries: 3
