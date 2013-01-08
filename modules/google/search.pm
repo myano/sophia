@@ -4,6 +4,7 @@ use Method::Signatures::Modifiers;
 class google::search with API::Module
 {
     use HTML::Entities;
+    use URI::Escape;
     use Util::Curl;
 
     has 'name'  => (
@@ -31,10 +32,7 @@ class google::search with API::Module
 
     method search ($query)
     {
-        $query =~ s/ /+/g;
-        $query =~ s/&/%26/g;
-
-        my $response = Util::Curl->get('http://ajax.googleapis.com/ajax/services/search/web?v=1.0&q=' . $query);
+        my $response = Util::Curl->get('http://ajax.googleapis.com/ajax/services/search/web?v=1.0&q=' . uri_escape($query));
         return  unless $response;
 
         my $max_results = 3;
