@@ -1,44 +1,127 @@
-use strict;
-use warnings;
+use MooseX::Declare;
+use Method::Signatures::Modifiers;
 
-sophia_module_add('google.translate', '2.0', \&init_google_translate, \&deinit_google_translate);
+class google::translate with API::Module
+{
+    use HTML::Entities;
+    use URI::Escape;
+    use Util::Curl;
+    use Util::String;
 
-sub init_google_translate {
-    sophia_command_add('google.translate', \&google_translate, 'Utilize Google for translations.', '');
+    has 'name'  => (
+        default => 'google::translate',
+        is      => 'ro',
+        isa     => 'Str',
+    );
 
-    return 1;
-}
+    has 'version'   => (
+        default     => '1.0',
+        is          => 'ro',
+        isa         => 'Str',
+    );
 
-sub deinit_google_translate {
-    delete_sub 'init_google_translate';
-    delete_sub 'google_translate';
-    sophia_command_del 'google.translate';
-    delete_sub 'deinit_google_translate';
-}
+    method run ($event)
+    {
+        # the trigger for google::translate module is a bit different
+        # than the usual inputs.
+        #
+        # it allows the options:
+        # --source=lang  -or-   --source lang (optional)
+        # --target=lang  -or-   --target lang (required)
+        # text (required, no tag)
+        my $query = {};
+        my $content = $event->content;
 
-sub google_translate {
-    my $args = $_[0];
-    my ($where, $content) = ($args->[ARG1], $args->[ARG2]);
-    $content = substr $content, index($content, ' ') + 1;
-    $content =~ s/\A\s+//;
+        if ($content =~ /--source(=| )([^ ]+)/i)
+        {
+            $query->{source} = $2;
+            $content =~ s/--source(=| )([^ ]+)//i;
+        }
 
-    return unless $content;
+        if ($content =~ /--target(=| )([^ ]+)/i)
+        {
+            $query->{target} = $2;
+            $content =~ s/--target(=| )([^ ]+)//i;
+        }
 
-    my $lang = substr $content, 0, index($content, ' ');
-    my $text = substr $content, index($content, ' ') + 1;
+        $content = Util::String->trim($content);
+        $query->{text} = $content;
 
-    $lang =~ s/ /+/g;
-    $text =~ s/ /+/g;
+        # query must have target and text to continue
+        unless ($query->{target} && $query->{text})
+        {
+            return;
+        }
 
-    my $response = curl_get(sprintf('http://ajax.googleapis.com/ajax/services/language/translate?v=1.0&q=%s&langpair=%s', $text, $lang));
-    return unless $response;
+        my $result = $self->translate($query);
+        return  unless $result;
 
-    my $sophia = $args->[HEAP]->{sophia};
-    if ($response =~ m/{"translatedText":"([^"]+)"}/) {
-        my $val = $1;
-        $val =~ s/\\u0026/&/g;
-        $sophia->yield(privmsg => $where->[0] => decode_entities($val));
+        my $response = $result->{translatedText};
+        if (exists $result->{detectedSourceLanguage})
+        {
+            $response = sprintf('(%s -> %s): %s', $result->{detectedSourceLanguage}, $query->{target}, $response);
+        }
+
+        $event->reply($response);
+    }
+
+    # query must be a hashref with the following values:
+    # source - source language (optional)
+    # target - target language (required)
+    # text   - text to translate (required)
+    method translate ($query)
+    {
+        # no api key? no go
+        unless (exists $self->settings->{api_key} && $self->settings->{api_key})
+        {
+            return;
+        }
+        
+        # no target language or text? no go
+        unless (exists $query->{target} && $query->{target} &&
+                exists $query->{text} && $query->{text})
+        {
+            return;
+        }
+
+        my $request_url = sprintf('https://www.googleapis.com/language/translate/v2?key=%s&target=%s&q=%s', $self->settings->{api_key}, uri_escape($query->{target}), uri_escape($query->{text}));
+
+        if (exists $query->{source} && $query->{source})
+        {
+            $request_url .= '&source=' . uri_escape($query->{source});
+        }
+
+        my $response = Util::Curl->get($request_url);
+        return  unless $response;
+
+        my $idx = index($response, '"translatedText": "', 0);
+        return  if ($idx == -1);
+
+        $idx += 19;
+        my $translation = substr($response, $idx, index($response, '"', $idx) - $idx);
+
+        # if source is not provided, then add in the auto-detected source language
+        my $source = '';
+        unless (exists $query->{source} && $query->{source})
+        {
+            $idx = index($response, '"detectedSourceLanguage": "', $idx);
+            
+            if ($idx > -1)
+            {
+                $idx += 27;
+                $source = substr($response, $idx, index($response, '"', $idx) - $idx);
+            }
+        }
+
+        my %data = (
+            translatedText  => decode_entites($translation),
+        );
+
+        if ($source)
+        {
+            $data{detectedSourceLanguage} = $source;
+        }
+
+        return \%data;
     }
 }
-
-1;
