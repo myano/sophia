@@ -4,7 +4,7 @@ use warnings;
 use ExtUtils::MakeMaker;
 
 WriteMakefile(
-    "NAME"                => "sophia",
+    "NAME"                => "Sophia",
     "VERSION"             => "3.0",
     "AUTHOR"              => "Kenneth K. Sham (Kays), Michael S. Yanovich (yano)",
 
