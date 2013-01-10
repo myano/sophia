@@ -136,6 +136,7 @@ class Protocol::IRC::Session
                 irc_disconnected    => \&Protocol::IRC::Response::_disconnected,
                 irc_error           => \&Protocol::IRC::Response::_error,
                 irc_public          => \&Protocol::IRC::Response::_public,
+                irc_socketerr       => \&Protocol::IRC::Response::_socketerr,
                 irc_shutdown        => \&Protocol::IRC::Response::_shutdown,
                 irc_topic           => \&Protocol::IRC::Response::_topic,
                 sig_int             => \&Protocol::IRC::Response::_sigint,

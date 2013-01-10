@@ -124,6 +124,12 @@ class Protocol::IRC::Response
         return;
     }
 
+    method _socketerr (@args)
+    {
+        error_log('sophia', 'Failed to connect: ' . $args[ARG0 - 1]);
+        exit;
+    }
+
     method _start (@args)
     {
         my $kernel = $args[KERNEL - 1];
