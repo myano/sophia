@@ -1,0 +1,5 @@
+.git
+etc/sophia.conf
+etc/sophia.modules.conf
+scripts/
+var/

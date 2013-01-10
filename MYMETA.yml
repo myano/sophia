@@ -1,0 +1,31 @@
+---
+abstract: 'sophia - Perl IRC bot'
+author:
+  - 'Kenneth K. Sham (Kays), Michael S. Yanovich (yano)'
+build_requires:
+  Test::Differences: 0.61
+  Test::More: 0.47
+configure_requires:
+  ExtUtils::MakeMaker: 6.30
+dynamic_config: 0
+generated_by: 'ExtUtils::MakeMaker version 6.64, CPAN::Meta::Converter version 2.120921'
+license: open_source
+meta-spec:
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: 1.4
+name: sophia
+no_index:
+  directory:
+    - t
+    - inc
+requires:
+  Class::Load: 0
+  Getopt::Long: 0
+  Method::Signatures::Modifiers: 0
+  MooseX::Declare: 0
+  POE::Component::IRC: 0
+  Try::Tiny: 0
+  WWW::Curl::Easy: 4.15
+  YAML::Tiny: 0
+  perl: 5.010000
+version: 3.0
