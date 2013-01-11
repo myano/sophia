@@ -5,6 +5,7 @@ class API::Module::Handler
 {
     use API::Config;
     use API::Log qw(:ALL);
+    use Class::Inspector;
     use Class::Load qw(:all);
     use Class::Unload;
     use Constants;
