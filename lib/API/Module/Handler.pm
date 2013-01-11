@@ -6,6 +6,7 @@ class API::Module::Handler
     use API::Config;
     use API::Log qw(:ALL);
     use Class::Load qw(:all);
+    use Class::Unload;
     use Constants;
     use Try::Tiny;
     use Util::Hash;
@@ -102,6 +103,13 @@ class API::Module::Handler
 
         return unless -e "$modules_dir/$module_path.pm";
 
+        # if it is already loaded
+        if (Class::Inspector->loaded($module))
+        {
+            _log('sophia', "[MODULE] modules/$module_path.pm is already loaded. No need to load it again.");
+            return TRUE;
+        }
+
         try
         {
             my $fd = load_class($module);
@@ -116,6 +124,50 @@ class API::Module::Handler
         };
 
         return FALSE;
+    }
+
+    method unload_module ($module)
+    {
+        (my $module_path = $module) =~ s/::/\//g;
+        my $modules_dir = $sophia::BASE{MODULES};
+
+        return unless -e "$modules_dir/$module_path.pm";
+
+        unless (Class::Inspector->loaded($module))
+        {
+            # return true since the module is not loaded
+            # so for all intent and purposes, the want
+            # to unload it is fulfilled.
+            _log('sophia', "[MODULE] modules/$module_path.pm is not loaded. No need to unload it.");
+            return TRUE;
+        }
+
+        Class::Unload->unload($module);
+
+        unless (Class::Inspector->loaded($module))
+        {
+            _log('sophia', "[MODULE] modules/$module_path.pm successfully unloaded.");
+            return TRUE;
+        }
+
+        # something went wrong with unloading the module
+        # though this should not happen
+        _log('sophia', "[MODULE] modules/$module_path.pm failed to unload.");
+        return FALSE;
+    }
+
+    method reload_module ($module)
+    {
+        # reloading a module is the same as
+        # unloading it and then loading it again
+        if ($self->unload_module($module))
+        {
+            if ($self->load_module($module))
+            {
+                _log('sophia', "[MODULE] modules/$module_path.pm successfully reloaded.");
+                return TRUE;
+            }
+        }
     }
 
     method process_command ($event)
