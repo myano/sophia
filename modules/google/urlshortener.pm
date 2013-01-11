@@ -3,7 +3,6 @@ use Method::Signatures::Modifiers;
 
 class google::urlshortener with API::Module
 {
-    use URI::Escape;
     use Util::Curl;
 
     has 'name'  => (
@@ -42,7 +41,7 @@ class google::urlshortener with API::Module
             $curl_url .= '?key=' . $api_key;
         }
 
-        my $json = '{"longUrl": "' . uri_escape($url) . '"}'; 
+        my $json = '{"longUrl": "' . $url . '"}'; 
 
         my $curl = Util::Curl->new(
             postheaders     => ['Content-Type: application/json'],
