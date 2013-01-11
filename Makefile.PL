@@ -19,7 +19,9 @@ WriteMakefile(
     "LICENSE"             => "gpl",
     "MIN_PERL_VERSION"    => "5.10.0",
     "PREREQ_PM"           => {
+        "Class::Inspector"                  => 0,
         "Class::Load"                       => 0,
+        "Class::Unload"                     => 0,
         "Getopt::Long"                      => 0,
         "Method::Signatures::Modifiers"     => 0,
         "MooseX::Declare"                   => 0,

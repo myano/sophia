@@ -12,7 +12,7 @@
       "url" : "http://search.cpan.org/perldoc?CPAN::Meta::Spec",
       "version" : "2"
    },
-   "name" : "sophia",
+   "name" : "Sophia",
    "no_index" : {
       "directory" : [
          "t",
@@ -22,8 +22,7 @@
    "prereqs" : {
       "build" : {
          "requires" : {
-            "Test::Differences" : "0.61",
-            "Test::More" : "0.47"
+            "ExtUtils::MakeMaker" : "0"
          }
       },
       "configure" : {
@@ -33,13 +32,15 @@
       },
       "runtime" : {
          "requires" : {
+            "Class::Inspector" : "0",
             "Class::Load" : "0",
+            "Class::Unload" : "0",
             "Getopt::Long" : "0",
             "Method::Signatures::Modifiers" : "0",
             "MooseX::Declare" : "0",
             "POE::Component::IRC" : "0",
             "Try::Tiny" : "0",
-            "WWW::Curl::Easy" : "4.15",
+            "WWW::Curl" : "4.14",
             "YAML::Tiny" : "0",
             "perl" : "5.010000"
          }
