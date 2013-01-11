@@ -14,7 +14,6 @@ use warnings;
 require 5.10.0;
 
 use FindBin qw($Bin);
-use lib qq($Bin/../cpan/lib/perl5);
 use lib qq($Bin/../lib);
 use lib qq($Bin/../modules);
 
