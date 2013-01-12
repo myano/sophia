@@ -6,8 +6,7 @@ class API::Module::Handler
     use API::Config;
     use API::Log qw(:ALL);
     use Class::Inspector;
-    use Class::Load qw(:all);
-    use Class::Unload;
+    use Class::Refresh;
     use Constants;
     use Try::Tiny;
     use Util::Hash;
@@ -78,6 +77,7 @@ class API::Module::Handler
         close $fh;
 
         $self->autoload_settings;
+        $self->autoload_aliases;
 
         return;
     }
@@ -113,16 +113,35 @@ class API::Module::Handler
 
         try
         {
-            my $fd = load_class($module);
-            $self->modules->{$module} = TRUE;
+            Class::Refresh->load_module($module);
 
+            $self->modules->{$module} = TRUE;
             _log('sophia', "[MODULE] $modules_dir/$module_path.pm successfully loaded.");
+
             return TRUE;
         }
         catch
         {
             _log('sophia', "[MODULE] $modules_dir/$module_path.pm failed to load: $_");
+            return FALSE;
         };
+    }
+
+    method reload_module ($module)
+    {
+        # reloading a module is the same as
+        # unloading it and then loading it again
+        if ($self->unload_module($module))
+        {
+            if ($self->load_module($module))
+            {
+                (my $module_path = $module) =~ s/::/\//g;
+                my $modules_dir = $sophia::BASE{MODULES};
+
+                _log('sophia', "[MODULE] $modules_dir/$module_path.pm successfully reloaded.");
+                return TRUE;
+            }
+        }
 
         return FALSE;
     }
@@ -143,35 +162,17 @@ class API::Module::Handler
             return TRUE;
         }
 
-        Class::Unload->unload($module);
+        Class::Refresh->unload_module($module);
 
         unless (Class::Inspector->loaded($module))
         {
+            delete $self->modules->{$module};
             _log('sophia', "[MODULE] $modules_dir/$module_path.pm successfully unloaded.");
             return TRUE;
         }
 
-        # something went wrong with unloading the module
-        # though this should not happen
         _log('sophia', "[MODULE] $modules_dir/$module_path.pm failed to unload.");
         return FALSE;
-    }
-
-    method reload_module ($module)
-    {
-        # reloading a module is the same as
-        # unloading it and then loading it again
-        if ($self->unload_module($module))
-        {
-            if ($self->load_module($module))
-            {
-                (my $module_path = $module) =~ s/::/\//g;
-                my $modules_dir = $sophia::BASE{MODULES};
-
-                _log('sophia', "[MODULE] $modules_dir/$module_path.pm successfully reloaded.");
-                return TRUE;
-            }
-        }
     }
 
     method process_command ($event)
