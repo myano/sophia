@@ -107,7 +107,7 @@ class API::Module::Handler
         # if it is already loaded
         if (Class::Inspector->loaded($module))
         {
-            _log('sophia', "[MODULE] modules/$module_path.pm is already loaded. No need to load it again.");
+            _log('sophia', "[MODULE] $modules_dir/$module_path.pm is already loaded. No need to load it again.");
             return TRUE;
         }
 
@@ -116,12 +116,12 @@ class API::Module::Handler
             my $fd = load_class($module);
             $self->modules->{$module} = TRUE;
 
-            _log('sophia', "[MODULE] modules/$module_path.pm successfully loaded.");
+            _log('sophia', "[MODULE] $modules_dir/$module_path.pm successfully loaded.");
             return TRUE;
         }
         catch
         {
-            _log('sophia', "[MODULE] modules/$module_path.pm failed to load: $_");
+            _log('sophia', "[MODULE] $modules_dir/$module_path.pm failed to load: $_");
         };
 
         return FALSE;
@@ -139,7 +139,7 @@ class API::Module::Handler
             # return true since the module is not loaded
             # so for all intent and purposes, the want
             # to unload it is fulfilled.
-            _log('sophia', "[MODULE] modules/$module_path.pm is not loaded. No need to unload it.");
+            _log('sophia', "[MODULE] $modules_dir/$module_path.pm is not loaded. No need to unload it.");
             return TRUE;
         }
 
@@ -147,13 +147,13 @@ class API::Module::Handler
 
         unless (Class::Inspector->loaded($module))
         {
-            _log('sophia', "[MODULE] modules/$module_path.pm successfully unloaded.");
+            _log('sophia', "[MODULE] $modules_dir/$module_path.pm successfully unloaded.");
             return TRUE;
         }
 
         # something went wrong with unloading the module
         # though this should not happen
-        _log('sophia', "[MODULE] modules/$module_path.pm failed to unload.");
+        _log('sophia', "[MODULE] $modules_dir/$module_path.pm failed to unload.");
         return FALSE;
     }
 
@@ -165,7 +165,10 @@ class API::Module::Handler
         {
             if ($self->load_module($module))
             {
-                _log('sophia', "[MODULE] modules/$module_path.pm successfully reloaded.");
+                (my $module_path = $module) =~ s/::/\//g;
+                my $modules_dir = $sophia::BASE{MODULES};
+
+                _log('sophia', "[MODULE] $modules_dir/$module_path.pm successfully reloaded.");
                 return TRUE;
             }
         }
@@ -192,7 +195,8 @@ class API::Module::Handler
         }
         catch
         {
-            _log('sophia', "[MODULE] modules/$command.pm failed to run: $_");
+            my $modules_dir = $sophia::BASE{MODULES};
+            _log('sophia', "[MODULE] $modules_dir/$command.pm failed to run: $_");
         };
 
         return;
