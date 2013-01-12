@@ -3,6 +3,12 @@ use Method::Signatures::Modifiers;
 
 class Util::String
 {
+    method chunk_split ($string, $chunk_length)
+    {
+        my @chunks = ($string =~ /.{0,$chunk_length}[^ ]* ?/g);
+        return \@chunks;
+    }
+
     method ltrim ($string)
     {
         $string =~ s/\A\s+//;
@@ -13,12 +19,6 @@ class Util::String
     {
         $string =~ s/\s+\z//;
         return $string;
-    }
-
-    method chunk_split ($string, $chunk_length)
-    {
-        my @chunks = ($string =~ /.{0,$chunk_length}[^ ]* ?/g);
-        return \@chunks;
     }
 
     method trim ($string)
