@@ -1,10 +1,8 @@
 bin/sophia
-bin/sophia-old
 etc/sophia.acl.db
 etc/sophia.alias.db
 etc/sophia.modules.autoload.conf
 etc/sophia.modules.autoload.conf.example
-etc/sophia.pid
 help/en/acl/add
 help/en/acl/chanflags
 help/en/acl/del
@@ -73,22 +71,18 @@ lib/API/Config.pm
 lib/API/Log.pm
 lib/API/Module.pm
 lib/API/Module/Handler.pm
-lib/Cache.pm
 lib/Constants.pm
-lib/ModuleHandler-old.pm
 lib/Protocol/IRC.pm
 lib/Protocol/IRC/Constants.pm
 lib/Protocol/IRC/Event.pm
 lib/Protocol/IRC/Event/Public.pm
 lib/Protocol/IRC/Response.pm
 lib/Protocol/IRC/Session.pm
-lib/Protocol/IRC_old.pm
 lib/Sophia.pm
 lib/Util/Curl.pm
 lib/Util/Hash.pm
 lib/Util/String.pm
 LICENSE
-Makefile
 Makefile.PL
 MANIFEST			This list of files
 MANIFEST.SKIP

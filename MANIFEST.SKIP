@@ -1,5 +1,9 @@
-.git
+^.git
 etc/sophia.conf
 etc/sophia.modules.conf
+etc/sophia.pid
 scripts/
 var/
+Makefile$
+-old
+_old
