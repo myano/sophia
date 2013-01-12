@@ -123,7 +123,6 @@ class Protocol::IRC::Session
         $self->session($session);
 
         my $modulehandler = API::Module::Handler->new;
-        $modulehandler->autoload_aliases;
         $self->modulehandler($modulehandler);
 
         POE::Session->create(
