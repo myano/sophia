@@ -28,7 +28,7 @@ class core::module with API::Module
         # command is used: load, (re|un)load
         my ($command, @modules) = split(' ', $event->content);
         
-        # no $module? In other words,
+        # no @modules? In other words,
         # split ' ' returned only one entry
         # then this is not a valid command
         unless (@modules)
