@@ -101,7 +101,7 @@ class Protocol::IRC::Response
     }
 
     # NOTE: Do not restart like this because it's really
-    # instance based.
+    # instance based. Remove/Add the connection and process it
     method _shutdown (@args)
     {
         my $heap = $args[HEAP - 1];
@@ -127,7 +127,7 @@ class Protocol::IRC::Response
     method _socketerr (@args)
     {
         error_log('sophia', 'Failed to connect: ' . $args[ARG0 - 1]);
-        exit;
+        return;
     }
 
     method _start (@args)
@@ -150,6 +150,7 @@ class Protocol::IRC::Response
 
     method _stop (@args)
     {
+        return;
     }
 
     method _topic (@args)
