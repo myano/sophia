@@ -1,7 +1,7 @@
 use MooseX::Declare;
 use Method::Signatures::Modifiers;
 
-class core::part
+class core::part with API::Module
 {
     use API::Log qw(:ALL);
 
@@ -20,6 +20,12 @@ class core::part
     method run ($event)
     {
         my @channels = split(' ', $event->content);
+
+        # if no channels are given, then part from recipients
+        unless (@channels)
+        {
+            @channels = @{$event->recipients};
+        }
 
         for my $channel (@channels)
         {

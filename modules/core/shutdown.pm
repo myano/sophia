@@ -1,7 +1,7 @@
 use MooseX::Declare;
 use Method::Signatures::Modifiers;
 
-class core::shutdown
+class core::shutdown with API::Module
 {
     use API::Log qw(:ALL);
 
