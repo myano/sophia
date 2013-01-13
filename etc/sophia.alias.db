@@ -1,3 +1,7 @@
+join core::join
+module core::module
+part core::part
+shutdown core::shutdown
+
 calc google::calculator
 define google::dictionary
-module core::module
