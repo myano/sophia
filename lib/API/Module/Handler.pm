@@ -57,10 +57,6 @@ class API::Module::Handler
 
     method autoload_modules
     {
-        # autoload aliases first
-        # this is because we allow loading modules via aliases
-        $self->autoload_aliases;
-
         my $modules_config_file = $sophia::CONFIGURATIONS{MODULES_AUTOCONF} or return;
         return unless -e $modules_config_file;
 
@@ -81,6 +77,7 @@ class API::Module::Handler
         close $fh;
 
         $self->autoload_settings;
+        $self->autoload_aliases;
 
         return;
     }
@@ -102,9 +99,9 @@ class API::Module::Handler
 
     method load_module ($module)
     {
-        # accept aliases, but make sure to resolve it
-        $module = $self->resolve_command($module);
-        return  unless $module;
+        # accept aliases, but make sure to resolve it if possible
+        my $unalias = $self->resolve_command($module);
+        $module = $unalias      if $unalias;
 
         (my $module_path = $module) =~ s/::/\//g;
         my $modules_dir = $sophia::BASE{MODULES};
@@ -155,9 +152,9 @@ class API::Module::Handler
 
     method unload_module ($module)
     {
-        # accept aliases, but make sure to resolve it
-        $module = $self->resolve_command($module);
-        return  unless $module;
+        # accept aliases, but make sure to resolve it if possible
+        my $unalias = $self->resolve_command($module);
+        $module = $unalias      if $unalias;
 
         (my $module_path = $module) =~ s/::/\//g;
         my $modules_dir = $sophia::BASE{MODULES};
