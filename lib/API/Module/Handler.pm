@@ -99,6 +99,9 @@ class API::Module::Handler
 
     method load_module ($module)
     {
+        # accept aliases, but make sure to resolve it
+        $module = $self->resolve_command($module);
+
         (my $module_path = $module) =~ s/::/\//g;
         my $modules_dir = $sophia::BASE{MODULES};
 
@@ -148,6 +151,9 @@ class API::Module::Handler
 
     method unload_module ($module)
     {
+        # accept aliases, but make sure to resolve it
+        $module = $self->resolve_command($module);
+
         (my $module_path = $module) =~ s/::/\//g;
         my $modules_dir = $sophia::BASE{MODULES};
 
