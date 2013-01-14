@@ -6,6 +6,7 @@ class Protocol::IRC::Response
     use API::Log qw(:ALL);
     use Constants;
     use POE qw(Component::IRC);
+    use Protocol::IRC::Event::PrivateMessage;
     use Protocol::IRC::Event::Public;
 
     method _001 (@args)
@@ -40,7 +41,7 @@ class Protocol::IRC::Response
         my $channel = lc $channel_data->[0];
         my $topic   = $channel_data->[1];
 
-        $sophia->{channel_topics}{$channel} = $topic;
+        $sophia->{channel_topics}->{$channel} = $topic;
         return;
     }
 
@@ -76,6 +77,28 @@ class Protocol::IRC::Response
     {
         _log('sophia', $args[ARG0 - 1]);
         return;
+    }
+
+    method _privmsg (@args)
+    {
+        my $heap = $args[HEAP - 1];
+        my $sophia = $heap->{sophia};
+
+        my $event = Protocol::IRC::Event::PrivateMessage->new(
+            sophia          => $sophia,
+            sender          => $args[ARG0 - 1],
+            recipients      => $args[ARG1 - 1],
+            message         => $args[ARG2 - 1],
+        );
+
+        # if user is authenticated to NickServ
+        if (exists $args[ARG3 - 1])
+        {
+            $event->hasNickServAuth(TRUE);
+            $event->isNickServAuth(TRUE);
+        }
+
+        $sophia->process_input($event);
     }
 
     method _public (@args)
@@ -159,7 +182,7 @@ class Protocol::IRC::Response
         $chan = lc $chan;
 
         my $sophia = $heap->{sophia};
-        $sophia->{channel_topics}{$chan} = $topic;
+        $sophia->{channel_topics}->{$chan} = $topic;
         return;
     }
 }
