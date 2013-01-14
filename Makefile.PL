@@ -25,6 +25,7 @@ WriteMakefile(
         "Method::Signatures::Modifiers"     => 0,
         "MooseX::Declare"                   => 0,
         "POE::Component::IRC"               => 0,
+        "POE::Component::SSLify"            => 0,
         "Try::Tiny"                         => 0,
         "WWW::Curl"                         => "4.14",
         #"XML::LibXML"                       => 0,
