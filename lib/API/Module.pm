@@ -71,47 +71,47 @@ role API::Module
 
     # action methods
     # these are methods that will be called upon an IRC event
-    method join ($event)
+    method on_join ($event)
     {
         return;
     }
 
-    method kick ($event)
+    method on_kick ($event)
     {
         return;
     }
 
-    method nick ($event)
+    method on_nick ($event)
     {
         return;
     }
 
-    method notice ($event)
+    method on_notice ($event)
     {
         return;
     }
 
-    method part ($event)
+    method on_part ($event)
     {
         return;
     }
 
-    method privmsg ($event)
+    method on_privmsg ($event)
     {
         return;
     }
 
-    method public ($event)
+    method on_public ($event)
     {
         return;
     }
 
-    method quit ($event)
+    method on_quit ($event)
     {
         return;
     }
 
-    method topic ($event)
+    method on_topic ($event)
     {
         return;
     }
