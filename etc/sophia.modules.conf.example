@@ -40,7 +40,7 @@
 # to use those modules.
 
 google/*:
-    api_key: '',
+    api_key: ''
 
 google/dictionary:
     max_entries: 3
