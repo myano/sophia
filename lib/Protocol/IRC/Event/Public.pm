@@ -77,20 +77,17 @@ class Protocol::IRC::Event::Public with Protocol::IRC::Event
         $string = Util::String->trim($string);
         return unless $string;
 
-        my $sophia = $self->sophia;
-
         my $messages_ref = Util::String->chunk_split($string, IRC_MESSAGE_LENGTH);
         $messages_ref = Util::String->trim_all($messages_ref);
         my @messages = @$messages_ref;
+
+        my $sophia = $self->sophia;
 
         RECIPIENT: for my $recipient (@{$self->recipients})
         {
             MESSAGE: for my $message (@messages)
             {
-                unless ($message)
-                {
-                    next MESSAGE;
-                }
+                next MESSAGE    unless $message;
 
                 $sophia->yield(privmsg => $recipient => $message);
             }
