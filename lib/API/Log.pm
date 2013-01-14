@@ -27,7 +27,7 @@ class API::Log
         # if the var directory doesn't exist, create it
         if (!-d $sophia::BASE{VAR})
         {
-            mkdir $sophia::BASE{VAR}, 0644 or return;
+            mkdir $sophia::BASE{VAR}, 0777 or return;
         }
 
         open my $fh, '>>', "$sophia::BASE{VAR}/$logfile.log"
