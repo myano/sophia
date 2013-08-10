@@ -230,6 +230,9 @@ class Protocol::IRC::Session
         # Case 2:
         my ($command, $rest) = split(' ', $message, 2);
 
+        # some commands do not require args
+        $rest = ''      unless (defined($rest));
+
         my $trigger = $self->trigger;
         if ($command !~ /\A\Q$trigger\E[^ :]+(::[^:]+)*\z/)
         {
