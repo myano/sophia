@@ -28,7 +28,7 @@ WriteMakefile(
         "POE::Component::SSLify"            => 0,
         "Try::Tiny"                         => 0,
         "WWW::Curl"                         => "4.14",
-        #"XML::LibXML"                       => 0,
+        "XML::LibXML"                       => 0,
         "YAML::Tiny"                        => 0,
     },
 );
