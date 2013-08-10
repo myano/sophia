@@ -72,7 +72,7 @@ class Protocol::IRC::Event::Public with Protocol::IRC::Event
     );
 
 
-    method reply ($string)
+    method _answer ($string, $action)
     {
         $string = Util::String->trim($string);
         return unless $string;
@@ -89,8 +89,18 @@ class Protocol::IRC::Event::Public with Protocol::IRC::Event
             {
                 next MESSAGE    unless $message;
 
-                $sophia->yield(privmsg => $recipient => $message);
+                $sophia->yield($action => $recipient => $message);
             }
         }
+    }
+
+    method reply ($string)
+    {
+        $self->_answer($string, 'privmsg');
+    }
+
+    method notice ($string)
+    {
+        $self->_answer($string, 'notice');
     }
 }

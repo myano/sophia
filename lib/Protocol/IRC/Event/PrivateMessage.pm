@@ -16,7 +16,7 @@ class Protocol::IRC::Event::PrivateMessage extends Protocol::IRC::Event::Public
 
     # Since the recipient is sophia, we cannot use the Public's reply method.
     # We instead want to send the response back to the sender.
-    method reply ($string)
+    method _answer ($string, $action)
     {
         $string = Util::String->trim($string);
         return  unless $string;
@@ -33,7 +33,17 @@ class Protocol::IRC::Event::PrivateMessage extends Protocol::IRC::Event::Public
         {
             next MESSAGE    unless $message;
 
-            $sophia->yield(privmsg => $recipient => $message);
+            $sophia->yield($action => $recipient => $message);
         }
+    }
+
+    method reply ($string)
+    {
+        $self->_answer($string, 'privmsg');
+    }
+
+    method _notice ($string)
+    {
+        $self->_answer($string, 'notice');
     }
 }
