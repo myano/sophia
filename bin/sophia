@@ -134,7 +134,7 @@ else
 }
 
 our $instances = Protocol::IRC->new;
-$instances->autoload_connections;
+$instances->load_connections;
 
 POE::Kernel->run;
 
