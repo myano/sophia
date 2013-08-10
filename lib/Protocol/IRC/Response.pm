@@ -29,7 +29,7 @@ class Protocol::IRC::Response
             $sophia->yield(join => $chan);
         }
 
-        $sophia->modulehandler->autoload_modules;
+        $sophia->modulehandler->load_modules;
     }
 
     method _332 (@args)
@@ -127,14 +127,6 @@ class Protocol::IRC::Response
     # instance based. Remove/Add the connection and process it
     method _shutdown (@args)
     {
-        my $heap = $args[HEAP - 1];
-
-        if ($heap->{SYSTEM}{RESTART})
-        {
-            do "$sophia::BASE{BIN}/sophia";
-        }
-
-        exit;
     }
 
     method _sigint (@args)
