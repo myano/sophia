@@ -28,25 +28,40 @@ class Protocol::IRC
         return TRUE;
     }
 
-    method remove_connection ($uid)
+    method find_connection ($uid)
     {
-        return      unless (exists $self->connections->{$uid});
-        
-        my $session = $self->connections->{$uid};
-        $session->yield(quit => 'Shutting down ... ');
+        my $configs = Protocol::IRC::Session->load_main_config;
 
-        delete $self->connections->{$uid};
+        for my $config (@$configs)
+        {
+            if ($config->{uid} eq $uid)
+            {
+                return $config;
+            }
+        }
+
+        return;
     }
 
-    method autoload_connections
+    method load_connections
     {
-        my $configs = Protocol::IRC::Session->autoload_main_config;
+        my $configs = Protocol::IRC::Session->load_main_config;
 
         for my $config (@$configs)
         {
             $self->add_connection($config);
         }
 
-        return;
+        return $self;
+    }
+
+    method remove_connection ($uid)
+    {
+        return      unless (exists $self->connections->{$uid});
+        
+        my $session = $self->connections->{$uid};
+        $session->yield(shutdown => 'Shutting down ... ');
+
+        delete $self->connections->{$uid};
     }
 }
