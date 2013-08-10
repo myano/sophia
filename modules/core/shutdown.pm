@@ -19,7 +19,9 @@ class core::shutdown with API::Module
 
     method run ($event)
     {
+        my $uid = $event->sophia->uid;
+
         _log('sophia', sprintf('Shutting down as requested by %s.', $event->sender));
-        $event->sophia->yield(quit => 'Shutting down ... ');
+        $sophia::instances->remove_connection($uid);
     }
 }
