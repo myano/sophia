@@ -155,7 +155,7 @@ class Protocol::IRC::Session
     }
 
 
-    method autoload_main_config
+    method load_main_config
     {
         my %global;
         my $yaml = API::Config->parse_yaml_config($sophia::CONFIGURATIONS{MAIN_CONFIG});
