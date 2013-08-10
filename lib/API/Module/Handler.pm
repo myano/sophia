@@ -35,7 +35,7 @@ class API::Module::Handler
         isa         => 'HashRef',
     );
 
-    method autoload_aliases
+    method load_aliases
     {
         open my $fh, '<', $sophia::CONFIGURATIONS{ALIAS_DB}
             or _log('sophia', "Unable to open alias database for reading: $!");
@@ -55,7 +55,7 @@ class API::Module::Handler
         return;
     }
 
-    method autoload_modules
+    method load_modules
     {
         my $modules_config_file = $sophia::CONFIGURATIONS{MODULES_AUTOCONF} or return;
         return unless -e $modules_config_file;
@@ -76,13 +76,13 @@ class API::Module::Handler
 
         close $fh;
 
-        $self->autoload_settings;
-        $self->autoload_aliases;
+        $self->load_settings;
+        $self->load_aliases;
 
         return;
     }
 
-    method autoload_settings
+    method load_settings
     {
         my $yaml = API::Config->parse_yaml_config($sophia::CONFIGURATIONS{MODULES_CONFIG});
 
@@ -111,6 +111,9 @@ class API::Module::Handler
         # if it is already loaded
         if (Class::Inspector->loaded($module))
         {
+            # even so, store it so the bot knows that it is loaded
+            $self->modules->{$module} = TRUE;
+
             _log('sophia', "[MODULE] $modules_dir/$module_path.pm is already loaded. No need to load it again.");
             return TRUE;
         }
