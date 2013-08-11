@@ -45,7 +45,7 @@ class API::Module::Handler
             chomp($line);
             next LINE   if ($line =~ /\A\s*\z/);   # skip empty lines
 
-            my ($key, $value) = split(' ', $line);
+            my ($key, $value) = split(/\s+/, $line);
 
             $self->aliases->{$key} = $value;
         }
