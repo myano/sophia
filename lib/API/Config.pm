@@ -20,7 +20,11 @@ class API::Config
         my @configs;
 
         my $yaml = YAML::Tiny->read($config_path);
-        error_log('sophia', "Unable to parse config file: $config_path")    unless ($yaml);
+
+        unless ($yaml)
+        {
+            error_log('sophia', "Unable to parse config file: $config_path");
+        }
 
         for my $block (@$yaml)
         {
@@ -35,26 +39,5 @@ class API::Config
         }
 
         return \@configs;
-    }
-
-    method reload_main_config
-    {
-        # clear all channels
-        %{$sophia::SOPHIA{channels}} = ();
-
-        my %OLD_SOPHIA = %sophia::SOPHIA;
-
-        #$self->load_main_config();
-
-        # if the config changed port, server, ircname, or username, restart sophia
-        my @settings = qw(port server realname username);
-        for my $setting (@settings)
-        {
-            if ($sophia::SOPHIA{$setting} ne $OLD_SOPHIA{$setting})
-            {
-                $sophia::sophia->yield(quit => 'Restarting ...');
-                return;
-            }
-        }
     }
 }
