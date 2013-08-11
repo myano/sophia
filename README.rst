@@ -11,12 +11,12 @@
 
 Table of Contents
 -----------------
-    0. `Pre-requisites`_
-    1. `Install`_
-    2. `Run`_
-    3. `Trouble / Help`_
-    4. `Contributions`_
-    5. `License`_
+    1. `Pre-requisites`_
+    2. `Install`_
+    3. `Run`_
+    4. `Trouble / Help`_
+    5. `Contributions`_
+    6. `License`_
 
 
 Pre_requisites
