@@ -1,9 +1,15 @@
-join core::join
-module core::module
-part core::part
-restart core::restart
-shutdown core::shutdown
-version core::version
+join        core::join
+listchannels core::listchannels
+module      core::module
+part        core::part
+rehash      core::rehash
+restart     core::restart
+shutdown    core::shutdown
+version     core::version
 
-calc google::calculator
-define google::dictionary
+calc        google::calculator
+define      google::dictionary
+translate   google::translate
+urlshorten  google::urlshortener
+
+tinyurl     web::tinyurl
