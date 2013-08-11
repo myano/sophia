@@ -11,6 +11,7 @@
 
 Table of Contents
 -----------------
+    0. `Pre-requisites`_
     1. `Install`_
     2. `Run`_
     3. `Trouble / Help`_
@@ -18,17 +19,33 @@ Table of Contents
     5. `License`_
 
 
+Pre_requisites
+--------------
+
+- libcurl-dev
+- libxml-dev
+
+Note: While not required, ``cpanm`` is strongly recommended for building sophia's
+Perl dependencies in a simple way. local::lib is also recommended unless you
+do not mind installing all of `sophia`'s Perl dependencies in system directories.
+In other words, running as root (sudo).
+
+
 Install
 -------
 
-You need to set a configuration file. Copy ``etc/sophia.conf.example`` to ``etc/sophia.conf``.
-Once you copy this file, open it up and change the necessary settings.
-Also if you want all the modules to load on start, copy ``etc/sophia.modules.conf.example`` to ``etc/sophia.modules.conf``.
+With the original tarball: ``cpanm sophia-3.0.tar.gz``
+That will build all the Perl dependencies. It may take a while to complete.
+After that is completed, you can launch ``bin/sophia`` from the extracted directory
+from wherever you want. See Run below for more details.
 
 
 Run
 ---
 
+You need to set a configuration file. Copy ``etc/sophia.conf.example`` to ``etc/sophia.conf``.
+Once you copy this file, open it up and change the necessary settings.
+Also if you want all the modules to load on start, copy ``etc/sophia.modules.conf.example`` to ``etc/sophia.modules.conf``.
 To launch `sophia` run ``./bin/sophia``
 
 
