@@ -19,7 +19,7 @@ Table of Contents
     6. `License`_
 
 
-Pre_requisites
+Pre-requisites
 --------------
 
 - libcurl-dev
