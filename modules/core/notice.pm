@@ -3,6 +3,9 @@ use Method::Signatures::Modifiers;
 
 class core::notice with API::Module
 {
+    use Protocol::IRC::Constants;
+    use Util::String;
+
     has 'name'  => (
         default => 'core::notice',
         is      => 'ro',
@@ -31,7 +34,15 @@ class core::notice with API::Module
 
         if (defined($recipient))
         {
-            $event->sophia->yield(notice => $recipient => $content);
+            my $messages_ref = Util::String->chunk_split($content, IRC_MESSAGE_LENGTH);
+            $messages_ref = Util::String->trim_all($messages_ref);
+
+            MESSAGE: for my $message (@$messages_ref)
+            {
+                next MESSAGE    unless $message;
+
+                $event->sophia->yield(notice => $recipient => $message);
+            }
         }
     }
 }
