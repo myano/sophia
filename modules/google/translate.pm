@@ -35,13 +35,13 @@ class google::translate with API::Module
         if ($content =~ /--from(=| )([^ ]+)/i)
         {
             $query->{source} = $2;
-            $content =~ s/--from(=| )([^ ]+)//i;
+            $content =~ s/\s*--from(=| )([^ ]+)\s*//i;
         }
 
         if ($content =~ /--to(=| )([^ ]+)/i)
         {
             $query->{target} = $2;
-            $content =~ s/--to(=| )([^ ]+)//i;
+            $content =~ s/\s*--to(=| )([^ ]+)\s*//i;
         }
 
         $content = Util::String->trim($content);
