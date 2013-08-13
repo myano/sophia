@@ -1,58 +1,66 @@
-use strict;
-use warnings;
+use MooseX::Declare;
+use Method::Signatures::Modifiers;
 
-sophia_module_add('web.acronym', '2.0', \&init_web_acronym, \&deinit_web_acronym);
+class web::acronym with API::Module
+{
+    use URI::Escape;
+    use Util::Curl;
 
-sub init_web_acronym {
-    sophia_command_add('web.acronym', \&web_acronym, 'Tries to find the meaning of the acronym.', '');
+    has 'name'  => (
+        default => 'web::acronym',
+        is      => 'ro',
+        isa     => 'Str',
+    );
 
-    return 1;
-}
+    has 'version'   => (
+        default     => '1.0',
+        is          => 'ro',
+        isa         => 'Str',
+    );
 
-sub deinit_web_acronym {
-    delete_sub 'init_web_acronym';
-    delete_sub 'web_acronym';
-    sophia_command_del 'web.acronym';
-    sophia_command_del 'web.abbrev';
-    delete_sub 'deinit_web_acronym';
-}
+    has 'max_entries'   => (
+        default     => '10',
+        is          => 'rw',
+        isa         => 'Int',
+    );
 
-my $max = 10;
-sub web_acronym {
-    my $args = $_[0];
-    my ($where, $content) = ($args->[ARG1], $args->[ARG2]);
+    method run ($event)
+    {
+        my $result = $self->acronym($event->content);
+        my @acronyms = @$result;
 
-    $content = substr $content, index($content, ' ') + 1;
-    $content =~ s/ /+/g;
+        unless (scalar @acronyms)
+        {
+            $event->reply('Acronym not found in the database.');
+            return;
+        }
 
-    my $response = curl_get(sprintf('http://acronyms.thefreedictionary.com/%s', $content));
-    return unless $response;
-
-    my @acronyms;
-    my ($idx, $acronym) = (0, '');
-
-    FOR: for (1 .. $max) {
-        $idx = index $response, '<td class=acr>', $idx;
-        last FOR unless $idx > -1;
-
-        $idx = index $response, '<td>', $idx + 1;
-        
-        $acronym = substr $response, $idx + 4, index($response, '</td>', $idx + 1) - $idx - 4;
-        $acronym =~ s/<[^>]+>//g;
-
-        push @acronyms, $acronym;
-
-        $idx += 3;
+        $event->reply( join(',', @acronyms) );
     }
 
-    my $sophia = $args->[HEAP]->{sophia};
+    method acronym ($content)
+    {
+        my $response = Util::Curl->get(sprintf('http://acronyms.thefreedictionary.com/%s', uri_escape($content)));
+        return unless $response;
 
-    if (scalar(@acronyms) == 0) {
-        $sophia->yield(privmsg => $where->[0] => 'Acronym not found in the database.');
-        return;
+        my @acronyms;
+        my $idx = 0;
+
+        LOOP: for (1 .. $self->max_entries)
+        {
+            $idx = index($response, '<td class=acr>', $idx);
+            last FOR    unless $idx > -1;
+
+            $idx = index($response, '<td>', $idx + 1);
+
+            my $acronym = substr($response, $idx + 4, index($response, '</td>', $idx + 1) - $idx - 4);
+            $acronym =~ s/<[^>]+>//g;
+
+            push @acronyms, $acronym;
+
+            $idx += 3;
+        }
+
+        return \@acronyms;
     }
-
-    $sophia->yield(privmsg => $where->[0] => join ', ', @acronyms);
 }
-
-1;
