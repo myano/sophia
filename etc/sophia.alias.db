@@ -1,7 +1,9 @@
 join        core::join
 listchannels core::listchannels
 module      core::module
+notice      core::notice
 part        core::part
+privmsg     core::privmsg
 rehash      core::rehash
 restart     core::restart
 shutdown    core::shutdown
