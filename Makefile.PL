@@ -22,6 +22,7 @@ WriteMakefile(
         "Class::Inspector"                  => 0,
         "Class::Refresh"                    => 0,
         "Getopt::Long"                      => 0,
+        "HTML::Parser"                      => "3.71",
         "Method::Signatures::Modifiers"     => 0,
         "MooseX::Declare"                   => 0,
         "POE::Component::IRC"               => 0,
