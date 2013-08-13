@@ -32,16 +32,16 @@ class google::translate with API::Module
         my $query = {};
         my $content = $event->content;
 
-        if ($content =~ /--source(=| )([^ ]+)/i)
+        if ($content =~ /--from(=| )([^ ]+)/i)
         {
             $query->{source} = $2;
-            $content =~ s/--source(=| )([^ ]+)//i;
+            $content =~ s/--from(=| )([^ ]+)//i;
         }
 
-        if ($content =~ /--target(=| )([^ ]+)/i)
+        if ($content =~ /--to(=| )([^ ]+)/i)
         {
             $query->{target} = $2;
-            $content =~ s/--target(=| )([^ ]+)//i;
+            $content =~ s/--to(=| )([^ ]+)//i;
         }
 
         $content = Util::String->trim($content);
@@ -114,7 +114,7 @@ class google::translate with API::Module
         }
 
         my %data = (
-            translatedText  => decode_entites($translation),
+            translatedText  => HTML::Entities::decode($translation),
         );
 
         if ($source)
