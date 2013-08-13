@@ -48,6 +48,14 @@ class Protocol::IRC::Response
     method _default (@args)
     {
         my ($event, $args) = @args[ARG0 - 1 .. $#args];
+
+        # ignore irc_pings .. so annoying
+        # unless verbose is used
+        if ($event eq 'irc_ping' && !$sophia::CONFIGURATIONS{VERBOSE})
+        {
+            return;
+        }
+
         my @output = ( "$event: " );
 
         ARG: for my $arg (@$args)
@@ -123,8 +131,6 @@ class Protocol::IRC::Response
         $sophia->process_input($event);
     }
 
-    # NOTE: Do not restart like this because it's really
-    # instance based. Remove/Add the connection and process it
     method _shutdown (@args)
     {
     }

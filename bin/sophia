@@ -44,15 +44,16 @@ our %BASE = (
 );
 
 our %CONFIGURATIONS = (
-    VERSION         => ['sophia-3.0.0', ''],
+    ACL_DB          => "$BASE{ETC}/sophia.acl.db",
+    ALIAS_DB        => "$BASE{ETC}/sophia.alias.db",
+    IN_DEBUG_MODE   => TRUE,
+    LOAD_ALIASES    => FALSE,
     MAIN_CONFIG     => "$BASE{ETC}/sophia.conf",
     MODULES_CONFIG  => "$BASE{ETC}/sophia.modules.conf",
     MODULES_AUTOCONF=> "$BASE{ETC}/sophia.modules.autoload.conf",
-    ACL_DB          => "$BASE{ETC}/sophia.acl.db",
-    ALIAS_DB        => "$BASE{ETC}/sophia.alias.db",
     PID             => "$BASE{ETC}/sophia.pid",
-    LOAD_ALIASES    => FALSE,
-    IN_DEBUG_MODE   => TRUE,
+    VERBOSE         => FALSE,
+    VERSION         => ['sophia-3.0.0', ''],
 );
 
 my $full_version = `cd $BASE{ROOT} && git log -1 --pretty=format:'${CONFIGURATIONS{VERSION}->[0]} [%H] %cd'`;
@@ -73,6 +74,7 @@ GetOptions(
     'help|?'        => \$opts{help},
     'man'           => \$opts{man},
     'modconfig=s'   => \$opts{modconf},
+    'verbose'       => \$opts{verbose},
     'version'       => \$opts{version},
 );
 
@@ -88,9 +90,10 @@ pod2usage(
     -verbose        => 2,
 )   if $opts{man};
 
+$CONFIGURATIONS{IN_DEBUG_MODE} = TRUE               if $opts{debug};
 $CONFIGURATIONS{MAIN_CONFIG} = $opts{config}        if $opts{config} && -e $opts{config};
 $CONFIGURATIONS{MODULES_CONFIG} = $opts{modconf}    if $opts{modconf} && -e $opts{modconf};
-$CONFIGURATIONS{IN_DEBUG_MODE} = TRUE               if $opts{debug};
+$CONFIGURATIONS{VERBOSE} = TRUE                     if $opts{verbose};
 
 my $pid;
 unless ($CONFIGURATIONS{IN_DEBUG_MODE})
