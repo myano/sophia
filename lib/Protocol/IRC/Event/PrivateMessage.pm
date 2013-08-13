@@ -42,7 +42,7 @@ class Protocol::IRC::Event::PrivateMessage extends Protocol::IRC::Event::Public
         $self->_answer($string, 'privmsg');
     }
 
-    method _notice ($string)
+    method notice ($string)
     {
         $self->_answer($string, 'notice');
     }
