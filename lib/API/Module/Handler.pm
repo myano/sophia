@@ -121,7 +121,7 @@ class API::Module::Handler
                 return TRUE;
             }
 
-            _log('sophia', "[MODULE] $modules_dir/$module_path.pm failed to reload,");
+            _log('sophia', "[MODULE] $modules_dir/$module_path.pm failed to reload.");
             return FALSE;
         }
 
