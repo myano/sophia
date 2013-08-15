@@ -186,6 +186,26 @@ class API::Module::Handler
         return FALSE;
     }
 
+    method process_public_commands ($event)
+    {
+        $event->content($event->message);
+
+        while ((my $key, my $value) = each %{$self->modules})
+        {
+            my $object = $key->new;
+
+            if ($object->DOES('API::Module::Event::Public'))
+            {
+                $object->settings($self->get_module_settings($key));
+
+                if ($object->access($event))
+                {
+                    $object->run($event);
+                }
+            }
+        }
+    }
+
     method process_command ($event)
     {
         my $command = $self->resolve_command($event->command);
