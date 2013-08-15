@@ -26,7 +26,7 @@ class core::module with API::Module
 
         # first thing is to see which
         # command is used: load, (re|un)load
-        my ($command, @modules) = split(' ', $event->content);
+        my ($command, @modules) = split(/\s+/, $event->content);
         
         # no @modules? In other words,
         # split ' ' returned only one entry
@@ -65,9 +65,11 @@ class core::module with API::Module
             {
                 for my $module (@modules)
                 {
-                    my $loaded = $modulehandler->unload_module($module);
-                    $event->reply("$module successfully unloaded.")     if ($loaded);
-                    $event->reply("$module failed to unload.")          unless ($loaded);
+                    # do not actually unload it, but rather remove the bot's access ot it.
+                    # since sophia is now instance-based, unloading the module will remove
+                    # access to another instance that may require it.
+                    delete $event->sophia->modulehandler->modules->{$module};
+                    $event->reply("$module successfully unloaded.");
                 }
             }
         }
