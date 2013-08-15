@@ -108,14 +108,21 @@ class API::Module::Handler
 
         return unless -e "$modules_dir/$module_path.pm";
 
-        # if it is already loaded
+        # if it is already loaded, best to reload it
         if (Class::Inspector->loaded($module))
         {
-            # even so, store it so the bot knows that it is loaded
-            $self->modules->{$module} = TRUE;
+            _log('sophia', "[MODULE] $modules_dir/$module_path.pm is already loaded. Reloading ... ");
 
-            _log('sophia', "[MODULE] $modules_dir/$module_path.pm is already loaded. No need to load it again.");
-            return TRUE;
+            if ($self->reload_module($module))
+            {
+                # store it so the bot knows that it is loaded
+                $self->modules->{$module} = TRUE;
+
+                return TRUE;
+            }
+
+            _log('sophia', "[MODULE] $modules_dir/$module_path.pm failed to reload,");
+            return FALSE;
         }
 
         try
