@@ -1,48 +1,68 @@
-use strict;
-use warnings;
+use MooseX::Declare;
+use Method::Signatures::Modifiers;
 
-sophia_module_add('web.urltitle', '2.0', \&init_web_urltitle, \&deinit_web_urltitle);
+class web::urltitle with API::Module with API::Module::Event::Public
+{
+    use HTML::Entities;
+    use Util::Curl;
 
-sub init_web_urltitle {
-    sophia_event_public_hook('web.urltitle', \&web_urltitle, 'Displays the title for the posted URL.', '');
+    has 'name'  => (
+        default => 'web::urltitle',
+        is      => 'ro',
+        isa     => 'Str',
+    );
 
-    return 1;
-}
+    has 'version'   => (
+        default     => '1.0',
+        is          => 'ro',
+        isa         => 'Str',
+    );
 
-sub deinit_web_urltitle {
-    delete_sub 'init_web_urltitle';
-    delete_sub 'web_urltitle';
-    sophia_event_public_dehook 'web.urltitle';
-    delete_sub 'deinit_web_urltitle';
-}
+    has 'max_entries'   => (
+        default         => 3,
+        is              => 'rw',
+        isa             => 'Int',
+    );
 
-sub web_urltitle {
-    my $args = $_[0];
-    my ($who, $where, $content) = ($args->[ARG0], $args->[ARG1], $args->[ARG2]);
-    
-    return if $who =~ /cia\.atheme\.org/;  # ignore CIA bot commit bit.ly lookups.
-    return if $content !~ /\b(https?:\/\/[^ ]+)\b/xsmi;
+    method run ($event)
+    {
+        my @urltitles;
+        my $index = 1;
 
-    my $uri = $1;
-    my $response = curl_get($uri);
-    return unless $response;
+        while ($event->content =~ /\b(https?:\/\/[^ ]+)\b/xsmig)
+        {
+            my $url = $1;
+            my $title = $self->urltitle($url);
 
-    if ($response =~ m#<title[^>]*>(.+?)</title>#xsmi) {
-        my $title = $1;
+            if ($title)
+            {
+                $event->reply(sprintf('%d. %s', $index++, $title));
+            }
+            else
+            {
+                $event->reply(sprintf('%d. Failed to find title.', $index++));
+            }
+        }
+    }
 
-        $title =~ s/\r\n|\n//g;
-        $title =~ s/^\s+//g;
-        $title =~ s/\s{2,}/ /g;
+    method urltitle ($url)
+    {
+        my $response = Util::Curl->get($url);
+        return unless $response;
 
-        $title = '&laquo; ' . $title . ' &raquo;';
-        $title = decode_entities($title);
+        if ($response =~ m#<title[^>]*>(.+?)</title>#xsmi)
+        {
+            my $title = $1;
+            $title =~ s/\r\n|\n//g;
+            $title =~ s/^\s+//g;
+            $title =~ s/\s{2,}/ /g;
 
-        my $wot = wot($uri);
-        
-        my $sophia = $args->[HEAP]->{sophia};
-        $sophia->yield(privmsg => $where->[0] => $title);
-        $sophia->yield(privmsg => $where->[0] => 'WOT Reputation: ' . $wot->{'Reputation'} . '    WOT Confidence: ' . $wot->{'Confidence'});
+            $title = '&laquo; ' . $title . ' &raquo;';
+            $title = HTML::Entities::decode($title);
+
+            return $title;
+        }
+
+        return;
     }
 }
-
-1;
