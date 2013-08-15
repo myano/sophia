@@ -46,7 +46,7 @@ class web::acronym with API::Module
         my @acronyms;
         my $idx = 0;
 
-        LOOP: for (1 .. $self->max_entries)
+        FOR: for (1 .. $self->max_entries)
         {
             $idx = index($response, '<td class=acr>', $idx);
             last FOR    unless $idx > -1;

@@ -4,6 +4,7 @@ use Method::Signatures::Modifiers;
 class core::module with API::Module
 {
     use feature qw(switch);
+    use Class::Inspector;
 
     has 'name'  => (
         default => 'core::module',
