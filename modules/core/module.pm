@@ -45,9 +45,21 @@ class core::module with API::Module
             {
                 for my $module (@modules)
                 {
-                    my $loaded = $modulehandler->load_module($module);
-                    $event->reply("$module successfully loaded.")   if ($loaded);
-                    $event->reply("$module failed to load.")        unless ($loaded);
+                    my $loaded;
+
+                    # if loaded, reload it
+                    if (Class::Inspector->loaded($module))
+                    {
+                        $loaded = $modulehandler->reload_module($module);
+                        $event->reply("$module successfully reloaded.")   if ($loaded);
+                        $event->reply("$module failed to reload.")        unless ($loaded);
+                    }
+                    else
+                    {
+                        $loaded = $modulehandler->load_module($module);
+                        $event->reply("$module successfully loaded.")   if ($loaded);
+                        $event->reply("$module failed to load.")        unless ($loaded);
+                    }
                 }
             }
 
