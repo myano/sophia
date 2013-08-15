@@ -27,21 +27,33 @@ class web::urltitle with API::Module with API::Module::Event::Public
     method run ($event)
     {
         my @urltitles;
-        my $index = 1;
+        my $count = 1;
 
-        while ($event->content =~ /\b(https?:\/\/[^ ]+)\b/xsmig)
+        WHILE: while ($event->content =~ m/\b(https?:\/\/[^ ]+)\b/xsmig)
         {
             my $url = $1;
             my $title = $self->urltitle($url);
 
             if ($title)
             {
-                $event->reply(sprintf('%d. %s', $index++, $title));
+                push @urltitles, $title;
             }
             else
             {
-                $event->reply(sprintf('%d. Failed to find title.', $index++));
+                push @urltitles, 'Failed to find title.';
             }
+
+            # abide by max_entries
+            if ($count++ >= $self->max_entries)
+            {
+                last WHILE;
+            }
+        }
+
+        $count = 1;
+        for my $urltitle (@urltitles)
+        {
+            $event->reply(sprintf('%d. %s', $count++, $urltitle));
         }
     }
 
