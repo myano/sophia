@@ -6,7 +6,6 @@ class Util::Curl
     use API::Log qw(:ALL);
     use Constants;
     use WWW::Curl::Easy;
-    use XML::LibXML;
 
     has 'postheaders'   => (
         default         => sub { [] },
@@ -21,7 +20,7 @@ class Util::Curl
         my $curl = WWW::Curl::Easy->new;
         $curl->setopt(CURLOPT_HEADER, 0);
         $curl->setopt(CURLOPT_FOLLOWLOCATION, 1);
-        $curl->setopt(CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows; U; Windows NT 6.0; en-US; rv:1.9.1.6) Gecko/20091201 Firefox/3.5.6 GTB5');
+        $curl->setopt(CURLOPT_USERAGENT, 'Mozilla/5.0 (X11; Linux x86_64; rv:22.0) Gecko/20100101 Firefox/22.0');
         $curl->setopt(CURLOPT_URL, $uri);
         $curl->setopt(CURLOPT_CONNECTTIMEOUT, 7);
         $curl->setopt(CURLOPT_TIMEOUT, 5);
@@ -71,7 +70,7 @@ class Util::Curl
         }
         
         my $curl = WWW::Curl::Easy->new;
-        $curl->setopt(CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows; U; Windows NT 6.0; en-US; rv:1.9.1.6) Gecko/20091201 Firefox/3.5.6 GTB5');
+        $curl->setopt(CURLOPT_USERAGENT, 'Mozilla/5.0 (X11; Linux x86_64; rv:22.0) Gecko/20100101 Firefox/22.0');
         $curl->setopt(CURLOPT_URL, $uri);
 
         if (ref $postdata eq 'HASH')
@@ -111,14 +110,5 @@ class Util::Curl
 
         _log('sophia', sprintf('[LIBRARY: libcurl::curl_post] An error occured. retcode: %s. Error: %s %s', $retcode, $curl->strerror($retcode), $curl->errbuf));
         return;
-    }
-
-    method loadXML ($uri)
-    {
-        my $result = $self->get($uri);
-        return unless $result;
-
-        my $xml = XML::LibXML->new;
-        return \$xml->parse_string($result);
     }
 }
