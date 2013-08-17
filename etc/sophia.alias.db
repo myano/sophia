@@ -16,3 +16,6 @@ urlshorten  google::urlshortener
 
 acronym     web::acronym
 tinyurl     web::tinyurl
+urltitle    web::urltitle
+weather     web::weather
+wot         web::wot
