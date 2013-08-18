@@ -47,3 +47,6 @@ google/dictionary:
 
 google/search:
     max_entries: 3
+
+web/urltitle:
+    public_event: true

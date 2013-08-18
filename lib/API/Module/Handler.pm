@@ -197,7 +197,10 @@ class API::Module::Handler
             {
                 $object->settings($self->get_module_settings($key));
 
-                if ($object->access($event))
+                if ($object->access($event) &&
+                    exists($object->settings->{public_event}) &&
+                    !Util::String->empty($object->settings->{public_event})
+                )
                 {
                     $object->run($event);
                 }
@@ -283,7 +286,7 @@ class API::Module::Handler
         # 1. A/*
         # 2. A/B/* (overrides settings in 1)
         # 3. A/B/C (overrides settings in 2)
-        my $index = 1;
+        my $index = 0;
         my $level = '';
 
         my $settings = {};
@@ -297,7 +300,7 @@ class API::Module::Handler
         PART: for my $part (@parts)
         {
             # generate the A/../.. sequence
-            $level .= '/'   if ($index > 1);
+            $level .= '/'   if (++$index > 1);
             $level .= $part;
 
             # setting -- hashref

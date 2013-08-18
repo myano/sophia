@@ -3,10 +3,18 @@ use Method::Signatures::Modifiers;
 
 class Util::String
 {
+    use Constants;
+
     method chunk_split ($string, $chunk_length)
     {
         my @chunks = ($string =~ /.{0,$chunk_length}[^ ]* ?/g);
         return \@chunks;
+    }
+
+    method empty ($string)
+    {
+        $string = $self->trim($string);
+        return $string eq '' || uc($string) eq 'FALSE';
     }
 
     method ltrim ($string)
