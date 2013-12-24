@@ -7,7 +7,7 @@
 #  |___/\___/| .__/|_| |_|_|\__,_|
 #  ----------|_|------------------
 #
-#       sophia Perl IRC bot
+#       sophia v3.0 Perl IRC bot
 
 Table of Contents
 -----------------
