@@ -26,8 +26,8 @@ class google::translate with API::Module
         # than the usual inputs.
         #
         # it allows the options:
-        # --source=lang  -or-   --source lang (optional)
-        # --target=lang  -or-   --target lang (required)
+        # --from=lang   -or-   --from lang  (optional)
+        # --to=lang     -or-   --to lang    (required)
         # text (required, no tag)
         my $query = {};
         my $content = $event->content;
