@@ -3,8 +3,10 @@ use Method::Signatures::Modifiers;
 
 class google::calculator with API::Module
 {
+    use HTML::Entities;
     use URI::Escape;
     use Util::Curl;
+    use Util::String;
 
     has 'name'  => (
         default => 'google::calculator',
@@ -33,19 +35,35 @@ class google::calculator with API::Module
 
     method calculate ($expr)
     {
-        my $response = Util::Curl->get(sprintf('http://www.google.com/ig/calculator?q=%s', uri_escape($expr)));
-        return unless ($response || $response =~ /error:\s*"0?"/);
+        my $response = Util::Curl->get(sprintf('https://www.google.com/search?gbv=1&q=%s', uri_escape($expr)));
+        return unless $response;
 
         my %result = (
             lhs     => '',
             rhs     => '',
         );
 
-        my $idx = index($response, 'lhs: "') + 6;
-        $result{lhs} = substr($response, $idx, index($response, '",', $idx) - $idx);
+        if ($response =~ m#<h2\s+class="r"[^>]*>(.+?)</h2>#xsmi)
+        {
+            my $answer = $1;
+            my $equals = index($answer, '=');
+            return if $equals == -1;
 
-        $idx = index($response, 'rhs: "') + 6;
-        $result{rhs} = substr($response, $idx, index($response, '",', $idx) - $idx);
+            if ($equals > -1)
+            {
+                my $lhs = substr($answer, 0, $equals);
+                my $rhs = substr($answer, $equals + 1);
+
+                $lhs = Util::String->trim($lhs);
+                $rhs = Util::String->trim($rhs);
+
+                $lhs = HTML::Entities::decode($lhs);
+                $rhs = HTML::Entities::decode($rhs);
+
+                $result{lhs} = $lhs;
+                $result{rhs} = $rhs;
+            }
+        }
 
         return \%result;
     }
