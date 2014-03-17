@@ -11,11 +11,14 @@ version     core::version
 
 calc        google::calculator
 define      google::dictionary
+search      google::search
 translate   google::translate
 urlshorten  google::urlshortener
 
 acronym     web::acronym
+solve       web::wolframalpha
 tinyurl     web::tinyurl
 urltitle    web::urltitle
+wa          web::wolframalpha
 weather     web::weather
 wot         web::wot

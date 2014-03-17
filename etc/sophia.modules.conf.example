@@ -50,3 +50,6 @@ google/search:
 
 web/urltitle:
     public_event: true
+
+web/wolframalpha:
+    api_key: ''
