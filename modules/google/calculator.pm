@@ -15,7 +15,7 @@ class google::calculator with API::Module
     );
 
     has 'version'   => (
-        default     => '1.0',
+        default     => '2.0',
         is          => 'ro',
         isa         => 'Str',
     );
