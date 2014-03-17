@@ -25,7 +25,8 @@ class web::wolframalpha with API::Module
         my $result = $self->wolframalpha($event->content);
         return unless $result;
 
-        $event->reply($result);
+        my $answer = join ', ', @{$result};
+        $event->reply($answer);
     }
 
     method wolframalpha ($query)
@@ -61,14 +62,14 @@ class web::wolframalpha with API::Module
 
         # solutions
         my $solutions = $self->_solutions($xpc);
-        if ($solutions ne '')
+        if (defined $solutions->[0])
         {
             return $solutions;
         }
 
         # values
         my $values = $self->_values($xpc);
-        if ($values ne '')
+        if (defined $values->[0])
         {
             return $values;
         }
@@ -78,33 +79,29 @@ class web::wolframalpha with API::Module
 
     method _solutions ($xpc)
     {
-        my $response = '';
+        my @responses;
 
         my @solutions = $xpc->findnodes('//pod[@id="Solution"]/subpod');
         for my $solution (@solutions)
         {
             my $text = $solution->findnodes('./plaintext[1]');
-            $response .= $text->to_literal . ', ';
+            push @responses, $text->to_literal;
         }
 
-        $response =~ s/, \Z//;
-
-        return $response;
+        return \@responses;
     }
 
     method _values ($xpc)
     {
-        my $response = '';
+        my @responses;
 
         my @values = $xpc->findnodes('//pod[@id="Value"]/subpod');
         for my $value (@values)
         {
             my $text = $value->findnodes('./plaintext[1]');
-            $response .= $text->to_literal . ', ';
+            push @responses, $text->to_literal;
         }
 
-        $response =~ s/, \Z//;
-
-        return $response;
+        return \@responses;
     }
 }
