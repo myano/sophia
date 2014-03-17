@@ -81,7 +81,7 @@ class web::wolframalpha with API::Module
         my $response = '';
 
         my @solutions = $xpc->findnodes('//pod[@id="Solution"]/subpod');
-        foreach my $solution (@solutions)
+        for my $solution (@solutions)
         {
             my $text = $solution->findnodes('./plaintext[1]');
             $response .= $text->to_literal . ', ';
@@ -97,7 +97,7 @@ class web::wolframalpha with API::Module
         my $response = '';
 
         my @values = $xpc->findnodes('//pod[@id="Value"]/subpod');
-        foreach my $value (@values)
+        for my $value (@values)
         {
             my $text = $value->findnodes('./plaintext[1]');
             $response .= $text->to_literal . ', ';
