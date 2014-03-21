@@ -3,7 +3,6 @@ use Method::Signatures::Modifiers;
 
 class web::wolframalpha with API::Module
 {
-    use Data::Dumper;
     use URI::Escape;
     use Util::Curl;
     use XML::LibXML;
