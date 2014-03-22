@@ -21,6 +21,7 @@ class Protocol::IRC
         return FALSE    unless (exists $config->{uid});
 
         my $session = Protocol::IRC::Session->new(%{$config});
+        $session->DBHandler($sophia::DBHandler);
         $session->spawn;
 
         $self->connections->{ $config->{uid} } = $session;

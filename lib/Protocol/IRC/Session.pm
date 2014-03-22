@@ -103,6 +103,11 @@ class Protocol::IRC::Session
         isa         => 'POE::Component::IRC',
     );
 
+    has 'DBHandler'     => (
+        is          => 'rw',
+        isa         => 'DBI::db',
+    );
+
     has 'modulehandler' => (
         is          => 'rw',
         isa         => 'API::Module::Handler',

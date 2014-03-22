@@ -19,6 +19,7 @@ use lib qq($Bin/../modules);
 
 use API::Log qw(:ALL);
 use Constants;
+use DBI;
 use Getopt::Long;
 use Pod::Usage;
 use POSIX qw(setsid);
@@ -135,6 +136,12 @@ else
 {
     $pid = $$;
 }
+
+our $DBHandler = DBI->connect(
+    sprintf('dbi:SQLite:dbname=%s/sophia.db', $BASE{ETC}),
+    undef,
+    undef
+);
 
 our $instances = Protocol::IRC->new;
 $instances->load_connections;
