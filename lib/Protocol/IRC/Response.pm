@@ -129,7 +129,7 @@ class Protocol::IRC::Response
         }
 
         $sophia->process_input($event);
-        $sophia->process_public_events($event);
+        $sophia->process_event_command('public', $event);
     }
 
     method _shutdown (@args)

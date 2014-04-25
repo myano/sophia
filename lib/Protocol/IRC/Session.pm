@@ -254,8 +254,8 @@ class Protocol::IRC::Session
         $self->modulehandler->process_command($event);
     }
 
-    method process_public_events ($event)
+    method process_event_command ($type, $event)
     {
-        $self->modulehandler->process_public_commands($event);
+        $self->modulehandler->process_event_command($type, $event);
     }
 }

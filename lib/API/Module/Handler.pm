@@ -11,6 +11,7 @@ class API::Module::Handler
     use Try::Tiny;
     use Util::Hash;
     use Util::String;
+    use feature qw(switch);
 
     # list of modules loaded
     # the only reason that this is a hash instead of an array
@@ -185,24 +186,25 @@ class API::Module::Handler
         return FALSE;
     }
 
-    method process_public_commands ($event)
+    method process_event_command ($type, $event)
     {
         $event->content($event->message);
 
         while ((my $key, my $value) = each %{$self->modules})
         {
             my $object = $key->new;
+            $object->settings($self->get_module_settings($key));
 
-            if ($object->DOES('API::Module::Event::Public'))
+            given ($type)
             {
-                $object->settings($self->get_module_settings($key));
-
-                if ($object->access($event) &&
-                    exists($object->settings->{public_event}) &&
-                    !Util::String->empty($object->settings->{public_event})
-                )
+                when ('public')
                 {
-                    $object->run($event);
+                    if ($object->access($event)
+                        && exists($object->settings->{public_event})
+                        && !Util::String->empty($object->settings->{public_event}))
+                    {
+                        $object->on_public($event);
+                    }
                 }
             }
         }

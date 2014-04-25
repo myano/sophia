@@ -1,7 +1,7 @@
 use MooseX::Declare;
 use Method::Signatures::Modifiers;
 
-class web::urltitle with API::Module with API::Module::Event::Public
+class web::urltitle with API::Module
 {
     use HTML::Entities;
     use Util::Curl;
@@ -51,11 +51,23 @@ class web::urltitle with API::Module with API::Module::Event::Public
             }
         }
 
-        $count = 1;
-        for my $urltitle (@urltitles)
+        if (scalar @urltitles == 1)
         {
-            $event->reply(sprintf('%d. %s', $count++, $urltitle));
+            $event->reply($urltitles[0]);
         }
+        else
+        {
+            $count = 1;
+            for my $urltitle (@urltitles)
+            {
+                $event->reply(sprintf('%d. %s', $count++, $urltitle));
+            }
+        }
+    }
+
+    method on_public ($event)
+    {
+        $self->run($event);
     }
 
     method urltitle ($url)
