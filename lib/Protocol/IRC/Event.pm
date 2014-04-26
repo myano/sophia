@@ -10,4 +10,14 @@ role Protocol::IRC::Event
         isa         => 'Protocol::IRC::Session',
         required    => TRUE,
     );
+
+    method is_private_message ()
+    {
+        return $self->DOES('Protocol::IRC::Event::PrivateMessage');
+    }
+
+    method is_public_message ()
+    {
+        return $self->DOES('Protocol::IRC::Event::Public');
+    }
 }
