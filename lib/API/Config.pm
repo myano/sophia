@@ -40,4 +40,78 @@ class API::Config
 
         return \@configs;
     }
+
+    method get_config ($config_path)
+    {
+        my $options = $self->parse_yaml_config($config_path);
+
+        my %configs;
+        my %global;
+        my %tmp;
+
+        for my $option (@$options)
+        {
+            if (exists $option->{global})
+            {
+                while (my ($key, $value) = each %{$option->{global}})
+                {
+                    $global{$key} = $value;
+                }
+
+                $configs{global} = \%global;
+            }
+            elsif (exists $option->{operators})
+            {
+                my @opers;
+
+                while (my ($key, $value) = each %{$option->{operators}})
+                {
+                    push @opers, +{ $key => $value };
+                }
+
+                $configs{operators} = \@opers;
+            }
+            elsif (exists $option->{server})
+            {
+                %tmp = %global;
+
+                while (my ($key, $value) = each %{$option->{server}})
+                {
+                    $tmp{$key} = $value;
+                }
+
+                # channels is supposed to be a hash, but YAML processes it as an array
+                if (exists $tmp{channels})
+                {
+                    my %channels = map { $_ => 1 } @{$tmp{channels}};
+                    $tmp{channels} = \%channels;
+                }
+
+                # ports starting with + indicates ssl
+                if (exists $tmp{port})
+                {
+                    if (index($tmp{port}, '+') == 0)
+                    {
+                        $tmp{port}   = substr $tmp{port}, 1;
+                        $tmp{usessl} = TRUE;
+                    }
+                }
+
+                if (!exists $configs{servers})
+                {
+                    $configs{servers} = [\%tmp];
+                }
+                else
+                {
+                    push @{$configs{servers}}, \%tmp;
+                }
+            }
+        }
+
+        return \%configs;
+    }
+
+    method save_config ($config_path)
+    {
+    }
 }

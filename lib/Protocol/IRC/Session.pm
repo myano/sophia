@@ -159,60 +159,6 @@ class Protocol::IRC::Session
         $self->session->yield(@args);
     }
 
-
-    method load_main_config
-    {
-        my %global;
-        my $yaml = API::Config->parse_yaml_config($sophia::CONFIGURATIONS{MAIN_CONFIG});
-
-        my @configs;
-
-        for my $block (@$yaml)
-        {
-            if (exists $block->{global})
-            {
-                while (my ($key, $value) = each %{$block->{global}})
-                {
-                    $global{$key} = $value;
-                }
-            }
-            elsif (exists $block->{server})
-            {
-                my %config = %global;
-
-                while (my ($key, $value) = each %{$block->{server}})
-                {
-                    $config{$key} = $value;
-                }
-
-                # channels is supposed to be a hash, but YAML processes it as an array
-                if (exists $config{channels})
-                {
-                    my %channels = map { $_ => 1 } @{$config{channels}};
-                    $config{channels} = \%channels;
-                }
-
-                # ports starting with + indicates ssl
-                if (exists $config{port})
-                {
-                    if (index($config{port}, '+') == 0)
-                    {
-                        $config{port}   = substr $config{port}, 1;
-                        $config{usessl} = TRUE;
-                    }
-                }
-
-                push @configs, \%config;
-            }
-        }
-
-        return \@configs;
-    }
-
-    method save_main_config
-    {
-    }
-
     # takes in a Protocol::IRC::Event::Public
     method process_input ($event)
     {
