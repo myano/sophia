@@ -42,14 +42,6 @@ global:
     realname:   sophia
     username:   sophia
 
-    # the nick to whom sophia will consider to be its owner
-    # an owner has all privileges
-    owner_nick: nick
-
-    # the hostmask to whom sophia will consider to be its owner
-    # if you use this, you need not set owner_nick
-    owner_host: 'nick!username@hostmask'
-
     # the default trigger that sophia commands will use
     # again, it can be overwritten in server blocks
     # that is, if you wish to have different triggers for
@@ -61,6 +53,14 @@ global:
 # a divider is required after each block to separate them
 # if you add another server block for another irc connection,
 # make sure you include this divider
+---
+
+# operators block
+# Uncomment if you need it
+
+# operators:
+#    'Nick': 'password hash'
+
 ---
 
 # a server block
