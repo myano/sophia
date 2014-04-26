@@ -98,7 +98,7 @@ my $pid;
 unless ($CONFIGURATIONS{IN_DEBUG_MODE})
 {
     $pid = fork();
-    
+
     unless ($pid == 0)
     {
         print "sophia forked into the background with pid: $pid\n";
@@ -118,15 +118,6 @@ unless ($CONFIGURATIONS{IN_DEBUG_MODE})
         or error_log('sophia', "sophia cannot read /dev/null: $!\n");
     open STDOUT, '>>', '/dev/null'
         or error_log('sophia', "sophia cannot write to /dev/null: $!\n");
-
-    # if var/sophia.err does not exist, create it
-    if (! -e "$BASE{VAR}/sophia.err")
-    {
-        open my $fh, '>', "$BASE{VAR}/sophia.err"
-            or error_log('sophia', "Unable to create var/sophia.err: $!\n");
-        close $fh;
-    }
-
     open STDERR, '>>', "$BASE{VAR}/sophia.err"
         or error_log('sophia', "sophia cannot write to var/sophia.err: $!\n");
 }
