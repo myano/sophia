@@ -4,8 +4,6 @@
 #   - nick
 #   - realname
 #   - username
-#   - owner_nick
-#   - owner_host
 #   - trigger
 #   - host
 #   - password
@@ -18,7 +16,6 @@
 # in option values, sometimes you will require it so that
 # the YAML parser won't misread it. Most notably, the option
 # values that should almost always be in quotes are:
-#   - owner_host
 #   - trigger
 #   - password
 #   - uid

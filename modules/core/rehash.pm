@@ -45,8 +45,6 @@ class core::rehash with API::Module
 
         # these settings can just be set on the fly
         $event->sophia->trigger($connection->{trigger});
-        $event->sophia->owner_host($connection->{owner_host});
-        $event->sophia->owner_name($connection->{owner_nick});
 
         # remove current usermodes
         $event->sophia->yield(mode => sprintf('%s -%s', $event->sophia->nick, substr($event->sophia->usermode, 1)));

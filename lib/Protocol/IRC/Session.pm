@@ -36,18 +36,6 @@ class Protocol::IRC::Session
         isa         => 'Str',
     );
 
-    has 'owner_host' => (
-        default     => '',
-        is          => 'rw',
-        isa         => 'Str',
-    );
-
-    has 'owner_name' => (
-        default     => '',
-        is          => 'rw',
-        isa         => 'Str',
-    );
-
     has 'password'  => (
         default     => '',
         is          => 'rw',
