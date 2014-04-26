@@ -18,12 +18,15 @@ class Util::Curl
         return unless $uri =~ /\Ahttps?:\/\/[^ ]+\z/;
 
         my $curl = WWW::Curl::Easy->new;
-        $curl->setopt(CURLOPT_HEADER, 0);
-        $curl->setopt(CURLOPT_FOLLOWLOCATION, 1);
-        $curl->setopt(CURLOPT_USERAGENT, 'Mozilla/5.0 (X11; Linux x86_64; rv:22.0) Gecko/20100101 Firefox/22.0');
-        $curl->setopt(CURLOPT_URL, $uri);
         $curl->setopt(CURLOPT_CONNECTTIMEOUT, 7);
+        $curl->setopt(CURLOPT_COOKIEFILE, 'cookie.txt');
+        $curl->setopt(CURLOPT_COOKIEJAR,  'cookie.txt');
+        $curl->setopt(CURLOPT_COOKIESESSION, 1);
+        $curl->setopt(CURLOPT_FOLLOWLOCATION, 1);
+        $curl->setopt(CURLOPT_HEADER, 0);
         $curl->setopt(CURLOPT_TIMEOUT, 5);
+        $curl->setopt(CURLOPT_URL, $uri);
+        $curl->setopt(CURLOPT_USERAGENT, '8.35.200.39 Mozilla/5.0 AppEngine-Google');
         $curl->setopt(CURLOPT_VERBOSE, TRUE);
 
         my $response;
