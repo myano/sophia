@@ -26,7 +26,7 @@ class Util::Curl
         $curl->setopt(CURLOPT_HEADER, 0);
         $curl->setopt(CURLOPT_TIMEOUT, 5);
         $curl->setopt(CURLOPT_URL, $uri);
-        $curl->setopt(CURLOPT_USERAGENT, '8.35.200.39 Mozilla/5.0 AppEngine-Google');
+        $curl->setopt(CURLOPT_USERAGENT, 'Mozilla/5.0 (X11; Linux x86_64; rv:22.0) Gecko/20100101 Firefox/22.0');
         $curl->setopt(CURLOPT_VERBOSE, TRUE);
 
         my $response;
