@@ -142,7 +142,7 @@ our $DBHandler = DBI->connect(
 );
 
 our $instances = Protocol::IRC->new;
-$instances->load_connections;
+$instances->initial_startup;
 
 POE::Kernel->run;
 

@@ -15,42 +15,58 @@ class Protocol::IRC
         isa         => 'HashRef',
     );
 
-    method add_connection ($config)
+    has 'operators' => (
+        default     => sub { {} },
+        is          => 'rw',
+        isa         => 'HashRef',
+    );
+
+    method add_connection ($server)
     {
         # no uid? do nothing
-        return FALSE    unless (exists $config->{uid});
+        return FALSE    unless (exists $server->{uid});
 
-        my $session = Protocol::IRC::Session->new(%{$config});
+        my $session = Protocol::IRC::Session->new(%$server);
         $session->DBHandler($sophia::DBHandler);
         $session->spawn;
 
-        $self->connections->{ $config->{uid} } = $session;
+        $self->connections->{ $server->{uid} } = $session;
 
         return TRUE;
     }
 
     method find_connection ($uid)
     {
-        my $configs = Protocol::IRC::Session->load_main_config;
+        my $configs = API::Config->get_config($sophia::CONFIGURATIONS{MAIN_CONFIG});
 
-        for my $config (@$configs)
+        for my $server (@{$configs->{servers}})
         {
-            if ($config->{uid} eq $uid)
+            if ($server->{uid} eq $uid)
             {
-                return $config;
+                return $server;
             }
         }
 
         return;
     }
 
-    method load_connections
+    method initial_startup
     {
-        my $configs = Protocol::IRC::Session->load_main_config;
-
-        for my $config (@$configs)
+        my $configs = API::Config->get_config($sophia::CONFIGURATIONS{MAIN_CONFIG});
+        
+        if (exists $configs->{operators})
         {
-            $self->add_connection($config);
+            $self->set_operators($configs->{operators});
+        }
+
+        $self->load_connections($configs->{servers});
+    }
+
+    method load_connections ($servers)
+    {
+        for my $server (@$servers)
+        {
+            $self->add_connection($server);
         }
 
         return $self;
@@ -64,5 +80,25 @@ class Protocol::IRC
         $session->yield(shutdown => 'Shutting down ... ');
 
         delete $self->connections->{$uid};
+    }
+
+    method set_operators ($operators)
+    {
+        my %opers;
+
+        for my $oper (@$operators)
+        {
+            while (my ($name, $hash) = each %$oper)
+            {
+                if (!exists $opers{$name})
+                {
+                    $opers{$name} = +{};
+                }
+
+                $opers{$name}{password} = $hash;
+            }
+        }
+
+        $self->operators(\%opers);
     }
 }
