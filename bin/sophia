@@ -126,11 +126,7 @@ else
     $pid = $$;
 }
 
-our $DBHandler = DBI->connect(
-    sprintf('dbi:SQLite:dbname=%s/sophia.db', $BASE{ETC}),
-    undef,
-    undef
-);
+our %DBHandlers;
 
 our $instances = Protocol::IRC->new;
 $instances->initial_startup;
