@@ -48,6 +48,12 @@ role API::Module
         required    => FALSE,
     );
 
+    has 'ratelimit' => (
+        default     => sub { [1, 2] },  # 1 every 2 seconds
+        is          => 'ro',
+        isa         => 'ArrayRef',
+    );
+
     method access ($event)
     {
         return TRUE;

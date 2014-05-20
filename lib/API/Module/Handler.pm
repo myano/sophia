@@ -22,6 +22,14 @@ class API::Module::Handler
         isa         => 'HashRef',
     );
 
+    # ratelimit
+    # module => [ time_checked, messages ]
+    has 'ratelimit' => (
+        default     => sub { {} },
+        is          => 'rw',
+        isa         => 'HashRef',
+    );
+
     # module aliases
     has 'aliases'   => (
         default     => sub { {} },
@@ -222,11 +230,59 @@ class API::Module::Handler
         try
         {
             my $instance = $command->new;
-            $instance->settings($self->get_module_settings($command));
+            my $isRateLimited = 0;
 
-            if ($instance->access($event))
+            # -- RATE LIMITER -- #
+            my $current_time = time;
+            my $ratelimit = $self->ratelimit;
+
+            # module's rate limit
+            my ($rate, $interval) = @{ $instance->ratelimit };
+
+            # first use case
+            if (!exists $ratelimit->{$command})
             {
-                $instance->run($event);
+                $ratelimit->{$command} = [ $current_time, 1 ];
+            }
+            else
+            {
+                # module's rate limit ratio currently
+                my ($last_time, $messages) = @{ $ratelimit->{$command} };
+
+                # if $messages < $rate, allow it
+                if ($messages < $rate)
+                {
+                    ++$messages;
+                }
+                # if $current_time - $last_time > $interval, allow it
+                elsif ($current_time - $last_time > $interval)
+                {
+                    $last_time = $current_time;
+                    $messages = 1;
+                }
+                # otherwise, ignore
+                else
+                {
+                    $isRateLimited = 1;
+                }
+
+                $ratelimit->{$command} = [ $last_time, $messages ];
+            }
+
+            # saving
+            $self->ratelimit($ratelimit);
+
+            # -- END RATE LIMITER -- #
+
+            # if not rate limited
+            if (!$isRateLimited)
+            {
+                $instance->settings($self->get_module_settings($command));
+
+                if ($instance->access($event))
+                {
+                    $instance->run($event);
+                }
             }
         }
         catch
