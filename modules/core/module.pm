@@ -40,48 +40,53 @@ class core::module with API::Module
         $command = lc $command;
         my $modulehandler = $event->sophia->modulehandler;
 
-        given ($command)
+        MODULE: for my $module (@modules)
         {
-            when ('load')
+            # support aliases by resolving the command
+            my $module_resolv = $modulehandler->resolve_command($module);
+            if (!$module_resolv)
             {
-                for my $module (@modules)
-                {
-                    my $loaded;
+                $event->reply(sprintf('No module found for: %s', $module));
+                next MODULE;
+            }
 
+            $module = $module_resolv;
+
+            given ($command)
+            {
+                when (/load|reload/)
+                {
                     # if loaded, reload it
                     if (Class::Inspector->loaded($module))
                     {
-                        $loaded = $modulehandler->reload_module($module);
-                        $event->reply("$module successfully reloaded.")   if ($loaded);
-                        $event->reply("$module failed to reload.")        unless ($loaded);
+                        if ($modulehandler->reload_module($module))
+                        {
+                            $event->reply(sprintf('%s successfully reloaded.', $module));
+                        }
+                        else
+                        {
+                            $event->reply(sprintf('%s failed to reload.', $module));
+                        }
                     }
                     else
                     {
-                        $loaded = $modulehandler->load_module($module);
-                        $event->reply("$module successfully loaded.")   if ($loaded);
-                        $event->reply("$module failed to load.")        unless ($loaded);
+                        if ($modulehandler->load_module($module))
+                        {
+                            $event->reply(sprintf('%s successfully loaded.', $module));
+                        }
+                        else
+                        {
+                            $event->reply(sprintf('%s failed to load.', $module));
+                        }
                     }
                 }
-            }
 
-            when ('reload')
-            {
-                for my $module (@modules)
-                {
-                    my $loaded = $modulehandler->reload_module($module);
-                    $event->reply("$module successfully reloaded.")     if ($loaded);
-                    $event->reply("$module failed to reload.")          unless ($loaded);
-                }
-            }
-
-            when ('unload')
-            {
-                for my $module (@modules)
+                when ('unload')
                 {
                     # do not actually unload it, but rather remove the bot's access ot it.
                     # since sophia is now instance-based, unloading the module will remove
                     # access to another instance that may require it.
-                    delete $event->sophia->modulehandler->modules->{$module};
+                    delete $modulehandler->modules->{$module};
                     $event->reply("$module successfully unloaded.");
                 }
             }
