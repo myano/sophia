@@ -130,6 +130,10 @@ class API::Module::Handler
         {
             Class::Refresh->load_module($module);
 
+            # run init function of $module
+            my $instance = $module->new;
+            $instance->init();
+
             $self->modules->{$module} = TRUE;
             _log('sophia', "[MODULE] $modules_dir/$module_path.pm successfully loaded.");
 
