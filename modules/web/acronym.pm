@@ -35,7 +35,7 @@ class web::acronym with API::Module
             return;
         }
 
-        $event->reply( join(',', @acronyms) );
+        $event->reply( join(', ', @acronyms) );
     }
 
     method acronym ($content)
