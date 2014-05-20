@@ -29,10 +29,10 @@ class core::oper with API::Module
         my $pct = scalar @parts;
         my %auth_info;
 
+        my $idx = index $event->sender, '!';
+
         if ($pct == 1)
         {
-            my $idx = index $event->sender, '!';
-            
             if ($idx != -1)
             {
                 my $nick = substr $event->sender, 0, $idx;
@@ -40,7 +40,7 @@ class core::oper with API::Module
                 %auth_info = (
                     name        => $nick,
                     password    => $parts[0],
-                    hostmask    => $event->sender,
+                    hostmask    => substr($event->sender, $idx + 1),
                 );
             }
         }
@@ -49,7 +49,7 @@ class core::oper with API::Module
             %auth_info = (
                 name        => $parts[0],
                 password    => $parts[1],
-                hostmask    => $event->sender,
+                hostmask    => substr($event->sender, $idx + 1),
             );
         }
 
