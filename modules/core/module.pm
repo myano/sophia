@@ -44,13 +44,10 @@ class core::module with API::Module
         {
             # support aliases by resolving the command
             my $module_resolv = $modulehandler->resolve_command($module);
-            if (!$module_resolv)
+            if ($module_resolv)
             {
-                $event->reply(sprintf('No module found for: %s', $module));
-                next MODULE;
+                $module = $module_resolv;
             }
-
-            $module = $module_resolv;
 
             given ($command)
             {
