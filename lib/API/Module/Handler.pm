@@ -211,9 +211,9 @@ class API::Module::Handler
             {
                 when ('public')
                 {
-                    if ($object->access($event)
-                        && exists($object->settings->{public_event})
-                        && !Util::String->empty($object->settings->{public_event}))
+                    if (exists($object->settings->{public_event})
+                        && !Util::String->empty($object->settings->{public_event})
+                        && $object->access($event))
                     {
                         $object->on_public($event);
                     }
