@@ -17,6 +17,24 @@ class Util::String
         return $string eq '' || uc($string) eq 'FALSE';
     }
 
+    method format_ordinal ($string)
+    {
+        if ($string =~ /(?<!1)1$/)
+        {
+            return $string . 'st';
+        }
+        elsif ($string =~ /(?<!1)2$/)
+        {
+            return $string . 'nd';
+        }
+        elsif ($string =~ /(?<!1)3$/)
+        {
+            return $string . 'rd';
+        }
+
+        return $string . 'th';
+    }
+
     method ltrim ($string)
     {
         $string =~ s/\A\s+//;
