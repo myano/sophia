@@ -18,6 +18,11 @@ class core::module with API::Module
         isa         => 'Str',
     );
 
+    method access ($event)
+    {
+        return $event->is_sender_operator();
+    }
+
     method run ($event)
     {
         # load command:

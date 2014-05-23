@@ -17,6 +17,11 @@ class core::listchannels with API::Module
         isa         => 'Str',
     );
 
+    method access ($event)
+    {
+        return $event->is_sender_operator();
+    }
+
     method run ($event)
     {
         my @channels = sort { uc $a cmp uc $b } keys %{$event->sophia->channels};

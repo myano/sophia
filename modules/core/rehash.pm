@@ -18,6 +18,11 @@ class core::rehash with API::Module
         isa         => 'Str',
     );
 
+    method access ($event)
+    {
+        return $event->is_sender_operator();
+    }
+
     method run ($event)
     {
         my $uid = $event->sophia->uid;
