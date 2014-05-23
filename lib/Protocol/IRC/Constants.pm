@@ -37,7 +37,7 @@ class Protocol::IRC::Constants
         ALL     => \@EXPORT_OK,
     );
 
-    use constant IRC_MESSAGE_LENGTH         => 300;
+    use constant IRC_MESSAGE_LENGTH         => 400;
 
     use constant IRC_TEXT_FORMAT_BOLD       => "\x02";
     use constant IRC_TEXT_FORMAT_FIXED      => "\x11";
