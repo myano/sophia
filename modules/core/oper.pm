@@ -101,9 +101,12 @@ class core::oper with API::Module
 
                     if ($auth_hash eq $password)
                     {
-                        $operators->{$name}->{authenticated} = TRUE;
-                        $operators->{$name}->{auth_time}     = time;
-                        $operators->{$name}->{hostmask}      = $auth_info{hostmask};
+                        $opts->{authenticated} = TRUE;
+                        $opts->{auth_time}     = time;
+                        $opts->{hostmask}      = $auth_info{hostmask};
+
+                        $operators->{$name}    = $opts;
+                        $sophia::instances->operators($operators);
 
                         return +{
                             Success     => TRUE,
