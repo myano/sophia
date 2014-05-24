@@ -4,7 +4,7 @@
       "Kenneth K. Sham (Kays), Michael S. Yanovich (yano)"
    ],
    "dynamic_config" : 0,
-   "generated_by" : "ExtUtils::MakeMaker version 6.64, CPAN::Meta::Converter version 2.120921",
+   "generated_by" : "ExtUtils::MakeMaker version 6.72, CPAN::Meta::Converter version 2.132140",
    "license" : [
       "open_source"
    ],
@@ -35,12 +35,16 @@
             "Class::Inspector" : "0",
             "Class::Refresh" : "0",
             "Getopt::Long" : "0",
+            "IO::Uncompress::Gunzip" : "2.064",
+            "MIME::Base64" : "0",
             "Method::Signatures::Modifiers" : "0",
+            "MooseX::ClassAttribute" : "0.27",
             "MooseX::Declare" : "0",
             "POE::Component::IRC" : "0",
             "POE::Component::SSLify" : "0",
             "Try::Tiny" : "0",
             "WWW::Curl" : "4.14",
+            "XML::LibXML" : "0",
             "YAML::Tiny" : "0",
             "perl" : "5.010000"
          }

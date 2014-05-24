@@ -28,6 +28,7 @@ WriteMakefile(
         #"HTML::Parser"                      => "3.71",
         "IO::Uncompress::Gunzip"            => "2.064",
         "Method::Signatures::Modifiers"     => 0,
+        "MIME::Base64"                      => 0,
         "MooseX::ClassAttribute"            => "0.27",
         "MooseX::Declare"                   => 0,
         "POE::Component::IRC"               => 0,
