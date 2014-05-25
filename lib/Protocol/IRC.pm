@@ -1,103 +1,41 @@
-use MooseX::Declare;
-use Method::Signatures::Modifiers;
+package Protocol::IRC;
+use strict;
+use warnings;
+use POE;
+use base qw(POE::Component::IRC);
 
-class Protocol::IRC
+sub _send_login
 {
-    use API::Config;
-    use Constants;
-    use Protocol::IRC::Session;
+    my ($kernel, $self, $session) = @_[KERNEL, OBJECT, SESSION];
 
-    # list of connections by uid
-    # maps: uid => Protocol::IRC::Session
-    has 'connections'   => (
-        default     => sub { {} },
-        is          => 'rw',
-        isa         => 'HashRef',
-    );
-
-    has 'operators' => (
-        default     => sub { {} },
-        is          => 'rw',
-        isa         => 'HashRef',
-    );
-
-    method add_connection ($server)
+    if (!defined $self->{usesasl} || !$self->{usesasl})
     {
-        # no uid? do nothing
-        return FALSE    unless (exists $server->{uid});
+        $kernel->call($session, 'sl_login', 'CAP REQ :identify-msg');
+        $kernel->call($session, 'sl_login', 'CAP REQ :multi-prefix');
+        $kernel->call($session, 'sl_login', 'CAP LS');
+        $kernel->call($session, 'sl_login', 'CAP END');
 
-        my $session = Protocol::IRC::Session->new(%$server);
-        $session->spawn;
-
-        $self->connections->{ $server->{uid} } = $session;
-
-        return TRUE;
-    }
-
-    method find_connection ($uid)
-    {
-        my $configs = API::Config->get_config($sophia::CONFIGURATIONS{MAIN_CONFIG});
-
-        for my $server (@{$configs->{servers}})
+        if (defined $self->{password})
         {
-            if ($server->{uid} eq $uid)
-            {
-                return $server;
-            }
+            $kernel->call($session => sl_login => 'PASS ' . $self->{password});
         }
 
-        return;
+        $kernel->call($session => sl_login => 'NICK ' . $self->{nick});
+        $kernel->call(
+            $session,
+            'sl_login',
+            'USER ' .
+            join(' ', $self->{username},
+                (defined $self->{bitmode} ? $self->{bitmode} : 8),
+                '*',
+                ':' . $self->{ircname}
+            ),
+        );
     }
 
-    method initial_startup
-    {
-        my $configs = API::Config->get_config($sophia::CONFIGURATIONS{MAIN_CONFIG});
-        
-        if (exists $configs->{operators})
-        {
-            $self->set_operators($configs->{operators});
-        }
+    $kernel->delay(sl_delayed => 0);
 
-        $self->load_connections($configs->{servers});
-    }
-
-    method load_connections ($servers)
-    {
-        for my $server (@$servers)
-        {
-            $self->add_connection($server);
-        }
-
-        return $self;
-    }
-
-    method remove_connection ($uid)
-    {
-        return      unless (exists $self->connections->{$uid});
-        
-        my $session = $self->connections->{$uid};
-        $session->yield(shutdown => 'Shutting down ... ');
-
-        delete $self->connections->{$uid};
-    }
-
-    method set_operators ($operators)
-    {
-        my %opers;
-
-        for my $oper (@$operators)
-        {
-            while (my ($name, $hash) = each %$oper)
-            {
-                if (!exists $opers{$name})
-                {
-                    $opers{$name} = +{};
-                }
-
-                $opers{$name}{password} = $hash;
-            }
-        }
-
-        $self->operators(\%opers);
-    }
+    return;
 }
+
+1;

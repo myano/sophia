@@ -7,7 +7,7 @@ class Protocol::IRC::Session
     use API::Log qw(:ALL);
     use API::Module::Handler;
     use Constants;
-    use POE qw(Component::IRC);
+    use Protocol::IRC;
     use Protocol::IRC::Response;
     use Try::Tiny;
     use Util::String;
@@ -28,6 +28,18 @@ class Protocol::IRC::Session
         default     => '',
         is          => 'rw',
         isa         => 'Str',
+    );
+
+    has 'is_authenticated' => (
+        default     => FALSE,
+        is          => 'rw',
+        isa         => 'Bool',
+    );
+
+    has 'is_connected' => (
+        default     => FALSE,
+        is          => 'rw',
+        isa         => 'Bool',
     );
 
     has 'nick'      => (
@@ -78,6 +90,12 @@ class Protocol::IRC::Session
         isa         => 'Str',
     );
 
+    has 'usesasl'   => (
+        default     => FALSE,
+        is          => 'rw',
+        isa         => 'Bool',
+    );
+
     has 'usessl'    => (
         default     => FALSE,
         is          => 'rw',
@@ -88,7 +106,7 @@ class Protocol::IRC::Session
     # private attributes
     has 'session'  => (
         is          => 'rw',
-        isa         => 'POE::Component::IRC',
+        isa         => 'Protocol::IRC',
     );
 
     has 'modulehandler' => (
@@ -98,7 +116,7 @@ class Protocol::IRC::Session
 
     method spawn
     {
-        my $session = POE::Component::IRC->spawn(
+        my $session = Protocol::IRC->spawn(
             Nick        => $self->nick,
             Username    => $self->username,
             Password    => $self->password,
@@ -106,7 +124,9 @@ class Protocol::IRC::Session
             Server      => $self->host,
             Port        => $self->port,
             UseSSL      => $self->usessl,
-        ) or error_log('sophia', "Unable to spawn POE::Component::IRC: $!\n");
+            UseSASL     => $self->usesasl,
+            Flood       => 1,
+        ) or error_log('sophia', "Unable to spawn Protocol::IRC: $!\n");
 
         $self->session($session);
 
@@ -120,6 +140,14 @@ class Protocol::IRC::Session
                 _stop               => \&Protocol::IRC::Response::_stop,
                 irc_001             => \&Protocol::IRC::Response::_001,
                 irc_332             => \&Protocol::IRC::Response::_332,
+                irc_903             => \&Protocol::IRC::Response::_903,
+                irc_904             => \&Protocol::IRC::Response::_904,
+                irc_905             => \&Protocol::IRC::Response::_905,
+                irc_906             => \&Protocol::IRC::Response::_906,
+                irc_907             => \&Protocol::IRC::Response::_907,
+                irc_authenticate    => \&Protocol::IRC::Response::_authenticate,
+                irc_cap             => \&Protocol::IRC::Response::_cap,
+                irc_connected       => \&Protocol::IRC::Response::_connected,
                 irc_disconnected    => \&Protocol::IRC::Response::_disconnected,
                 irc_error           => \&Protocol::IRC::Response::_error,
                 irc_msg             => \&Protocol::IRC::Response::_privmsg,

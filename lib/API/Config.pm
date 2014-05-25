@@ -97,6 +97,11 @@ class API::Config
                     }
                 }
 
+                if (exists $tmp{saslauth} && $tmp{saslauth} =~ /yes|true/i)
+                {
+                    $tmp{usesasl} = TRUE;
+                }
+
                 if (!exists $configs{servers})
                 {
                     $configs{servers} = [\%tmp];

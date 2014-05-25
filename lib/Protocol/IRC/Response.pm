@@ -5,6 +5,7 @@ class Protocol::IRC::Response
 {
     use API::Log qw(:ALL);
     use Constants;
+    use MIME::Base64;
     use POE qw(Component::IRC);
     use Protocol::IRC::Event::PrivateMessage;
     use Protocol::IRC::Event::Public;
@@ -13,10 +14,14 @@ class Protocol::IRC::Response
     {
         my $heap = $args[HEAP - 1];
         my $sophia = $heap->{sophia};
+        $sophia->is_connected(TRUE);
 
-        if ($sophia->{password})
+        if (!$sophia->is_authenticated)
         {
-            $sophia->yield(privmsg => 'NickServ' => sprintf('identify %s %s', $sophia->{nick}, $sophia->{password}));
+            if ($sophia->{password})
+            {
+                $sophia->yield(privmsg => 'NickServ' => sprintf('identify %s %s', $sophia->{nick}, $sophia->{password}));
+            }
         }
 
         if ($sophia->{usermode})
@@ -30,6 +35,8 @@ class Protocol::IRC::Response
         }
 
         $sophia->modulehandler->load_modules;
+
+        return;
     }
 
     method _332 (@args)
@@ -42,6 +49,143 @@ class Protocol::IRC::Response
         my $topic   = $channel_data->[1];
 
         $sophia->{channel_topics}->{$channel} = $topic;
+
+        return;
+    }
+
+    method _903 (@args)
+    {
+        my $heap = $args[HEAP - 1];
+        my $sophia = $heap->{sophia};
+        $sophia->is_authenticated(TRUE);
+
+        Protocol::IRC::Response->_cap_end(@args);
+        return;
+    }
+
+    method _904 (@args)
+    {
+        Protocol::IRC::Response->_cap_end(@args);
+        return;
+    }
+
+    method _905 (@args)
+    {
+        Protocol::IRC::Response->_cap_end(@args);
+        return;
+    }
+
+    method _906 (@args)
+    {
+        Protocol::IRC::Response->_cap_end(@args);
+        return;
+    }
+
+    method _907 (@args)
+    {
+        Protocol::IRC::Response->_cap_end(@args);
+        return;
+    }
+
+    method _authenticate (@args)
+    {
+        my $heap = $args[HEAP - 1];
+        my $sophia = $heap->{sophia};
+
+        my $sasl = join "\0", $sophia->nick, $sophia->username, $sophia->password;
+        $sasl = encode_base64($sasl, '');
+
+        if (!$sasl)
+        {
+            $sophia->yield(quote => 'AUTHENTICATE +');
+            return;
+        }
+
+        while (length $sasl >= 400)
+        {
+            my $sub_sasl = substr $sasl, 0, 400, '';
+            $sophia->yield(quote => 'AUTHENTICATE ' . $sub_sasl);
+        }
+
+        if ($sasl)
+        {
+            $sophia->yield(quote => 'AUTHENTICATE ' . $sasl);
+        }
+        else
+        {
+            $sophia->yield(quote => 'AUTHENTICATE +');
+        }
+
+        return;
+    }
+
+    method _cap (@args)
+    {
+        my $heap = $args[HEAP - 1];
+        my $sophia = $heap->{sophia};
+
+        if (!$sophia->usesasl || $sophia->is_connected)
+        {
+            return;
+        }
+
+        my ($key, $value) = @args[ARG0 - 1, ARG1 - 1];
+
+        if ($key eq 'LS')
+        {
+            my $raw = '';
+            $raw .= ' multi-prefix' if $value =~ /multi-prefix/i;
+            $raw .= ' sasl' if $value =~ /sasl/i;
+            $raw =~ s/^ //;
+
+            if (!$raw)
+            {
+                $sophia->yield(quote => 'CAP END');
+            }
+            else
+            {
+                $sophia->yield(quote => 'CAP REQ :' . $raw);
+            }
+        }
+        elsif ($key eq 'ACK')
+        {
+            if ($value =~ /sasl/i)
+            {
+                $sophia->yield(quote => 'AUTHENTICATE PLAIN');
+            }
+            else
+            {
+                $sophia->yield(quote => 'CAP END');
+            }
+        }
+        elsif ($key eq 'NAK')
+        {
+            $sophia->yield(quote => 'CAP END');
+        }
+
+        return;
+    }
+
+    method _cap_end (@args)
+    {
+        my $heap = $args[HEAP - 1];
+        my $sophia = $heap->{sophia};
+        $sophia->yield(quote => 'CAP END');
+        return;
+    }
+
+    method _connected (@args)
+    {
+        my $heap = $args[HEAP - 1];
+        my $sophia = $heap->{sophia};
+
+        if ($sophia->usesasl)
+        {
+            $sophia->yield(quote => 'CAP LS');
+            $sophia->yield(quote => sprintf('NICK %s', $sophia->{nick}));
+            $sophia->yield(quote => sprintf('USER %s %s * :%s', $sophia->username, 8, $sophia->realname));
+        }
+
         return;
     }
 
@@ -78,6 +222,7 @@ class Protocol::IRC::Response
         my $heap = $args[HEAP - 1];
         my $sophia = $heap->{sophia};
         $sophia->yield('shutdown');
+
         return;
     }
 
@@ -107,6 +252,8 @@ class Protocol::IRC::Response
         }
 
         $sophia->process_input($event);
+
+        return;
     }
 
     method _public (@args)
@@ -130,10 +277,13 @@ class Protocol::IRC::Response
 
         $sophia->process_input($event);
         $sophia->process_event_command('public', $event);
+
+        return;
     }
 
     method _shutdown (@args)
     {
+        return;
     }
 
     method _sigint (@args)
@@ -182,6 +332,7 @@ class Protocol::IRC::Response
 
         my $sophia = $heap->{sophia};
         $sophia->{channel_topics}->{$chan} = $topic;
+
         return;
     }
 }

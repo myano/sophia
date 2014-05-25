@@ -99,6 +99,10 @@ server:
     port:       +9999
     usermode:   +QRi
 
+    # enable sasl authentication. Set to "yes" or "true" to enable.
+    # to disable, comment, remove, or set it to any other value.
+    saslauth:   yes
+
     # a list of channels to join upon connecting
     channels:
         - #sophia
