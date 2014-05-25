@@ -82,6 +82,7 @@ lib/Protocol/IRC/Constants.pm
 lib/Protocol/IRC/Event.pm
 lib/Protocol/IRC/Event/PrivateMessage.pm
 lib/Protocol/IRC/Event/Public.pm
+lib/Protocol/IRC/Manager.pm
 lib/Protocol/IRC/Response.pm
 lib/Protocol/IRC/Session.pm
 lib/Sophia.pm
