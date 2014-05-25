@@ -3,6 +3,7 @@ use Method::Signatures::Modifiers;
 
 class web::urltitle with API::Module
 {
+    use Constants;
     use HTML::Entities;
     use Util::Curl;
 
@@ -24,6 +25,12 @@ class web::urltitle with API::Module
         isa             => 'Int',
     );
 
+    has 'silent'        => (
+        default         => FALSE,
+        is              => 'rw',
+        isa             => 'Bool',
+    );
+
     method run ($event)
     {
         my @urltitles;
@@ -39,7 +46,7 @@ class web::urltitle with API::Module
             {
                 push @urltitles, $title;
             }
-            else
+            elsif (!$self->silent)
             {
                 push @urltitles, 'Failed to find title.';
             }
@@ -67,6 +74,7 @@ class web::urltitle with API::Module
 
     method on_public ($event)
     {
+        $self->silent(TRUE);
         $self->run($event);
     }
 

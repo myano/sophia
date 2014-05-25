@@ -39,6 +39,7 @@ class Util::Curl
         $curl->setopt(CURLOPT_FOLLOWLOCATION, 1);
         $curl->setopt(CURLOPT_HEADER, 0);
         $curl->setopt(CURLOPT_HTTPHEADER, \@headers);
+        $curl->setopt(CURLOPT_MAXREDIRS, 2);
         $curl->setopt(CURLOPT_TIMEOUT, 5);
         $curl->setopt(CURLOPT_URL, $uri);
         $curl->setopt(CURLOPT_VERBOSE, TRUE);
@@ -84,6 +85,7 @@ class Util::Curl
         $curl->setopt(CURLOPT_FOLLOWLOCATION, 1);
         $curl->setopt(CURLOPT_HEADER, 0);
         $curl->setopt(CURLOPT_HTTPHEADER, \@headers);
+        $curl->setopt(CURLOPT_MAXREDIRS, 2);
         $curl->setopt(CURLOPT_TIMEOUT, 5);
         $curl->setopt(CURLOPT_URL, $uri);
         $curl->setopt(CURLOPT_VERBOSE, TRUE);
