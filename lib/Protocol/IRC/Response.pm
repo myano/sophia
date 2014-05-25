@@ -92,7 +92,7 @@ class Protocol::IRC::Response
         my $heap = $args[HEAP - 1];
         my $sophia = $heap->{sophia};
 
-        my $sasl = join "\0", $sophia->nick, $sophia->username, $sophia->password;
+        my $sasl = join "\0", $sophia->nick, $sophia->nick, $sophia->password;
         $sasl = encode_base64($sasl, '');
 
         if (!$sasl)
