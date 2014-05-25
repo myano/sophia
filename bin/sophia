@@ -23,7 +23,7 @@ use DBI;
 use Getopt::Long;
 use Pod::Usage;
 use POSIX qw(setsid);
-use Protocol::IRC;
+use Protocol::IRC::Manager;
 
 
 # do not run sophia as root
@@ -128,7 +128,7 @@ else
 
 our %DBHandlers;
 
-our $instances = Protocol::IRC->new;
+our $instances = Protocol::IRC::Manager->new;
 $instances->initial_startup;
 
 POE::Kernel->run;

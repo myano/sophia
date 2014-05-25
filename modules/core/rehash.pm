@@ -4,7 +4,7 @@ use Method::Signatures::Modifiers;
 class core::rehash with API::Module
 {
     use API::Log qw(:ALL);
-    use Protocol::IRC;
+    use Protocol::IRC::Manager;
 
     has 'name'  => (
         default => 'core::rehash',
@@ -26,7 +26,7 @@ class core::rehash with API::Module
     method run ($event)
     {
         my $uid = $event->sophia->uid;
-        my $connection = Protocol::IRC->find_connection($uid);
+        my $connection = Protocol::IRC::Manager->find_connection($uid);
 
         unless ($connection)
         {
