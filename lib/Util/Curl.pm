@@ -18,7 +18,7 @@ class Util::Curl
 
     method get ($uri)
     {
-        return unless $uri =~ /\Ahttps?:\/\/(www\.)?([^ \/]+)[^ ]*\z/;
+        return unless $uri =~ /\Ahttps?:\/\/((?:www\.)?[^ \/]+)[^ ]*\z/;
 
         my @headers = (
             'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
@@ -62,7 +62,7 @@ class Util::Curl
 
     method download ($uri, $path, $gpath = '')
     {
-        return unless $uri =~ /\Ahttps?:\/\/(www\.)?([^ \/]+)[^ ]*\z/;
+        return unless $uri =~ /\Ahttps?:\/\/((?:www\.)?[^ \/]+)[^ ]*\z/;
 
         my @headers = (
             'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
