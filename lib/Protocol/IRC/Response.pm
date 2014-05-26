@@ -5,7 +5,6 @@ class Protocol::IRC::Response
 {
     use API::Log qw(:ALL);
     use Constants;
-    use Data::Dumper;
     use MIME::Base64;
     use POE qw(Component::IRC);
     use Protocol::IRC::Event::PrivateMessage;
