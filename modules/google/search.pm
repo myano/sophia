@@ -1,79 +1,79 @@
-use strict;
-use warnings;
+use MooseX::Declare;
+use Method::Signatures::Modifiers;
 
-sophia_module_add('google.search', '1.0', \&init_google_search, \&deinit_google_search);
+class google::search with API::Module
+{
+    use HTML::Entities;
+    use URI::Escape;
+    use Util::Curl;
 
-sub init_google_search {
-    sophia_command_add('google.search', \&google_search, 'Searches google for results.', '');
+    has 'name'  => (
+        default => 'google::search',
+        is      => 'ro',
+        isa     => 'Str',
+    );
 
-    return 1;
-}
+    has 'version'   => (
+        default     => '1.0',
+        is          => 'ro',
+        isa         => 'Str',
+    );
 
-sub deinit_google_search {
-    delete_sub 'init_google_search';
-    delete_sub 'google_search';
-    delete_sub 'google_search_unescape';
-    sophia_command_del 'google.search';
-    delete_sub 'deinit_google_search';
-}
+    method run ($event)
+    {
+        my $results = $self->search($event->content);
+        return  unless $results;
 
-sub google_search_unescape {
-    my $str = $_[0];
-    $str =~ s/\\u(.{4})/chr(hex($1))/eg;
-    return $str;
-}
-
-my $max_entries = 3;
-
-sub google_search {
-    my $args = $_[0];
-    my ($where, $content) = ($args->[ARG1], $args->[ARG2]);
-
-    my $idx = index $content, ' ';
-    return if $idx == -1;
-
-    $content = substr $content, $idx + 1;
-    return unless $content;
-
-    $content =~ s/ /+/g;
-    $content =~ s/&/%26/g;
-
-    my $response = curl_get(sprintf('http://ajax.googleapis.com/ajax/services/search/web?v=1.0&q=%s', $content));
-    return unless $response;
-
-    my @results;
-    my ($result, $endi) = ('', 0);
-    $idx = 0;
-    
-    for (1 .. $max_entries) {
-        $idx = index $response, '"unescapedUrl":"', $idx;
-        last if $idx == -1;
-        $idx += 16;
-
-        $endi = index $response, '"', $idx;
-        last if $endi == -1;
-
-        $result = substr $response, $idx, $endi - $idx;
-        $result = google_search_unescape($result);
-        $result .= ' - ';
-
-        $idx = index $response, '"titleNoFormatting":"', $endi;
-        last if $idx == -1;
-        $idx += 21;
-
-        $endi = index $response, '"', $idx;
-        last if $endi == -1;
-
-        $result .= decode_entities(
-            google_search_unescape( substr($response, $idx, $endi - $idx) )
-        );
-        push @results, $result;
+        for my $result (@$results)
+        {
+            $event->reply(sprintf('%s - %s', $result->{url}, $result->{title}));
+        }
     }
 
-    return unless $#results + 1;
+    method search ($query)
+    {
+        my $response = Util::Curl->get('http://ajax.googleapis.com/ajax/services/search/web?v=1.0&q=' . uri_escape($query));
+        return  unless $response;
 
-    my $sophia = $args->[HEAP]->{sophia};
-    $sophia->yield(privmsg => $where->[0] => $_) for @results;
+        my $max_results = 3;
+        if (exists $self->settings->{max_results} && $self->settings->{max_results})
+        {
+            $max_results = $self->settings->{max_results};
+        }
+
+        my @results;
+        my $idx = 0;
+
+        RESULT: for (1 .. $max_results)
+        {
+            $idx = index($response, '"unescapedUrl":"', $idx);
+            last RESULT     if ($idx == -1);
+            $idx += 16;
+
+            my $url = substr($response, $idx, index($response, '"', $idx) - $idx);
+            $url = $self->unescape($url);
+
+            $idx = index($response, '"titleNoFormatting":"', $idx);
+            last RESULT     if ($idx == -1);
+            $idx += 21;
+
+            my $title = substr($response, $idx, index($response, '"', $idx) - $idx);
+            $title = decode_entities($self->unescape($title));
+
+            my %result = (
+                url     => $url,
+                title   => $title,
+            );
+
+            push @results, \%result;
+        }
+
+        return \@results;
+    }
+
+    method unescape ($str)
+    {
+        $str =~ s/\\u(.{4})/chr(hex($1))/eg;
+        return $str;
+    }
 }
-
-1;

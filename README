@@ -5,50 +5,63 @@
 #  |___/\___/| .__/|_| |_|_|\__,_|
 #  =========~|_|~=================
 #
-#       sophia Perl IRC bot
+#       sophia v3.0 Perl IRC bot
 
-
-TABLE OF CONTENTS
+Table of Contents
 -----------------
-    1. INSTALL
-    2. RUN
-    3. TROUBLE / HELP
-    4. CONTRIBUTIONS
-    5. LICENSE
+    1. Pre-requisites
+    2. Install
+    3. Run
+    4. Trouble / Help
+    5. Contributions
+    6. License
 
 
-1. INSTALL
-----------
+Pre-requisites
+--------------
 
-Run "./configure" to make sure you have the required packages installed. If you do not have the required packages you can install them through your distribution or CPAN.
+libcurl-dev
+libxml-dev
 
-You need to set a configuration file. Copy etc/sophia.conf.example to etc/sophia.conf. Once you copy this file open it up and change the necessary settings. Also if you want all the modules to load on start, copy etc/sophia.modules.conf.example to etc/sophia.modules.conf.
-
-
-2. RUN
-------
-
-To launch sophia run "./bin/sophia"
+Note: While not required, cpanm is strongly recommended for building sophia's
+Perl dependencies in a simple way. local::lib is also recommended unless you
+do not mind installing all of sophia's Perl dependencies in system directories.
+In other words, running as root (sudo).
 
 
-3. TROUBLE / HELP
------------------
+Install
+-------
 
-If you need to re-generate a configuration file run "./bin/genconfig".
-
-You can reach the development team on irc.freenode.net/6667 in ##sophia
-
-
-4. CONTRIBUTIONS
-----------------
-
-Kays
-yano
-
-If you have any feature suggestions or if you would like a feature that you wrote to be included in sophia, please get in contact with us.
+With the original tarball: cpanm sophia-3.0.tar.gz
+That will build all the Perl dependencies. It may take a while to complete.
+After that is completed, you can launch bin/sophia from the extracted directory
+from wherever you want. See Run below for more details.
 
 
-5. LICENSE
-----------
+Run
+---
 
-sophia is licensed under the Eiffel Forum License version 2. A fully copy of the license can be found in the LICENSE file. 
+You need to set a configuration file. Copy etc/sophia.conf.example to etc/sophia.conf.
+Once you copy this file, open it up and change the necessary settings.
+Also if you want all the modules to load on start, copy etc/sophia.modules.conf.example to etc/sophia.modules.conf.
+To launch sophia run ./bin/sophia
+
+
+Trouble / Help
+--------------
+
+You can reach the development team on freenode in ##sophia <http://webchat.freenode.net/?channels=##sophia>
+
+
+Contributions
+-------------
+
+- Kays
+- yano
+
+
+License
+-------
+
+sophia is licensed under the GNU GPL License version 3 <http://www.gnu.org/licenses/gpl-3.0.html>
+A fully copy of the license can be found in the LICENSE file.

@@ -1,89 +1,99 @@
-use strict;
-use warnings;
+use MooseX::Declare;
+use Method::Signatures::Modifiers;
 
-sophia_module_add('google.dictionary', '2.0', \&init_google_dictionary, \&deinit_google_dictionary);
+class google::dictionary with API::Module
+{
+    use HTML::Entities;
+    use Protocol::IRC::Constants;
+    use URI::Escape;
+    use Util::Curl;
 
-sub init_google_dictionary {
-    sophia_command_add('google.dictionary', \&google_dictionary, 'Defines a word.', '');
+    has 'name'  => (
+        default => 'google::dictionary',
+        is      => 'ro',
+        isa     => 'Str',
+    );
 
-    return 1;
-}
+    has 'version'   => (
+        default     => '1.0',
+        is          => 'ro',
+        isa         => 'Str',
+    );
 
-sub deinit_google_dictionary {
-    delete_sub 'init_google_dictionary';
-    delete_sub 'google_dictionary';
-    delete_sub 'google_dictionary_unescape';
-    sophia_command_del 'google.dict';
-    delete_sub 'deinit_google_dictionary';
-}
+    method run ($event)
+    {
+        my $results = $self->define($event->content);
 
-my $max_entries = 3;
+        unless ($results)
+        {
+            $event->reply('No definition available for term "' . $event->content . '".');
+            return;
+        }
 
-sub google_dictionary_unescape {
-    my $str = $_[0];
-    $str =~ s/\\x3c/</g;
-    $str =~ s/\\x3e/>/g;
-    $str =~ s/<[^>]+>//g;
-    $str =~ s/\\x(\d{2})/chr(hex($1))/eg;
-    return $str;
-}
+        my $term = $results->{term};
+        my $definitions = $results->{definitions};
 
-sub google_dictionary {
-    my $args = $_[0];
-    my ($where, $content) = ($args->[ARG1], $args->[ARG2]);
-    
-    my $idx = index $content, ' ';
-    return unless $idx > -1;
-
-    $content = substr $content, $idx + 1;
-    
-    # check if the first arg is the language pair
-    # if not, default it to en|en
-    my $source = my $target = 'en';
-    my ($lang, @rest) = split ' ', $content;
-    if ($lang =~ /.{2,5}\|.{2,5}/) {
-        ($source, $target) = split /\|/, $lang;
-        $content = join ' ', @rest;
+        for my $result (@$definitions)
+        {
+            $event->reply( sprintf('%1$s%2$s:%1$s %3$s', IRC_TEXT_FORMAT_BOLD, $term, $result) );
+        }
     }
 
-    $content =~ s/ /+/g;
-    $content =~ s/&/%26/g;
+    method define ($expr)
+    {
+        my $response = Util::Curl->get(sprintf('http://www.google.com/dictionary/json?callback=dict_api.callbacks.id100&sl=en&tl=en&restrict=pr%sde&client=te&q=%s', '%2C', uri_escape($expr)));
+        return unless $response;
 
-    my $response = curl_get(sprintf('http://www.google.com/dictionary/json?callback=dict_api.callbacks.id100&sl=%s&tl=%s&restrict=pr%sde&client=te&q=%s', $source, $target, '%2C', $content));
-    return unless $response;
+        my @results;
 
-    my $sophia = $args->[HEAP]->{sophia};
+        my $idx = index($response, '"query":"');
+        unless ($idx > -1)
+        {
+            return;
+        }
+        $idx += 9;
 
-    $idx = index $response, '"query":"';
-    unless ($idx > -1) {
-        $sophia->yield(privmsg => $where->[0] => 'Term not found.');
-        return;
+        my $term = substr($response, $idx, index($response, '"', $idx) - $idx);
+
+        my $max_entries = 3;
+        if (exists $self->settings->{max_entries} && $self->settings->{max_entries})
+        {
+            $max_entries = $self->settings->{max_entries};
+        }
+
+        $idx = 0;
+        ENTRY: for (1 .. $max_entries)
+        {
+            $idx = index($response, '"type":"meaning"', $idx);
+            last ENTRY unless $idx > -1;
+
+            $idx = index($response, '"text":"', $idx + 1);
+            last ENTRY unless $idx > -1;
+
+            $idx += 8;
+
+            my $entry = substr($response, $idx, index($response, '"', $idx) - $idx);
+            $entry = $self->unescape($entry);
+            $entry =~ s/\[\d+\]//g;
+
+            push @results, decode_entities($entry);
+        }
+
+        my %definitions = (
+            definitions => \@results,
+            term        => $term,
+        );
+
+        return \%definitions;
     }
-    $idx += 9;
-    my $term = substr $response, $idx, index($response, '"', $idx) - $idx;
 
-    my @results;
-    my $result;
-    $idx = 0;
-    
-    ENTRY: for (1 .. $max_entries) {
-        $idx = index $response, '"type":"meaning"', $idx;
-        last ENTRY unless $idx > -1;
-
-        $idx = index $response, '"text":"', $idx + 1;
-        last ENTRY unless $idx > -1;
-
-        $idx += 8;
+    method unescape ($str)
+    {
+        $str =~ s/\\x3c/</g;
+        $str =~ s/\\x3e/>/g;
+        $str =~ s/<[^>]+>//g;
+        $str =~ s/\\x(\d{2})/chr(hex($1))/eg;
         
-        $result = substr($response, $idx, index($response, '"', $idx) - $idx);
-        $result = google_dictionary_unescape($result);
-        $result =~ s/\[\d+\]//g;
-        push @results, sprintf('%1$s%2$s:%1$s %3$s', "\x02", $term, decode_entities($result));
+        return $str;
     }
-
-    return unless $#results + 1;
-
-    $sophia->yield(privmsg => $where->[0] => $_) for @results;
 }
-
-1;

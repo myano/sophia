@@ -1,55 +1,101 @@
-use strict;
-use warnings;
+use MooseX::Declare;
+use Method::Signatures::Modifiers;
 
-my @web_urltitle_ignore = (
-    'cia.atheme.org',
-);
+class web::urltitle with API::Module
+{
+    use Constants;
+    use HTML::Entities;
+    use Util::Curl;
 
-sophia_module_add('web.urltitle', '2.0', \&init_web_urltitle, \&deinit_web_urltitle);
+    has 'name'  => (
+        default => 'web::urltitle',
+        is      => 'ro',
+        isa     => 'Str',
+    );
 
-sub init_web_urltitle {
-    sophia_event_public_hook('web.urltitle', \&web_urltitle, 'Displays the title for the posted URL.', '');
+    has 'version'   => (
+        default     => '1.0',
+        is          => 'ro',
+        isa         => 'Str',
+    );
 
-    return 1;
-}
+    has 'max_entries'   => (
+        default         => 3,
+        is              => 'rw',
+        isa             => 'Int',
+    );
 
-sub deinit_web_urltitle {
-    delete_sub 'init_web_urltitle';
-    delete_sub 'web_urltitle';
-    sophia_event_public_dehook 'web.urltitle';
-    delete_sub 'deinit_web_urltitle';
-}
+    has 'silent'        => (
+        default         => FALSE,
+        is              => 'rw',
+        isa             => 'Bool',
+    );
 
-sub web_urltitle {
-    my $args = $_[0];
-    my ($who, $where, $content) = ($args->[ARG0], $args->[ARG1], $args->[ARG2]);
+    method run ($event)
+    {
+        my @urltitles;
+        my $content = $event->content;
+        my $count = 1;
 
-    # return if this is not a valid url
-    return if $content !~ /\b(https?:\/\/[^ ]+)\b/xsmi;
-    
-    # if this user is on ignore, don't process this request
-    for my $ignore (@web_urltitle_ignore) {
-        if ($who =~ /$ignore/xsmi) {
-            return;
+        WHILE: while ($content =~ m/\b(https?:\/\/[^ ]+)\b/xsmig)
+        {
+            my $url = $1;
+            my $title = $self->urltitle($url);
+
+            if ($title)
+            {
+                push @urltitles, $title;
+            }
+            elsif (!$self->silent)
+            {
+                push @urltitles, 'Failed to find title.';
+            }
+
+            # abide by max_entries
+            if ($count++ >= $self->max_entries)
+            {
+                last WHILE;
+            }
+        }
+
+        if (scalar @urltitles == 1)
+        {
+            $event->reply($urltitles[0]);
+        }
+        else
+        {
+            $count = 1;
+            for my $urltitle (@urltitles)
+            {
+                $event->reply(sprintf('%d. %s', $count++, $urltitle));
+            }
         }
     }
 
-    my $response = curl_get($1);
-    return unless $response;
+    method on_public ($event)
+    {
+        $self->silent(TRUE);
+        $self->run($event);
+    }
 
-    if ($response =~ m#<title[^>]*>(.+?)</title>#xsmi) {
-        my $title = $1;
+    method urltitle ($url)
+    {
+        my $response = Util::Curl->get($url);
+        return unless $response;
 
-        $title =~ s/\r\n|\n//xsmg;
-        $title =~ s/\A\s+|\s+\z//xsmg;
-        $title =~ s/\s{2,}/ /xsmg;
+        if ($response =~ m#<title[^>]*>(.+?)</title>#xsmi)
+        {
+            my $title = $1;
+            $title =~ s/\r\n|\n//g;
+            $title =~ s/^\s+//g;
+            $title =~ s/\s{2,}/ /g;
 
-        $title = '&laquo; ' . $title . ' &raquo;';
-        $title = decode_entities($title);
-        
-        my $sophia = $args->[HEAP]->{sophia};
-        $sophia->yield(privmsg => $where->[0] => $title);
+            $title = '&laquo; ' . $title . ' &raquo;';
+            $title = HTML::Entities::decode($title);
+
+            return $title;
+        }
+
+        return;
     }
 }
-
-1;

@@ -1,0 +1,55 @@
+# This config file holds settings for modules.
+# Settings set here are available within its respective modules.
+# In a general sense, this config works the same way as
+# sophia.conf.example. So please read through that for more information
+# if you haven't already read through it.
+# 
+# Format:
+# module:
+#   setting1: value1
+#   setting2: value2
+#
+# wildcards can also be used
+# module/*:
+#   setting1: value1
+#
+# so example, if you are using the Google modules that
+# require an API Key, you would add an api_key value
+#
+# google/dictionary:
+#   api_key: 'key'
+#
+# You can also use:
+# google/*:
+#   api_key: 'key'
+#
+# to specify a key to use for all modules within the google directory
+# At the same time, if you specifed an api_key value within both
+# google/dictionary and google/*, google/dictionary will override
+# google/*'s api_key
+#
+# Note: using wildcards, you can define a * entry for global settings
+# that will be accessible to all modules.
+#
+# You can enter WHATEVER settings you want; however, it's really
+# only useful if the modules use them.
+#
+# We know that we cannot assume that you will know what settings are
+# available. Therefore, any user-settable settings will be defined below.
+# Its value may be empty and you may be required to set it if you wish
+# to use those modules.
+
+google/*:
+    api_key: ''
+
+google/dictionary:
+    max_entries: 3
+
+google/search:
+    max_entries: 3
+
+web/urltitle:
+    public_event: true
+
+web/wolframalpha:
+    api_key: ''

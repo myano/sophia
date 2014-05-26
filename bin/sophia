@@ -4,583 +4,134 @@
 #  / __|/ _ \| '_ \| '_ \| |/ _` |
 #  \__ \ (_) | |_) | | | | | (_| |
 #  |___/\___/| .__/|_| |_|_|\__,_|
-#  =========~|_|~=================
+#  ----------|_|------------------
 #
 #       sophia Perl IRC bot
 
 package sophia;
-require 5.10.0;
 use strict;
 use warnings;
-use Carp qw(carp croak);
-use FindBin qw($Bin);
-use Getopt::Long;
-use lib "$Bin/../lib";
-use Pod::Usage;
-use POE qw(Component::IRC);
-use POSIX qw(setsid);
-use Sub::Delete;
-use feature 'switch';
+require 5.10.0;
 
-our %CONFIGURATIONS;
-%CONFIGURATIONS = (
-    VERSION         => ['sophia-2.1.0', ''],
-    BASE_DIR        => "$Bin/..",
-    MAIN_CONFIG     => "$Bin/../etc/sophia.conf",
-    MODULES_CONFIG  => "$Bin/../etc/sophia.modules.conf",
-    ACL_DB          => "$Bin/../etc/sophia.acl.db",
-    ALIAS_DB        => "$Bin/../etc/sophia.alias.db",
-    LOAD_ALIASES    => 0,
-    IN_DEBUG_MODE   => 0,
-    DO_RESTART      => 0,
+use FindBin qw($Bin);
+use lib qq($Bin/../lib);
+use lib qq($Bin/../modules);
+
+use API::Log qw(:ALL);
+use Constants;
+use DBI;
+use Getopt::Long;
+use Pod::Usage;
+use POSIX qw(setsid);
+use Protocol::IRC::Manager;
+
+
+# do not run sophia as root
+error_log('sophia', 'Do not run sophia as root.')   if $> == 0;
+
+# for now, sophia does not support Windows
+error_log('sophia', 'As of now, sophia does not support Windows.')  if $^O =~ /win/i;
+
+
+our %BASE = (
+    ROOT        => "$Bin/..",
+    BIN         => $Bin,
+    ETC         => "$Bin/../etc",
+    HELP        => "$Bin/../help",
+    MODULES     => "$Bin/../modules",
+    VAR         => "$Bin/../var",
 );
 
-my $full_version = `cd $Bin/.. && git log -1 --pretty=format:'${CONFIGURATIONS{VERSION}->[0]} [%H] %cd'`;
-if ($full_version) {
+our %CONFIGURATIONS = (
+    ACL_DB          => "$BASE{ETC}/sophia.acl.db",
+    ALIAS_DB        => "$BASE{ETC}/sophia.alias.db",
+    IN_DEBUG_MODE   => TRUE,
+    LOAD_ALIASES    => FALSE,
+    MAIN_CONFIG     => "$BASE{ETC}/sophia.conf",
+    MODULES_CONFIG  => "$BASE{ETC}/sophia.modules.conf",
+    MODULES_AUTOCONF=> "$BASE{ETC}/sophia.modules.autoload.conf",
+    PID             => "$BASE{ETC}/sophia.pid",
+    VERBOSE         => FALSE,
+    VERSION         => ['sophia-3.0.0', ''],
+);
+
+my $full_version = `cd $BASE{ROOT} && git log -1 --pretty=format:'${CONFIGURATIONS{VERSION}->[0]} [%H] %cd'`;
+if ($full_version)
+{
     chomp $full_version;
     $CONFIGURATIONS{VERSION}->[1] = $full_version;
 }
 
-require Main;
+# missing config file?
+error_log('sophia', 'Missing config file.')     if ! -e $CONFIGURATIONS{MAIN_CONFIG};
 
-# don't run sophia as root idiot!
-trigger_error('sophia', 'Do not run sophia as root!') if  $> == 0;
-
-# due to lack of expertise, sophia currently does not support Windows
-trigger_error('sophia', 'Currently, sophia is not supporting Windows.') if  $^O =~ /win/i;
-
-# load configuration values
-# ... and if it doesn't exist?
-trigger_error('sophia', 'Missing config file.') unless -e $CONFIGURATIONS{MAIN_CONFIG};
 
 my %opts;
 GetOptions(
-    'config=s'  => \$opts{config},
-    'debug|?'   => \$opts{debug},
-    'help|?'    => \$opts{help},
-    'man'       => \$opts{man},
-    'modconf=s' => \$opts{modconf},
-    'version'   => \$opts{version},
+    'config=s'      => \$opts{config},
+    'debug|?'       => \$opts{debug},
+    'help|?'        => \$opts{help},
+    'man'           => \$opts{man},
+    'modconfig=s'   => \$opts{modconf},
+    'verbose'       => \$opts{verbose},
+    'version'       => \$opts{version},
 );
 
-if ($opts{version}) {
+if ($opts{version})
+{
     print $CONFIGURATIONS{VERSION}->[1] || $CONFIGURATIONS{VERSION}->[0];
     exit;
 }
 
-pod2usage(1) if $opts{help};
-pod2usage(-exitstatus => 0, -verbose => 2) if $opts{man};
+pod2usage(1)    if $opts{help};
+pod2usage(
+    -exitstatus     => 0,
+    -verbose        => 2,
+)   if $opts{man};
 
-$CONFIGURATIONS{MAIN_CONFIG} = $opts{config} if $opts{config} && -e $opts{config};
-$CONFIGURATIONS{MODULES_CONFIG} = $opts{modconf} if $opts{modconf} && -e $opts{modconf};
-$CONFIGURATIONS{IN_DEBUG_MODE} = 1 if $opts{debug};
-
-require ACL;
-require ACLHandler;
-require Cache;
-require EventHandler;
-require ModuleHandler;
-require Util;
-
-our (%COMMANDS, %MODULES, %TIMERS, %EVENTS, %EVENTSCONF);
-
-%EVENTSCONF = (
-    join            => 'join',
-    kick            => 'kick',
-    nick            => 'nick',
-    notice          => 'notice',
-    part            => 'part',
-    privmsg         => 'privmsg',
-    public          => 'public',
-    quit            => 'quit',
-);
-
-my %SOPHIA = (
-    channels    => {},
-    realname    => 'sophia',
-    nick        => 'sophia',
-    owner_name  => '',
-    owner_host  => '',
-    password    => '',
-    port        => 6667,
-    server      => 'chat.freenode.net',
-    trigger     => '!',
-    usermode    => '+i',
-    username    => 'sophia',
-    usessl      => 0,
-);
-
-# and to load the config ...
-&sophia_load_config;
-
-# store the channels in sophia's cache for listchan command
-sophia_cache_store('sophia_main','channels', $SOPHIA{channels});
-
-# set the founder of sophia
-sophia_set_founder($SOPHIA{owner_name}, $SOPHIA{owner_host});
-&sophia_acl_db_load;
+$CONFIGURATIONS{IN_DEBUG_MODE} = TRUE               if $opts{debug};
+$CONFIGURATIONS{MAIN_CONFIG} = $opts{config}        if $opts{config} && -e $opts{config};
+$CONFIGURATIONS{MODULES_CONFIG} = $opts{modconf}    if $opts{modconf} && -e $opts{modconf};
+$CONFIGURATIONS{VERBOSE} = TRUE                     if $opts{verbose};
 
 my $pid;
-unless ($CONFIGURATIONS{IN_DEBUG_MODE}) {
+unless ($CONFIGURATIONS{IN_DEBUG_MODE})
+{
     $pid = fork();
 
-    unless ($pid == 0) {
+    unless ($pid == 0)
+    {
         print "sophia forked into the background with pid: $pid\n";
-        sophia_log('sophia',"sophia forked into the background with pid: $pid");
+        _log('sophia', "sophia forked into the background with pid: $pid");
 
-        open my $fh, '>', "$Bin/../etc/sophia.pid" or trigger_error('sophia', 'Missing etc directory.');
-        print {$fh} "$pid";
+        open my $fh, '>', $CONFIGURATIONS{PID}
+            or error_log('sophia', 'Unable to open pid file for writing.');
+        print {$fh} $pid;
         close $fh;
 
         exit;
     }
-    setsid or trigger_error('sophia', "sophia cannot start a new session: $!");
+
+    setsid or error_log('sophia', "sophia cannot start a new session $!");
+
+    open STDIN, '<', '/dev/null'
+        or error_log('sophia', "sophia cannot read /dev/null: $!\n");
+    open STDOUT, '>>', '/dev/null'
+        or error_log('sophia', "sophia cannot write to /dev/null: $!\n");
+    open STDERR, '>>', "$BASE{VAR}/sophia.err"
+        or error_log('sophia', "sophia cannot write to var/sophia.err: $!\n");
 }
-else {
+else
+{
     $pid = $$;
 }
 
-unless ($CONFIGURATIONS{IN_DEBUG_MODE}) {
-    open STDIN, '<', '/dev/null' or trigger_error('sophia', "sophia cannot read /dev/null: $!\n");
-    open STDOUT, '>>', '/dev/null' or trigger_error('sophia', "sophia cannot write to /dev/null: $!\n");
+our %DBHandlers;
 
-    # if var/sophia.err doesn't exist, create it
-    if (! -e "$Bin/../var/sophia.err") {
-        open my $fh, '>', "$Bin/../var/sophia.err" or trigger_error('sophia', "Unable to create var/sophia.err: $!\n");
-        close $fh;
-    }
-    open STDERR, '>>', "$Bin/../var/sophia.err" or trigger_error('sophia', "sophia cannot write to var/sophia.err: $!\n");
-}
+our $instances = Protocol::IRC::Manager->new;
+$instances->initial_startup;
 
-my $sophia = POE::Component::IRC->spawn(
-    Nick        => $SOPHIA{nick},
-    Username    => $SOPHIA{username},
-    Password    => $SOPHIA{password},
-    Ircname     => $SOPHIA{realname},
-    Server      => $SOPHIA{server},
-    Port        => $SOPHIA{port},
-    UseSSL      => $SOPHIA{usessl},
-) or trigger_error('sophia', "Unable to spawn POE::Component::IRC: $!\n");
-
-POE::Session->create(
-    inline_states => {
-        _default    => \&_default,
-        _start      => \&_start,
-        _stop       => \&_stop,
-        irc_001     => \&irc_001,
-        irc_332     => \&irc_332,
-        irc_disconnected    => \&irc_disconnected,
-        irc_error   => \&irc_error,
-        irc_join    => \&irc_join,
-        irc_kick    => \&irc_kick,
-        irc_msg     => \&irc_msg,
-        irc_nick    => \&irc_nick,
-        irc_notice  => \&irc_notice,
-        irc_part    => \&irc_part,
-        irc_public  => \&irc_public,
-        irc_quit    => \&irc_quit,
-        irc_shutdown    => \&irc_shutdown,
-        irc_topic   => \&irc_topic,
-        sig_int     => \&sig_int,
-        load_timers => \&load_timers,
-    },
-    heap => { sophia => $sophia },
-);
-
-sub _default {
-	my ($event, $args) = @_[ARG0 .. $#_];
-	my @output = ( "$event: " );
-
-	for my $arg (@$args) {
-		if ( ref $arg eq 'ARRAY' ) {
-			push( @output, '[' . join(', ', @$arg ) . ']' );
-		}
-		else {
-			push ( @output, "'$arg'" );
-		}
-	}
-	print join ' ', @output, "\n";
-	return;
-}
-
-sub _start {
-    my $heap = $_[HEAP];
-    $_[KERNEL]->sig( INT => 'sig_int' );
-
-    trigger_error('sophia', "Unable to get the sophia instance from heap (start): $!\n")
-        unless $heap->{sophia};
-
-    $sophia->yield( register =>  'all' );
-    $sophia->yield( connect => { } );
-
-    return;
-}
-
-sub _stop {
-}
-
-sub irc_001 {
-    my $sender = $_[SENDER];
-    
-    trigger_error('sophia', "Unable to get a sophia instance from heap (001): $!\n")
-        unless $sophia;
-
-    # identify to NickServ (if need be)
-    $sophia->yield( privmsg => 'NickServ' => sprintf('identify %s %s', $sophia->{nick}, $sophia->{password}) )
-        if $sophia->{password};
-
-    # user modes
-    $sophia->yield( mode => sprintf('%s %s', $sophia->{nick}, $SOPHIA{usermodes}) )
-        if $sophia->{usermodes};
-
-    $sophia->yield( join => $_ ) for keys %{$SOPHIA{channels}};
-
-    # load modules
-    sophia_load_modules();
-
-    # load aliases?
-    sophia_aliases_load(\$_[HEAP]) if $CONFIGURATIONS{LOAD_ALIASES};
-
-    # hook up timers
-    $_[KERNEL]->alarm( 'load_timers' => time() + 1 );
-}
-
-sub irc_332 {
-    my ($heap, $arr_ref) = @_[HEAP, ARG2];
-    $heap->{TOPICS}{lc $arr_ref->[0]} = $arr_ref->[1];
-}
-
-sub irc_disconnected {
-    $sophia->yield('shutdown');
-}
-
-sub irc_error {
-    sophia_log('sophia', $_[ARG0]);
-}
-
-sub irc_join {
-    exec_events($EVENTSCONF{join}, \@_);
-}
-
-sub irc_kick {
-    exec_events($EVENTSCONF{kick}, \@_);
-}
-
-sub irc_msg {
-    exec_events_trigger($EVENTSCONF{privmsg}, \@_);
-}
-
-sub irc_nick {
-    exec_events($EVENTSCONF{nick}, \@_);
-}
-
-sub irc_notice {
-    exec_events_trigger($EVENTSCONF{notice}, \@_);
-}
-
-sub irc_part {
-    exec_events($EVENTSCONF{part}, \@_);
-}
-
-sub irc_public {
-    exec_events($EVENTSCONF{public}, \@_);
-    exec_triggers(\@_);
-}
-
-sub irc_quit {
-    exec_events($EVENTSCONF{quit}, \@_);
-}
-
-sub irc_shutdown {
-    &sophia_acl_db_save;
-    if ($CONFIGURATIONS{DO_RESTART}) {
-        if ($CONFIGURATIONS{IN_DEBUG_MODE}) {
-            `$Bin/sophia --debug`;
-        }
-        else {
-            `$Bin/sophia`;
-        }
-    }
-    exit;
-}
-
-sub irc_topic {
-    my ($heap, $chan, $topic) = @_[HEAP, ARG1, ARG2];
-    $heap->{TOPICS}{lc $chan} = $topic;
-}
-
-sub sig_int {
-    $sophia->yield( quit => 'Shutting down ... ' );
-    $_[KERNEL]->sig_handled();
-}
-
-sub load_timers {
-    sophia_load_timers(\$_[KERNEL]);
-    $_[KERNEL]->alarm( 'load_timers' => time() + 60 );
-}
-
-POE::Kernel->run();
-
-sub exec_events {
-    my ($namespace, $args) = @_;
-
-    for my $module (keys %{$sophia::EVENTS->{$namespace}}) {
-        for my $command (keys %{$sophia::EVENTS->{$namespace}{$module}}) {
-            eval {
-                &{$sophia::EVENTS->{$namespace}{$module}{$command}{init}}($args);
-                1;
-            } or sophia_log('sophia', '[ERROR] ' . $!) and sophia_log('sophia', '[ERROR] '. $@);
-        }
-    }
-}
-
-sub exec_events_trigger {
-    my ($namespace, $args) = @_;
-    my ($who, $content, $heap) = ($args->[ARG0], $args->[ARG2], $args->[HEAP]);
-
-    # triggers ?
-    return unless $content && $content =~ /\A\Q$SOPHIA{trigger}\E/;
-
-    my $perms = sophia_get_host_perms($who);
-    return if $perms & 0x0040;
-
-    $content =~ s/\A\Q$SOPHIA{trigger}\E//;
-    my ($module, $command, $trigger, $idx, $ac, $x);
-
-    $idx = index $content, ' ';
-    $trigger = substr $content, 0, $idx if $idx > -1;
-    $trigger = $content if $idx == -1;
-
-    my $target = '';
-    $target = substr $who, 0, index($who, '!') if ($namespace eq $EVENTSCONF{privmsg} || $namespace eq $EVENTSCONF{notice});
-
-    # is this an alias? 
-    $trigger = $heap->{CMD_ALIASES}{$trigger} if defined $heap->{CMD_ALIASES}{$trigger};
-
-    # module:command trigger
-    if ($trigger =~ m/\A([^:]+):(.+)\z/) {
-        ($module, $command) = ($1, $2);
-        if ($sophia::EVENTS->{$namespace}{$module}{$command}) {
-            $ac = $sophia::EVENTS->{$namespace}{$module}{$command}{access};
-            if ($ac) {
-                return unless $perms & $ac;
-            }
-            eval {
-                $x = &{$sophia::EVENTS->{$namespace}{$module}{$command}{init}}($args, $target);
-                1;
-            } or sophia_log('sophia', '[ERROR] '. $!) and sophia_log('sophia', '[ERROR] ' . $@);
-        }
-    }
-}
-
-sub exec_triggers {
-    my $args = $_[0];
-    my ($who, $where, $content, $heap) = ($args->[ARG0], $args->[ARG1], $args->[ARG2], $args->[HEAP]);
-
-    # triggers ?
-    return unless $content;
-    
-    if ($content =~ /\A$SOPHIA{nick}(,|:)\s/) {
-        $content =~ s/\A$SOPHIA{nick}(,|:)\s//;
-        $args->[ARG2] = $content;
-    }
-    elsif ($content =~ /\A\Q$SOPHIA{trigger}\E/) {
-        $content =~ s/\A\Q$SOPHIA{trigger}\E//;
-    }
-    else {
-        return;
-    }
-
-    my $perms = sophia_get_host_perms($who, $where->[0]);
-    return if $perms & 0x0040;   # cheap hack ... 0x0040 = SOPHIA_ACL_BANNED
-
-    my ($module, $command, $trigger, $idx, $ac, $x);
-
-    $idx = index $content, ' ';
-    $trigger = substr $content, 0, $idx if $idx > -1;
-    $trigger = $content if $idx == -1;
-
-    # is this an alias? 
-    $trigger = $heap->{CMD_ALIASES}{$trigger} if defined $heap->{CMD_ALIASES}{$trigger};
-
-    # module:command trigger
-    if ($trigger =~ m/\A([^:]+):(.+)\z/) {
-        ($module, $command) = ($1, $2);
-
-        if ($sophia::COMMANDS->{$module}{$command}) {
-            $ac = $sophia::COMMANDS->{$module}{$command}{access};
-            if ($ac) {
-                return unless $perms & $ac;
-            }
-            eval {
-                $x = &{$sophia::COMMANDS->{$module}{$command}{init}}($args);
-                1;
-            } or sophia_log('sophia', '[ERROR] ' . $!) and sophia_log('sophia', '[ERROR] '. $@);
-        }
-    }
-}
-
-sub sophia_load_config {
-    my @opts;
-    my $len;
-
-    open my $fh, '<', $CONFIGURATIONS{MAIN_CONFIG}
-        or trigger_error('sophia', "Error opening config file: $!");
-
-    LINE: while (<$fh>) {
-        chomp;
-        s/\A\s+//;
-        next LINE if /\A#/ || /\A\s*\z/;  # ignoring comments and lame lines
-
-        @opts = split ' ';
-        return if scalar @opts != 2;
-
-        $opts[0] = lc $opts[0];
-
-        given ($opts[0]) {
-            when ('channel')        { $SOPHIA{channels}{$opts[1]} = 1; }
-            when ('port')          {
-                if (index($opts[1], '+') == 0) {
-                    $SOPHIA{usessl} = 1;
-                    $opts[1] = substr $opts[1], 1;
-                }
-                $SOPHIA{port} = $opts[1];
-            }
-            default {
-                $SOPHIA{$opts[0]} = $opts[1] if exists $SOPHIA{$opts[0]};
-            }
-        }
-    }
-    close $fh;
-}
-
-sub sophia_reload_config {
-    return unless -e $CONFIGURATIONS{MAIN_CONFIG} && -r $CONFIGURATIONS{MAIN_CONFIG};
-
-    # clear all channels
-    $SOPHIA{channels}{$_} = 0 for keys %{$SOPHIA{channels}};
-
-    my %OLD_SETTINGS = %SOPHIA;
-
-    &sophia_load_config;
-
-    # if the config changed port, server, ircname, or username, restart sophia
-    if ($SOPHIA{port} ne $OLD_SETTINGS{port} || $SOPHIA{server} ne $OLD_SETTINGS{server} || $SOPHIA{realname} ne $OLD_SETTINGS{realname} || $SOPHIA{username} ne $OLD_SETTINGS{username}) {
-        $CONFIGURATIONS{DO_RESTART} = 1;
-        $sophia->yield(quit => 'Restarting ...');
-        return 1;
-    }
-
-    # re-set founder
-    sophia_set_founder($SOPHIA{owner_name}, $SOPHIA{owner_host});
-
-    my @part_chans = grep { $SOPHIA{channels}{$_} == 0 } keys %{$SOPHIA{channels}};
-
-    # part all channels not in channel list
-    $sophia->yield( part => $_ ) for @part_chans;
-
-    # clear the parted channels from $SOPHIA{channels} list
-    delete $SOPHIA{channels}{$_} for @part_chans;
-
-    # change nick?
-    if ($SOPHIA{nick} ne $OLD_SETTINGS{nick}) {
-        $sophia->yield( nick => $SOPHIA{nick} );
-
-        # identify to NickServ?
-        $sophia->yield( privmsg => 'NickServ' => sprintf('identify %s %s', $sophia->{nick}, $SOPHIA{password}) ) if ($SOPHIA{password} && $SOPHIA{password} ne $OLD_SETTINGS{password});
-    }
-
-    # update mode?
-    $sophia->yield( mode => sprintf('%s %s', $sophia->{nick}, $SOPHIA{usermode}) );
-
-    # join channels
-    $sophia->yield( join => $_ ) for keys %{$SOPHIA{channels}};
-
-    return 1;
-}
-
-sub sophia_save_config {
-    return unless -e $CONFIGURATIONS{MAIN_CONFIG} && -w $CONFIGURATIONS{MAIN_CONFIG};
-
-    open my $fh, '>', $CONFIGURATIONS{MAIN_CONFIG};
-    
-    print {$fh} '# indicates a comment line', "\n\n";
-    print {$fh} 'nick ', $SOPHIA{nick}, "\n";
-    print {$fh} 'username ', $SOPHIA{username}, "\n";
-    print {$fh} 'realname ', $SOPHIA{realname}, "\n";
-    print {$fh} 'password ', $SOPHIA{password}, "\n";
-    print {$fh} 'usermode ', $SOPHIA{usermode}, "\n\n\n";
-    print {$fh} 'server ', $SOPHIA{server}, "\n";
-    print {$fh} 'port ', ($SOPHIA{usessl} ? '+' : ''), $SOPHIA{port}, "\n\n\n";
-    print {$fh} 'owner_name ', $SOPHIA{owner_name}, "\n";
-    print {$fh} 'owner_host ', $SOPHIA{owner_host}, "\n\n\n";
-    print {$fh} 'trigger ', $SOPHIA{trigger}, "\n\n\n";
-    
-    print {$fh} '# join the following channels', "\n";
-    print {$fh} 'channel ', $_, "\n" for keys %{$SOPHIA{channels}};
-
-    close $fh;
-
-    return 1;
-}
-
-sub sophia_set_config_option {
-    my $opts = $_[0];
-    my @opts = @{$opts};
-    return if scalar(@opts) < 3;
-
-    $opts[1] = lc $opts[1];
-    return unless $opts[1] ne 'channel'; # can't add channels
-
-    given ($opts[1]) {
-        when ('port') {
-            if (index($opts[2], '+') == 0) {
-                $SOPHIA{usessl} = 1;
-                $opts[2] = substr $opts[2], 1;
-            }
-            $SOPHIA{port} = $opts[2];
-        }
-
-        default { 
-            return unless exists $SOPHIA{$opts[1]};
-            $SOPHIA{$opts[1]} = $opts[2];
-        }
-    }
-
-    return 1;
-}
-
-sub sophia_get_config {
-    my %config = %SOPHIA;
-    $config{password} = '';
-    return \%config;
-}
-
-sub sophia_set {
-    my ($key, $val) = @_;
-    $CONFIGURATIONS{$key} = $val;
-    return;
-}
-
-sub sophia_aliases_load {
-    my $heap = shift;
-    return unless $heap;
-    $heap = ${$heap};
-
-    open my $fh, '<', $CONFIGURATIONS{ALIAS_DB} or sophia_log('sophia', sprintf('Unable to open %s for reading: %s', $CONFIGURATIONS{ALIAS_DB}, $!)) and return;
-
-    LINE: while (<$fh>) {
-        chomp;
-        next LINE if /\A\s*\z/;
-
-        my @opts = split ' ';
-        $heap->{CMD_ALIASES}{$opts[0]} = $opts[1];
-    }
-
-    close $fh;
-
-    return 1;
-}
+POE::Kernel->run;
 
 __END__
 =head1 NAME
@@ -594,6 +145,10 @@ sophia [options]
 =head1 OPTIONS
 
 =over 8
+
+=item B<--debug>
+
+Enables debug mode.
 
 =item B<--config=<PATH>>
 
@@ -609,11 +164,11 @@ Prints a help message.
 
 =item B<--man>
 
-Prints a full menual page documentation.
+Prints a full manual page documentation. Alternatively, you can always run: perldoc bin/sophia.
 
 =item B<--version>
 
-Prints the version of sophia.
+Prints sophia's current version.
 
 =back
 

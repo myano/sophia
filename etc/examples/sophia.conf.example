@@ -1,0 +1,119 @@
+# this is a comment
+
+# these are the *ONLY* list of options that you can set:
+#   - nick
+#   - realname
+#   - username
+#   - trigger
+#   - host
+#   - password
+#   - port
+#   - usermode
+#   - channels
+#   - uid
+#
+# IMPORTANT: While it is not always required to put quotes
+# in option values, sometimes you will require it so that
+# the YAML parser won't misread it. Most notably, the option
+# values that should almost always be in quotes are:
+#   - trigger
+#   - password
+#   - uid
+
+# these are considered to be global settings
+# any values defined here are used as default values
+# you can override any of these values in the server blocks
+# you are free to remove any or add any of the options listed
+# above into this global block. Just think of it as a way
+# to set default values. Please note that even if you set
+# all options to a default value, it will not result in
+# an irc connection. That is controlled by server block(s).
+#
+# IMPORTANT: while it is possible to set a uid in this
+# global block, it would be utterly useless unless you only
+# have one server connection block.
+global:
+    nick:       sophia
+
+    # realname of the bot, aka gecos
+    realname:   sophia
+    username:   sophia
+
+    # the default trigger that sophia commands will use
+    # again, it can be overwritten in server blocks
+    # that is, if you wish to have different triggers for
+    # different connections
+    trigger:    ':'
+
+
+# this is a divider. 3 hyphens.
+# a divider is required after each block to separate them
+# if you add another server block for another irc connection,
+# make sure you include this divider
+---
+
+# operators block
+# Uncomment if you need it
+
+# operators:
+#    'Nick': 'password hash'
+
+---
+
+# a server block
+# this specifies the information required to connect to an
+# irc server. You can use any and all options in this server
+# block. Any options set here will override any global value
+# for this connection.
+#
+# IMPORTANT: overriding any global values for this server
+# has no effect on any subsequent server connections.
+server:
+    # this is a unique identifier for this server
+    # you can name it whatever you want, but it must be
+    # unique -- in other words, no 2 server blocks can have
+    # the same uid.
+    # this value is only used when sophia needs to
+    # uniquely identify this server. Such as when you
+    # want to reload this config file while sophia is
+    # running so that sophia can update the correct
+    # instance corresponding to this server and not another.
+    # 
+    # IMPORTANT: there is no real benefit in changing
+    # this value while sophia is running and you wish to
+    # reload this config file. Doing so will result in
+    # sophia creating a new server connection using this
+    # this server configuration, and the old one will
+    # be automatically disconnected.
+    uid:        server1
+
+    host:       irc.domain.tld
+
+    # if the server does not use NickServ authentication, just
+    # leave this value as '' (empty). Yes, you will need to put
+    # 2 quotes to represent this empty value.
+    password:   'NickServ Password'
+
+    # if you want to connect via SSL, use a '+' in front of the
+    # number to indicate SSL.
+    port:       +9999
+    usermode:   +QRi
+
+    # enable sasl authentication. Set to "yes" or "true" to enable.
+    # to disable, comment, remove, or set it to any other value.
+    saslauth:   yes
+
+    # a list of channels to join upon connecting
+    channels:
+        - #sophia
+        - #sophia-dev
+
+
+# to add another server:
+# don't forget the --- divider!
+# ---
+# 
+# server:
+#   uid:    server2
+#   host:   irc.domain.tld
+#   ...

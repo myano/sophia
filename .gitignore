@@ -1,7 +1,11 @@
 .*.sw*
 sophia.conf
 sophia.modules.conf
-*.db
+sophia.modules.autoload.conf
 var/*
 *.pid
 *.db
+scripts/*
+Makefile
+modules/anime
+etc/cookies.txt
