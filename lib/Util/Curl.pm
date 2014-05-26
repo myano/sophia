@@ -26,7 +26,7 @@ class Util::Curl
             'Accept-Language: en-US,en;q=0.8,zh;q=0.6,zh-CN;q=0.4,zh-TW;q=0.2,fr;q=0.2,fr-FR;q=0.2,ja;q=0.2,es;q=0.2',
             'Connection: keep-alive',
             'DNT: 1',
-            'Host: ' . $2,
+            'Host: ' . $1,
             'User-Agent: ' . USERAGENT,
         );
 
@@ -70,7 +70,7 @@ class Util::Curl
             'Accept-Language: en-US,en;q=0.8,zh;q=0.6,zh-CN;q=0.4,zh-TW;q=0.2,fr;q=0.2,fr-FR;q=0.2,ja;q=0.2,es;q=0.2',
             'Connection: keep-alive',
             'DNT: 1',
-            'Host: ' . $2,
+            'Host: ' . $1,
             'User-Agent: ' . USERAGENT,
         );
 
