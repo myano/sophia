@@ -5,6 +5,7 @@ class Protocol::IRC::Response
 {
     use API::Log qw(:ALL);
     use Constants;
+    use Data::Dumper;
     use MIME::Base64;
     use POE qw(Component::IRC);
     use Protocol::IRC::Event::PrivateMessage;
@@ -12,7 +13,10 @@ class Protocol::IRC::Response
 
     method _001 (@args)
     {
-        my $heap = $args[HEAP - 1];
+        $self = __PACKAGE__;
+        unshift @args, $self;
+
+        my $heap = $args[HEAP];
         my $sophia = $heap->{sophia};
         $sophia->is_connected(TRUE);
 
@@ -36,67 +40,79 @@ class Protocol::IRC::Response
 
         $sophia->modulehandler->load_modules;
 
-        Protocol::IRC::Response->__print(@args);
+        $self->toString(@args);
         return;
     }
 
     method _332 (@args)
     {
-        my $heap = $args[HEAP - 1];
+        $self = __PACKAGE__;
+        unshift @args, $self;
+
+        my $heap = $args[HEAP];
         my $sophia = $heap->{sophia};
 
-        my $channel_data = $args[ARG2 - 1];
+        my $channel_data = $args[ARG2];
         my $channel = lc $channel_data->[0];
         my $topic   = $channel_data->[1];
 
         $sophia->{channel_topics}->{$channel} = $topic;
 
-        Protocol::IRC::Response->__print(@args);
+        $self->toString(@args);
         return;
     }
 
     method _903 (@args)
     {
-        my $heap = $args[HEAP - 1];
+        $self = __PACKAGE__;
+        unshift @args, $self;
+
+        my $heap = $args[HEAP];
         my $sophia = $heap->{sophia};
         $sophia->is_authenticated(TRUE);
 
-        Protocol::IRC::Response->_cap_end(@args);
-        Protocol::IRC::Response->__print(@args);
+        $self->_cap_end(@args);
         return;
     }
 
     method _904 (@args)
     {
-        Protocol::IRC::Response->_cap_end(@args);
-        Protocol::IRC::Response->__print(@args);
+        $self = __PACKAGE__;
+        unshift @args, $self;
+        $self->_cap_end(@args);
         return;
     }
 
     method _905 (@args)
     {
-        Protocol::IRC::Response->_cap_end(@args);
-        Protocol::IRC::Response->__print(@args);
+        $self = __PACKAGE__;
+        unshift @args, $self;
+        $self->_cap_end(@args);
         return;
     }
 
     method _906 (@args)
     {
-        Protocol::IRC::Response->_cap_end(@args);
-        Protocol::IRC::Response->__print(@args);
+        $self = __PACKAGE__;
+        unshift @args, $self;
+        $self->_cap_end(@args);
         return;
     }
 
     method _907 (@args)
     {
-        Protocol::IRC::Response->_cap_end(@args);
-        Protocol::IRC::Response->__print(@args);
+        $self = __PACKAGE__;
+        unshift @args, $self;
+        $self->_cap_end(@args);
         return;
     }
 
     method _authenticate (@args)
     {
-        my $heap = $args[HEAP - 1];
+        $self = __PACKAGE__;
+        unshift @args, $self;
+
+        my $heap = $args[HEAP];
         my $sophia = $heap->{sophia};
 
         my $sasl = join "\0", $sophia->nick, $sophia->nick, $sophia->password;
@@ -124,18 +140,21 @@ class Protocol::IRC::Response
             }
         }
 
-        Protocol::IRC::Response->__print(@args);
+        $self->toString(@args);
         return;
     }
 
     method _cap (@args)
     {
-        my $heap = $args[HEAP - 1];
+        $self = __PACKAGE__;
+        unshift @args, $self;
+
+        my $heap = $args[HEAP];
         my $sophia = $heap->{sophia};
 
         if ($sophia->usesasl && !$sophia->is_connected)
         {
-            my ($key, $value) = @args[ARG0 - 1, ARG1 - 1];
+            my ($key, $value) = @args[ARG0, ARG1];
 
             if ($key eq 'LS')
             {
@@ -170,39 +189,51 @@ class Protocol::IRC::Response
             }
         }
 
-        Protocol::IRC::Response->__print(@args);
+        $self->toString(@args);
         return;
     }
 
     method _cap_end (@args)
     {
-        my $heap = $args[HEAP - 1];
+        # this method can be called via timer
+        if (!$self)
+        {
+            $self = __PACKAGE__;
+            unshift @args, $self;
+        }
+
+        my $heap = $args[HEAP];
         my $sophia = $heap->{sophia};
         $sophia->yield(quote => 'CAP END');
-        Protocol::IRC::Response->__print(@args);
+        $self->toString(@args);
         return;
     }
 
     method _connected (@args)
     {
-        my $heap = $args[HEAP - 1];
+        $self = __PACKAGE__;
+        unshift @args, $self;
+        my $heap = $args[HEAP];
         my $sophia = $heap->{sophia};
 
         if ($sophia->usesasl)
         {
-            $args[KERNEL - 1]->alarm(cap_end => time + 3);
+            $args[KERNEL]->alarm(cap_end => time + 3);
             $sophia->yield(quote => 'CAP LS');
             $sophia->yield(quote => sprintf('NICK %s', $sophia->{nick}));
             $sophia->yield(quote => sprintf('USER %s %s * :%s', $sophia->username, 8, $sophia->realname));
         }
 
-        Protocol::IRC::Response->__print(@args);
+        $self->toString(@args);
         return;
     }
 
     method _default (@args)
     {
-        my ($event, $args) = @args[ARG0 - 1 .. $#args];
+        $self = __PACKAGE__;
+        unshift @args, $self;
+
+        my ($event, $args) = @args[ARG0 .. $#args];
 
         # ignore irc_pings .. so annoying
         # unless verbose is used
@@ -230,32 +261,41 @@ class Protocol::IRC::Response
 
     method _disconnected (@args)
     {
-        my $heap = $args[HEAP - 1];
+        $self = __PACKAGE__;
+        unshift @args, $self;
+        my $heap = $args[HEAP];
         my $sophia = $heap->{sophia};
         $sophia->yield('shutdown');
+        $self->toString(@args);
         return;
     }
 
     method _error (@args)
     {
-        _log('sophia', $args[ARG0 - 1]);
+        $self = __PACKAGE__;
+        unshift @args, $self;
+        _log('sophia', $args[ARG0]);
+        $self->toString(@args);
         return;
     }
 
     method _privmsg (@args)
     {
-        my $heap = $args[HEAP - 1];
+        $self = __PACKAGE__;
+        unshift @args, $self;
+
+        my $heap = $args[HEAP];
         my $sophia = $heap->{sophia};
 
         my $event = Protocol::IRC::Event::PrivateMessage->new(
             sophia          => $sophia,
-            sender          => $args[ARG0 - 1],
-            recipients      => $args[ARG1 - 1],
-            message         => $args[ARG2 - 1],
+            sender          => $args[ARG0],
+            recipients      => $args[ARG1],
+            message         => $args[ARG2],
         );
 
         # if user is authenticated to NickServ
-        if (exists $args[ARG3 - 1])
+        if (exists $args[ARG3])
         {
             $event->hasNickServAuth(TRUE);
             $event->isNickServAuth(TRUE);
@@ -263,24 +303,27 @@ class Protocol::IRC::Response
 
         $sophia->process_input($event);
 
-        Protocol::IRC::Response->__print(@args);
+        $self->toString(@args);
         return;
     }
 
     method _public (@args)
     {
-        my $heap = $args[HEAP - 1];
+        $self = __PACKAGE__;
+        unshift @args, $self;
+
+        my $heap = $args[HEAP];
         my $sophia = $heap->{sophia};
 
         my $event = Protocol::IRC::Event::Public->new(
             sophia          => $sophia,
-            sender          => $args[ARG0 - 1],
-            recipients      => $args[ARG1 - 1],
-            message         => $args[ARG2 - 1],
+            sender          => $args[ARG0],
+            recipients      => $args[ARG1],
+            message         => $args[ARG2],
         );
 
         # if user is authenticated to NickServ
-        if (exists $args[ARG3 - 1])
+        if (exists $args[ARG3])
         {
             $event->hasNickServAuth(TRUE);
             $event->isNickServAuth(TRUE);
@@ -289,38 +332,51 @@ class Protocol::IRC::Response
         $sophia->process_input($event);
         $sophia->process_event_command('public', $event);
 
-        Protocol::IRC::Response->__print(@args);
+        $self->toString(@args);
         return;
     }
 
     method _shutdown (@args)
     {
-        Protocol::IRC::Response->__print(@args);
+        $self = __PACKAGE__;
+        unshift @args, $self;
+        $self->toString(@args);
         return;
     }
 
     method _sigint (@args)
     {
-        my $heap = $args[HEAP - 1];
+        $self = __PACKAGE__;
+        unshift @args, $self;
+
+        my $heap = $args[HEAP];
         my $sophia = $heap->{sophia};
         $sophia->yield(quit => 'Shutting down ... ');
 
-        $args[KERNEL - 1]->sig_handled();
+        $args[KERNEL]->sig_handled();
+
+        $self->toString(@args);
         return;
     }
 
     method _socketerr (@args)
     {
-        error_log('sophia', 'Failed to connect: ' . $args[ARG0 - 1]);
+        $self = __PACKAGE__;
+        unshift @args, $self;
+        error_log('sophia', 'Failed to connect: ' . $args[ARG0]);
+        $self->toString(@args);
         return;
     }
 
     method _start (@args)
     {
-        my $kernel = $args[KERNEL - 1];
+        $self = __PACKAGE__;
+        unshift @args, $self;
+
+        my $kernel = $args[KERNEL];
         $kernel->sig(INT => 'sig_int');
 
-        my $heap = $args[HEAP - 1];
+        my $heap = $args[HEAP];
         my $sophia = $heap->{sophia};
         if (!$sophia)
         {
@@ -330,29 +386,36 @@ class Protocol::IRC::Response
         $sophia->yield(register => 'all');
         $sophia->yield(connect  => { });
 
+        $self->toString(@args);
         return;
     }
 
     method _stop (@args)
     {
+        $self = __PACKAGE__;
+        unshift @args, $self;
+        $self->toString(@args);
         return;
     }
 
     method _topic (@args)
     {
-        my ($heap, $chan, $topic) = @args[HEAP - 1, ARG1 - 1, ARG2 - 1];
+        $self = __PACKAGE__;
+        unshift @args, $self;
+
+        my ($heap, $chan, $topic) = @args[HEAP, ARG1, ARG2];
         $chan = lc $chan;
 
         my $sophia = $heap->{sophia};
         $sophia->{channel_topics}->{$chan} = $topic;
 
-        Protocol::IRC::Response->__print(@args);
+        $self->toString(@args);
         return;
     }
 
-    method __print (@args)
+    method toString (@args)
     {
-        my ($tag, @rest) = @args[3,9..11];
+        my ($tag, @rest) = @args[4,10..12];
 
         my @output = ( "$tag: " );
 
