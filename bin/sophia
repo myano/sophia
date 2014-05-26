@@ -19,7 +19,6 @@ use lib qq($Bin/../modules);
 
 use API::Log qw(:ALL);
 use Constants;
-use DBI;
 use Getopt::Long;
 use Pod::Usage;
 use POSIX qw(setsid);
