@@ -138,6 +138,7 @@ class Protocol::IRC::Session
                 _default            => \&Protocol::IRC::Response::_default,
                 _start              => \&Protocol::IRC::Response::_start,
                 _stop               => \&Protocol::IRC::Response::_stop,
+                cap_end             => \&Protocol::IRC::Response::_cap_end,
                 irc_001             => \&Protocol::IRC::Response::_001,
                 irc_332             => \&Protocol::IRC::Response::_332,
                 irc_903             => \&Protocol::IRC::Response::_903,

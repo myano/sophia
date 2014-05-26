@@ -36,6 +36,7 @@ class Protocol::IRC::Response
 
         $sophia->modulehandler->load_modules;
 
+        Protocol::IRC::Response->__print(@args);
         return;
     }
 
@@ -50,6 +51,7 @@ class Protocol::IRC::Response
 
         $sophia->{channel_topics}->{$channel} = $topic;
 
+        Protocol::IRC::Response->__print(@args);
         return;
     }
 
@@ -60,30 +62,35 @@ class Protocol::IRC::Response
         $sophia->is_authenticated(TRUE);
 
         Protocol::IRC::Response->_cap_end(@args);
+        Protocol::IRC::Response->__print(@args);
         return;
     }
 
     method _904 (@args)
     {
         Protocol::IRC::Response->_cap_end(@args);
+        Protocol::IRC::Response->__print(@args);
         return;
     }
 
     method _905 (@args)
     {
         Protocol::IRC::Response->_cap_end(@args);
+        Protocol::IRC::Response->__print(@args);
         return;
     }
 
     method _906 (@args)
     {
         Protocol::IRC::Response->_cap_end(@args);
+        Protocol::IRC::Response->__print(@args);
         return;
     }
 
     method _907 (@args)
     {
         Protocol::IRC::Response->_cap_end(@args);
+        Protocol::IRC::Response->__print(@args);
         return;
     }
 
@@ -98,24 +105,26 @@ class Protocol::IRC::Response
         if (!$sasl)
         {
             $sophia->yield(quote => 'AUTHENTICATE +');
-            return;
-        }
-
-        while (length $sasl >= 400)
-        {
-            my $sub_sasl = substr $sasl, 0, 400, '';
-            $sophia->yield(quote => 'AUTHENTICATE ' . $sub_sasl);
-        }
-
-        if ($sasl)
-        {
-            $sophia->yield(quote => 'AUTHENTICATE ' . $sasl);
         }
         else
         {
-            $sophia->yield(quote => 'AUTHENTICATE +');
+            while (length $sasl >= 400)
+            {
+                my $sub_sasl = substr $sasl, 0, 400, '';
+                $sophia->yield(quote => 'AUTHENTICATE ' . $sub_sasl);
+            }
+
+            if ($sasl)
+            {
+                $sophia->yield(quote => 'AUTHENTICATE ' . $sasl);
+            }
+            else
+            {
+                $sophia->yield(quote => 'AUTHENTICATE +');
+            }
         }
 
+        Protocol::IRC::Response->__print(@args);
         return;
     }
 
@@ -124,45 +133,44 @@ class Protocol::IRC::Response
         my $heap = $args[HEAP - 1];
         my $sophia = $heap->{sophia};
 
-        if (!$sophia->usesasl || $sophia->is_connected)
+        if ($sophia->usesasl && !$sophia->is_connected)
         {
-            return;
-        }
+            my ($key, $value) = @args[ARG0 - 1, ARG1 - 1];
 
-        my ($key, $value) = @args[ARG0 - 1, ARG1 - 1];
+            if ($key eq 'LS')
+            {
+                my $raw = '';
+                $raw .= ' multi-prefix' if $value =~ /multi-prefix/i;
+                $raw .= ' sasl' if $value =~ /sasl/i;
+                $raw =~ s/^ //;
 
-        if ($key eq 'LS')
-        {
-            my $raw = '';
-            $raw .= ' multi-prefix' if $value =~ /multi-prefix/i;
-            $raw .= ' sasl' if $value =~ /sasl/i;
-            $raw =~ s/^ //;
-
-            if (!$raw)
+                if (!$raw)
+                {
+                    $sophia->yield(quote => 'CAP END');
+                }
+                else
+                {
+                    $sophia->yield(quote => 'CAP REQ :' . $raw);
+                }
+            }
+            elsif ($key eq 'ACK')
+            {
+                if ($value =~ /sasl/i)
+                {
+                    $sophia->yield(quote => 'AUTHENTICATE PLAIN');
+                }
+                else
+                {
+                    $sophia->yield(quote => 'CAP END');
+                }
+            }
+            elsif ($key eq 'NAK')
             {
                 $sophia->yield(quote => 'CAP END');
             }
-            else
-            {
-                $sophia->yield(quote => 'CAP REQ :' . $raw);
-            }
-        }
-        elsif ($key eq 'ACK')
-        {
-            if ($value =~ /sasl/i)
-            {
-                $sophia->yield(quote => 'AUTHENTICATE PLAIN');
-            }
-            else
-            {
-                $sophia->yield(quote => 'CAP END');
-            }
-        }
-        elsif ($key eq 'NAK')
-        {
-            $sophia->yield(quote => 'CAP END');
         }
 
+        Protocol::IRC::Response->__print(@args);
         return;
     }
 
@@ -171,6 +179,7 @@ class Protocol::IRC::Response
         my $heap = $args[HEAP - 1];
         my $sophia = $heap->{sophia};
         $sophia->yield(quote => 'CAP END');
+        Protocol::IRC::Response->__print(@args);
         return;
     }
 
@@ -181,11 +190,13 @@ class Protocol::IRC::Response
 
         if ($sophia->usesasl)
         {
+            $args[KERNEL - 1]->alarm(cap_end => time + 3);
             $sophia->yield(quote => 'CAP LS');
             $sophia->yield(quote => sprintf('NICK %s', $sophia->{nick}));
             $sophia->yield(quote => sprintf('USER %s %s * :%s', $sophia->username, 8, $sophia->realname));
         }
 
+        Protocol::IRC::Response->__print(@args);
         return;
     }
 
@@ -222,7 +233,6 @@ class Protocol::IRC::Response
         my $heap = $args[HEAP - 1];
         my $sophia = $heap->{sophia};
         $sophia->yield('shutdown');
-
         return;
     }
 
@@ -253,6 +263,7 @@ class Protocol::IRC::Response
 
         $sophia->process_input($event);
 
+        Protocol::IRC::Response->__print(@args);
         return;
     }
 
@@ -278,11 +289,13 @@ class Protocol::IRC::Response
         $sophia->process_input($event);
         $sophia->process_event_command('public', $event);
 
+        Protocol::IRC::Response->__print(@args);
         return;
     }
 
     method _shutdown (@args)
     {
+        Protocol::IRC::Response->__print(@args);
         return;
     }
 
@@ -333,6 +346,31 @@ class Protocol::IRC::Response
         my $sophia = $heap->{sophia};
         $sophia->{channel_topics}->{$chan} = $topic;
 
+        Protocol::IRC::Response->__print(@args);
+        return;
+    }
+
+    method __print (@args)
+    {
+        my ($tag, @rest) = @args[3,9..11];
+
+        my @output = ( "$tag: " );
+
+        ARG: for my $arg (@rest)
+        {
+            if (ref $arg eq 'ARRAY')
+            {
+                push @output, '[' . join(',', @$arg) . ']';
+                next ARG;
+            }
+
+            if ($arg)
+            {
+                push @output, "'$arg'";
+            }
+        }
+
+        print join ' ', @output, "\n";
         return;
     }
 }
