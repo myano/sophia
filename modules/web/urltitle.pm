@@ -7,7 +7,6 @@ class web::urltitle with API::Module
     use Encode qw(decode);
     use HTML::Entities;
     use Util::Curl;
-    use utf8;
 
     has 'name'  => (
         default => 'web::urltitle',
