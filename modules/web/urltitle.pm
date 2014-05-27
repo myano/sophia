@@ -4,8 +4,10 @@ use Method::Signatures::Modifiers;
 class web::urltitle with API::Module
 {
     use Constants;
+    use Encode qw(decode);
     use HTML::Entities;
     use Util::Curl;
+    use utf8;
 
     has 'name'  => (
         default => 'web::urltitle',
@@ -90,8 +92,12 @@ class web::urltitle with API::Module
             $title =~ s/^\s+//g;
             $title =~ s/\s{2,}/ /g;
 
-            $title = '&laquo; ' . $title . ' &raquo;';
-            $title = HTML::Entities::decode($title);
+            $title = decode('UTF-8', $title, Encode::FB_QUIET);
+
+            my $laquo = HTML::Entities::decode('&laquo;');
+            my $raquo = HTML::Entities::decode('&raquo;');
+
+            $title = sprintf('%s %s %s', $laquo, $title, $raquo);
 
             return $title;
         }
