@@ -53,7 +53,8 @@ class web::wot with API::Module
 
     method wot ($url)
     {
-        my $response = Util::Curl->get('http://api.mywot.com/0.4/public_query2?url=' . $url);
+        my $curl_data = Util::Curl->get('http://api.mywot.com/0.4/public_query2?url=' . $url);
+        my $response = $curl_data->{content};
         return unless $response;
 
         my $count = 0;

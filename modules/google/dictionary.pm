@@ -41,7 +41,8 @@ class google::dictionary with API::Module
 
     method define ($expr)
     {
-        my $response = Util::Curl->get(sprintf('http://www.google.com/dictionary/json?callback=dict_api.callbacks.id100&sl=en&tl=en&restrict=pr%sde&client=te&q=%s', '%2C', uri_escape($expr)));
+        my $curl_data = Util::Curl->get(sprintf('http://www.google.com/dictionary/json?callback=dict_api.callbacks.id100&sl=en&tl=en&restrict=pr%sde&client=te&q=%s', '%2C', uri_escape($expr)));
+        my $response = $curl_data->{content};
         return unless $response;
 
         my @results;

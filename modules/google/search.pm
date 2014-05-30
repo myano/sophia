@@ -32,7 +32,8 @@ class google::search with API::Module
 
     method search ($query)
     {
-        my $response = Util::Curl->get('http://ajax.googleapis.com/ajax/services/search/web?v=1.0&q=' . uri_escape($query));
+        my $curl_data = Util::Curl->get('http://ajax.googleapis.com/ajax/services/search/web?v=1.0&q=' . uri_escape($query));
+        my $response = $curl_data->{content};
         return  unless $response;
 
         my $max_results = 3;

@@ -35,7 +35,8 @@ class google::calculator with API::Module
 
     method calculate ($expr)
     {
-        my $response = Util::Curl->get(sprintf('https://www.google.com/search?gbv=1&q=%s', uri_escape($expr)));
+        my $curl_data = Util::Curl->get(sprintf('https://www.google.com/search?gbv=1&q=%s', uri_escape($expr)));
+        my $response = $curl_data->{content};
         return unless $response;
 
         my %result = (

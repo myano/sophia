@@ -29,8 +29,8 @@ class web::tinyurl with API::Module
     {
         my $tinyurl = 'http://tinyurl.com/api-create.php?url=' . $url;
 
-        my $curl = Util::Curl->new;
-        my $response = $curl->get($tinyurl);
+        my $curl_data = Util::Curl->get($tinyurl);
+        my $response = $curl_data->{content};
 
         return $response;
     }

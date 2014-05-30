@@ -7,6 +7,7 @@ class Util::Curl
 
     use API::Log qw(:ALL);
     use Constants;
+    use Encode qw(find_encoding);
     use IO::Uncompress::Gunzip qw(gunzip $GunzipError);
     use WWW::Curl::Easy;
 
@@ -50,9 +51,25 @@ class Util::Curl
         my $retcode = $curl->perform;
         if ($retcode == 0)
         {
+            my $encoding = 'UTF-8';
+            my $content_type = $curl->getinfo(CURLINFO_CONTENT_TYPE);
+            if ($content_type && $content_type =~ /charset=([^ ]+)/i)
+            {
+                $encoding = $1;
+                my $charset = $1;
+
+                if (find_encoding($charset))
+                {
+                    $encoding = $charset;
+                }
+            }
+
             my $gresponse;
             gunzip \$response => \$gresponse;
-            return $gresponse;
+            return +{
+                charset     => $encoding,
+                content     => $gresponse,
+            };
         }
 
         _log('sophia', sprintf('[Util::Curl::get] An error occured. retcode: %s. Error: %s %s', $retcode, $curl->strerror($retcode), $curl->errbuf));

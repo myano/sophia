@@ -40,7 +40,8 @@ class web::acronym with API::Module
 
     method acronym ($content)
     {
-        my $response = Util::Curl->get(sprintf('http://acronyms.thefreedictionary.com/%s', uri_escape($content)));
+        my $curl_data = Util::Curl->get(sprintf('http://acronyms.thefreedictionary.com/%s', uri_escape($content)));
+        my $response = $curl_data->{content};
         return unless $response;
 
         my @acronyms;

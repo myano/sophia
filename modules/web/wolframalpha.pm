@@ -51,7 +51,8 @@ class web::wolframalpha with API::Module
 
         $url = sprintf($url, $self->settings->{api_key}, uri_escape($query));
 
-        my $response = Util::Curl->get($url);
+        my $curl_data = Util::Curl->get($url);
+        my $response = $curl_data->{content};
         return unless $response;
 
         my $xml = XML::LibXML->load_xml(

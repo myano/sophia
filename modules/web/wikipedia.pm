@@ -38,7 +38,8 @@ class web::wikipedia with API::Module
 
     method wikipedia ($search)
     {
-        my $response = Util::Curl->get(sprintf('http://en.wikipedia.org/w/api.php?action=opensearch&search=%s&limit=1&namespace=0&format=xml', uri_escape($search)));
+        my $curl_data = Util::Curl->get(sprintf('http://en.wikipedia.org/w/api.php?action=opensearch&search=%s&limit=1&namespace=0&format=xml', uri_escape($search)));
+        my $response = $curl_data->{content};
         return unless $response;
 
         my $idx = index($response, '<Description ');

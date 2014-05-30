@@ -81,7 +81,8 @@ class web::urltitle with API::Module
 
     method urltitle ($url)
     {
-        my $response = Util::Curl->get($url);
+        my $curl_data = Util::Curl->get($url);
+        my $response = $curl_data->{content};
         return unless $response;
 
         if ($response =~ m#<title[^>]*>(.+?)</title>#xsmi)
@@ -91,7 +92,7 @@ class web::urltitle with API::Module
             $title =~ s/^\s+//g;
             $title =~ s/\s{2,}/ /g;
 
-            $title = decode('UTF-8', $title, Encode::FB_QUIET);
+            $title = decode($curl_data->{charset}, $title, Encode::FB_QUIET);
 
             my $laquo = HTML::Entities::decode('&laquo;');
             my $raquo = HTML::Entities::decode('&raquo;');
