@@ -55,7 +55,6 @@ class Util::Curl
             my $content_type = $curl->getinfo(CURLINFO_CONTENT_TYPE);
             if ($content_type && $content_type =~ /charset=([^ ]+)/i)
             {
-                $encoding = $1;
                 my $charset = $1;
 
                 if (find_encoding($charset))
