@@ -38,7 +38,7 @@ class web::urltitle with API::Module
         my $content = $event->content;
         my $count = 1;
 
-        WHILE: while ($content =~ m/\b(https?:\/\/[^ ]+)\b/xsmig)
+        WHILE: while ($content =~ m/\b((?<!!)https?:\/\/[^ ]+)\b/xsmig)
         {
             my $url = $1;
             my $title = $self->urltitle($url);
