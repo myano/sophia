@@ -41,7 +41,7 @@ class Util::Curl
         $curl->setopt(CURLOPT_HEADER, 0);
         $curl->setopt(CURLOPT_HTTPHEADER, \@headers);
         $curl->setopt(CURLOPT_MAXREDIRS, 2);
-        $curl->setopt(CURLOPT_TIMEOUT, 5);
+        $curl->setopt(CURLOPT_TIMEOUT, 10);
         $curl->setopt(CURLOPT_URL, $uri);
         $curl->setopt(CURLOPT_VERBOSE, TRUE);
 
@@ -102,7 +102,7 @@ class Util::Curl
         $curl->setopt(CURLOPT_HEADER, 0);
         $curl->setopt(CURLOPT_HTTPHEADER, \@headers);
         $curl->setopt(CURLOPT_MAXREDIRS, 2);
-        $curl->setopt(CURLOPT_TIMEOUT, 5);
+        $curl->setopt(CURLOPT_TIMEOUT, 10);
         $curl->setopt(CURLOPT_URL, $uri);
         $curl->setopt(CURLOPT_VERBOSE, TRUE);
         $curl->setopt(CURLOPT_WRITEDATA, $fh);
@@ -112,9 +112,15 @@ class Util::Curl
 
         if ($retcode == 0)
         {
-            if ($gpath)
+            if ($gpath && $gpath ne $path)
             {
                 gunzip $path => $gpath or _log('sophia', sprintf('[Util::Curl::download] Unable to decompress gzip file: %s', $GunzipError));
+            }
+            else
+            {
+                my $tmp_path = sprintf('/tmp/%d', time);
+                gunzip $path => $tmp_path or _log('sophia', sprintf('[Util::Curl::download] Unable to decompress gzip file: %s', $GunzipError));
+                rename $tmp_path, $path;
             }
 
             return 1;
@@ -179,7 +185,7 @@ class Util::Curl
         }
 
         $curl->setopt(CURLOPT_CONNECTTIMEOUT, 7);
-        $curl->setopt(CURLOPT_TIMEOUT, 5);
+        $curl->setopt(CURLOPT_TIMEOUT, 10);
         $curl->setopt(CURLOPT_POSTFIELDS, $data);
         $curl->setopt(CURLOPT_VERBOSE, TRUE);
 
