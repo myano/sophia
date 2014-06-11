@@ -41,7 +41,7 @@ class Util::Curl
         $curl->setopt(CURLOPT_HEADER, 0);
         $curl->setopt(CURLOPT_HTTPHEADER, \@headers);
         $curl->setopt(CURLOPT_MAXREDIRS, 2);
-        $curl->setopt(CURLOPT_TIMEOUT, 10);
+        $curl->setopt(CURLOPT_TIMEOUT, 5);
         $curl->setopt(CURLOPT_URL, $uri);
         $curl->setopt(CURLOPT_VERBOSE, TRUE);
 
@@ -102,7 +102,7 @@ class Util::Curl
         $curl->setopt(CURLOPT_HEADER, 0);
         $curl->setopt(CURLOPT_HTTPHEADER, \@headers);
         $curl->setopt(CURLOPT_MAXREDIRS, 2);
-        $curl->setopt(CURLOPT_TIMEOUT, 10);
+        $curl->setopt(CURLOPT_TIMEOUT, 5);
         $curl->setopt(CURLOPT_URL, $uri);
         $curl->setopt(CURLOPT_VERBOSE, TRUE);
         $curl->setopt(CURLOPT_WRITEDATA, $fh);
@@ -162,7 +162,7 @@ class Util::Curl
         }
         
         my $curl = WWW::Curl::Easy->new;
-        $curl->setopt(CURLOPT_USERAGENT, 'Mozilla/5.0 (X11; Linux x86_64; rv:22.0) Gecko/20100101 Firefox/22.0');
+        $curl->setopt(CURLOPT_USERAGENT, USERAGENT);
         $curl->setopt(CURLOPT_URL, $uri);
 
         if (ref $postdata eq 'HASH')
