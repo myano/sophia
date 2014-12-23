@@ -43,7 +43,7 @@ class Protocol::IRC::Event::Public with Protocol::IRC::Event
 
     # determins if sender is identified
     # to NickServ and IRC services
-    has 'isNickSerAuth' => (
+    has 'isNickServAuth' => (
         default         => FALSE,
         is              => 'rw',
         isa             => 'Bool',
