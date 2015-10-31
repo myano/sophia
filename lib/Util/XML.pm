@@ -22,7 +22,8 @@ class Util::XML
 
     method parse_by_url ($url)
     {
-        my $result = Util::Curl->get($url);
+        my $curl_data = Util::Curl->get($url);
+        my $result = $curl_data->{content};
         $self->parse_by_string($result);
     }
 

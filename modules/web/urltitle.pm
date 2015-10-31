@@ -4,6 +4,7 @@ use Method::Signatures::Modifiers;
 class web::urltitle with API::Module
 {
     use Constants;
+    use Encode qw(decode);
     use HTML::Entities;
     use Util::Curl;
 
@@ -37,7 +38,7 @@ class web::urltitle with API::Module
         my $content = $event->content;
         my $count = 1;
 
-        WHILE: while ($content =~ m/\b(https?:\/\/[^ ]+)\b/xsmig)
+        WHILE: while ($content =~ m/\b((?<!!)https?:\/\/[^ ]+)\b/xsmig)
         {
             my $url = $1;
             my $title = $self->urltitle($url);
@@ -80,7 +81,8 @@ class web::urltitle with API::Module
 
     method urltitle ($url)
     {
-        my $response = Util::Curl->get($url);
+        my $curl_data = Util::Curl->get($url);
+        my $response = $curl_data->{content};
         return unless $response;
 
         if ($response =~ m#<title[^>]*>(.+?)</title>#xsmi)
@@ -90,8 +92,12 @@ class web::urltitle with API::Module
             $title =~ s/^\s+//g;
             $title =~ s/\s{2,}/ /g;
 
-            $title = '&laquo; ' . $title . ' &raquo;';
-            $title = HTML::Entities::decode($title);
+            $title = decode($curl_data->{charset}, $title, Encode::FB_QUIET);
+
+            my $laquo = HTML::Entities::decode('&laquo;');
+            my $raquo = HTML::Entities::decode('&raquo;');
+
+            $title = sprintf('%s %s %s', $laquo, $title, $raquo);
 
             return $title;
         }

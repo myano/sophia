@@ -7,6 +7,7 @@ class Util::Curl
 
     use API::Log qw(:ALL);
     use Constants;
+    use Encode qw(find_encoding);
     use IO::Uncompress::Gunzip qw(gunzip $GunzipError);
     use WWW::Curl::Easy;
 
@@ -18,7 +19,7 @@ class Util::Curl
 
     method get ($uri)
     {
-        return unless $uri =~ /\Ahttps?:\/\/(www\.)?([^ \/]+)[^ ]*\z/;
+        return unless $uri =~ /\Ahttps?:\/\/((?:www\.)?[^ \/]+)[^ ]*\z/;
 
         my @headers = (
             'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
@@ -26,7 +27,7 @@ class Util::Curl
             'Accept-Language: en-US,en;q=0.8,zh;q=0.6,zh-CN;q=0.4,zh-TW;q=0.2,fr;q=0.2,fr-FR;q=0.2,ja;q=0.2,es;q=0.2',
             'Connection: keep-alive',
             'DNT: 1',
-            'Host: ' . $2,
+            'Host: ' . $1,
             'User-Agent: ' . USERAGENT,
         );
 
@@ -50,9 +51,24 @@ class Util::Curl
         my $retcode = $curl->perform;
         if ($retcode == 0)
         {
+            my $encoding = 'UTF-8';
+            my $content_type = $curl->getinfo(CURLINFO_CONTENT_TYPE);
+            if ($content_type && $content_type =~ /charset=([^ ]+)/i)
+            {
+                my $charset = $1;
+
+                if (find_encoding($charset))
+                {
+                    $encoding = $charset;
+                }
+            }
+
             my $gresponse;
             gunzip \$response => \$gresponse;
-            return $gresponse;
+            return +{
+                charset     => $encoding,
+                content     => $gresponse,
+            };
         }
 
         _log('sophia', sprintf('[Util::Curl::get] An error occured. retcode: %s. Error: %s %s', $retcode, $curl->strerror($retcode), $curl->errbuf));
@@ -62,7 +78,7 @@ class Util::Curl
 
     method download ($uri, $path, $gpath = '')
     {
-        return unless $uri =~ /\Ahttps?:\/\/(www\.)?([^ \/]+)[^ ]*\z/;
+        return unless $uri =~ /\Ahttps?:\/\/((?:www\.)?[^ \/]+)[^ ]*\z/;
 
         my @headers = (
             'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
@@ -70,7 +86,7 @@ class Util::Curl
             'Accept-Language: en-US,en;q=0.8,zh;q=0.6,zh-CN;q=0.4,zh-TW;q=0.2,fr;q=0.2,fr-FR;q=0.2,ja;q=0.2,es;q=0.2',
             'Connection: keep-alive',
             'DNT: 1',
-            'Host: ' . $2,
+            'Host: ' . $1,
             'User-Agent: ' . USERAGENT,
         );
 
@@ -96,9 +112,15 @@ class Util::Curl
 
         if ($retcode == 0)
         {
-            if ($gpath)
+            if ($gpath && $gpath ne $path)
             {
                 gunzip $path => $gpath or _log('sophia', sprintf('[Util::Curl::download] Unable to decompress gzip file: %s', $GunzipError));
+            }
+            else
+            {
+                my $tmp_path = sprintf('/tmp/%d', time);
+                gunzip $path => $tmp_path or _log('sophia', sprintf('[Util::Curl::download] Unable to decompress gzip file: %s', $GunzipError));
+                rename $tmp_path, $path;
             }
 
             return 1;
@@ -140,7 +162,7 @@ class Util::Curl
         }
         
         my $curl = WWW::Curl::Easy->new;
-        $curl->setopt(CURLOPT_USERAGENT, 'Mozilla/5.0 (X11; Linux x86_64; rv:22.0) Gecko/20100101 Firefox/22.0');
+        $curl->setopt(CURLOPT_USERAGENT, USERAGENT);
         $curl->setopt(CURLOPT_URL, $uri);
 
         if (ref $postdata eq 'HASH')
@@ -163,7 +185,7 @@ class Util::Curl
         }
 
         $curl->setopt(CURLOPT_CONNECTTIMEOUT, 7);
-        $curl->setopt(CURLOPT_TIMEOUT, 5);
+        $curl->setopt(CURLOPT_TIMEOUT, 10);
         $curl->setopt(CURLOPT_POSTFIELDS, $data);
         $curl->setopt(CURLOPT_VERBOSE, TRUE);
 

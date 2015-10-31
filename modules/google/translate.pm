@@ -91,7 +91,8 @@ class google::translate with API::Module
             $request_url .= '&source=' . uri_escape($query->{source});
         }
 
-        my $response = Util::Curl->get($request_url);
+        my $curl_data = Util::Curl->get($request_url);
+        my $response = $curl_data->{content};
         return  unless $response;
 
         my $idx = index($response, '"translatedText": "', 0);

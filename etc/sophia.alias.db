@@ -2,6 +2,7 @@ join        core::join
 listchannels core::listchannels
 module      core::module
 notice      core::notice
+oper        core::oper
 part        core::part
 privmsg     core::privmsg
 rehash      core::rehash

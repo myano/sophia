@@ -9,7 +9,6 @@ class Protocol::IRC::Session
     use Constants;
     use Protocol::IRC;
     use Protocol::IRC::Response;
-    use Try::Tiny;
     use Util::String;
 
     has 'channels'  => (
